@@ -47,9 +47,9 @@ class BoosterBox:
 
         # Parameters for engine
         density = 1.0
-        height = 0.3
-        width_min = 0.2
-        width_max = 0.5
+        height = 0.4
+        width_min = 0.1
+        width_max = 0.3
 
         def __init__(self, body: b2Body, box) -> None:
             """Initializes engines class."""
@@ -99,6 +99,7 @@ class BoosterBox:
         """Initializes the wheel class."""
 
         self.config = config
+        self.max_force = self.config.env.box.engine.max_force
         self.diam = self.config.env.box.diam
         self.density = self.config.env.box.density
         self.friction = self.config.env.box.friction
@@ -136,6 +137,8 @@ class BoosterBox:
             body=self.body,
             box=self
         )
+        
+        self.force = None
 
     def get_vertices(self) -> list:
         """Creates base vertices for wheel."""
@@ -202,3 +205,34 @@ class BoosterBox:
             filter=b2Filter(groupIndex=-1),
         )
         self.fixture = self.body.CreateFixture(fixture_def)
+
+    def apply_action(self, force_from_nn: tuple = (0.0, 0.0, 0.0, 0.0)):
+            """Applies force to BoosterBox coming from neural network.
+
+            Args:
+                apply_force: Tuple of force predicted by network and to be applied to BoosterBox.
+
+            """
+            self.force = [random.uniform(0, 1) * self.max_force for _ in range(4)]  # some random data
+
+            f_left, f_right, f_up, f_down = self.force
+
+            # Left
+            f = self.body.GetWorldVector(localVector=b2Vec2(f_left, 0.0))
+            p = self.body.GetWorldPoint(localPoint=b2Vec2(-0.5 * self.diam, 0.0))    
+            self.body.ApplyForce(f, p, True)
+
+            # Right
+            f = self.body.GetWorldVector(localVector=b2Vec2(-f_right, 0.0))
+            p = self.body.GetWorldPoint(localPoint=b2Vec2(0.5 * self.diam, 0.0))    
+            self.body.ApplyForce(f, p, True)
+
+            # Up
+            f = self.body.GetWorldVector(localVector=b2Vec2(0.0, -f_up))
+            p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))    
+            self.body.ApplyForce(f, p, True)
+
+            # Down
+            f = self.body.GetWorldVector(localVector=b2Vec2(0.0, f_down))
+            p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))    
+            self.body.ApplyForce(f, p, True)

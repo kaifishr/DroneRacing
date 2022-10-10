@@ -5,6 +5,8 @@ import random
 
 import numpy as np
 
+from Box2D.Box2D import b2Vec2, b2Color
+
 if DEBUG:
     from Box2D.examples.framework import Framework
 else:
@@ -81,9 +83,57 @@ class Optimizer(Framework):
         for box in self.boxes:
             box.mutate(vertices)
 
+    def apply_action(self) -> None:
+        """Applies action to all boxes."""
+        for box in self.boxes:
+            box.apply_action()
+
+    def _render_force(self):
+        """Displays force applied to BoosterBox.
+
+        Purely cosmetic but helps with debugging. Arrows point towards
+        direction the force is coming from.
+        """
+        alpha = self.config.renderer.scale_force  # Scaling factor
+        self.line_color = (0, 1, 0)
+
+        for box in self.boxes:
+            
+            f_left, f_right, f_up, f_down = box.force
+
+            # Left
+            local_point_left = b2Vec2(-0.5 * box.diam, 0.0)
+            force_direction = (-alpha * f_left, 0.0)
+            p1 = box.body.GetWorldPoint(localPoint=local_point_left)
+            p2 = p1 + box.body.GetWorldVector(force_direction)
+            self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), b2Color(*self.line_color))
+
+            # Right
+            local_point_right = b2Vec2(0.5 * box.diam, 0.0)
+            force_direction = (alpha * f_right, 0.0)
+            p1 = box.body.GetWorldPoint(localPoint=local_point_right)
+            p2 = p1 + box.body.GetWorldVector(force_direction)
+            self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), b2Color(*self.line_color))
+
+            # Up
+            local_point_up = b2Vec2(0.0, 0.5 * box.diam)
+            force_direction = (0.0, alpha * f_up)
+            p1 = box.body.GetWorldPoint(localPoint=local_point_up)
+            p2 = p1 + box.body.GetWorldVector(force_direction)
+            self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), b2Color(*self.line_color))
+            
+            # Down
+            local_point_down = b2Vec2(0.0, -0.5 * box.diam)
+            force_direction = (0.0, -alpha * f_down)
+            p1 = box.body.GetWorldPoint(localPoint=local_point_down)
+            p2 = p1 + box.body.GetWorldVector(force_direction)
+            self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), b2Color(*self.line_color))
+
     def _step(self) -> None:
         """Performs single optimization step."""
         t_0 = time.time()
+
+        self.apply_action()
 
         if not self.is_awake() or (self.iteration + 1) % self.n_max_iterations == 0:
             idx_best, max_score = self.comp_fitness()
@@ -103,6 +153,7 @@ class Optimizer(Framework):
     def Step(self, settings):
         super(Optimizer, self).Step(settings)
         self._step()
+        self._render_force()
 
     def run(self) -> None:
         if DEBUG:

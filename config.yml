@@ -24,11 +24,11 @@ env:
     density: 1.0
     friction: 0.0
     init_position: 
-      x: 0.0                       # [m]
-      y: 0.0                      # [m]
+      x: .0                       # [m]
+      y: .0                      # [m]
     init_linear_velocity: 
-      x: 1.0                       # [m / s]
-      y: 2.0                     # [m / s]
+      x: .0                       # [m / s]
+      y: .0                     # [m / s]
     init_angular_velocity: 0.0            # [rad / s]
     init_angle: 0.0                   # deg 
     noise: 
@@ -40,3 +40,7 @@ env:
         y: .0                        # Standard deviation [m / s]
       angular_velocity: 0.0             # Standard deviation [rad / s]
       angle: 0.0                      # Standard deviation [deg]
+    engine:
+      max_force: 4.0
+renderer:
+  scale_force: 1.0

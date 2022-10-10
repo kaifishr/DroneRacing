@@ -1,6 +1,6 @@
 # BoosterBox
 
-Making distance without interfering with the environment.
+The goal of BoosterBox is to cover as much distance as possible without colliding with any wall.
 
 # Method
 
@@ -20,6 +20,8 @@ Making distance without interfering with the environment.
 
 # TODO:
 - Add some text to readme.
+- Add ray tracing
+    - Begin first tests without ray tracing. Just compute distances to walls.
 
 # License
 
