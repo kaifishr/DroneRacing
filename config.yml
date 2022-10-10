@@ -1,0 +1,42 @@
+seed: 0
+optimizer:
+  n_agents: 4
+  n_max_iterations: 2000
+  mutation_probability: 0.0
+  mutation_rate: 0.16
+env: 
+  gravity: 
+    # [m / s^2]
+    x: 0.0
+    # [m / s^2]
+    y: 0.0
+  domain:
+    # [m]
+    x_min: -10.0
+    # [m]
+    x_max: 10.0
+    # [m]
+    y_min: -10.0
+    # [m]
+    y_max: 10.0
+  box:
+    diam: 1.0
+    density: 1.0
+    friction: 0.0
+    init_position: 
+      x: 0.0                       # [m]
+      y: 0.0                      # [m]
+    init_linear_velocity: 
+      x: 1.0                       # [m / s]
+      y: 2.0                     # [m / s]
+    init_angular_velocity: 0.0            # [rad / s]
+    init_angle: 0.0                   # deg 
+    noise: 
+      position: 
+        x: .0                       # Standard deviation [m]
+        y: .0                       # Standard deviation [m]
+      linear_velocity: 
+        x: .0                        # Standard deviation [m / s]
+        y: .0                        # Standard deviation [m / s]
+      angular_velocity: 0.0             # Standard deviation [rad / s]
+      angle: 0.0                      # Standard deviation [deg]
