@@ -206,16 +206,27 @@ class BoosterBox:
         )
         self.fixture = self.body.CreateFixture(fixture_def)
 
-    def apply_action(self, force_from_nn: tuple = (0.0, 0.0, 0.0, 0.0)):
+    def apply_action(self, force_from_nn: tuple = (0.0, 0.0, 0.0, 0.0)) -> None:
             """Applies force to BoosterBox coming from neural network.
+
+            Pretty verbose, however, b2Vec2 does not offer much functionality.
+
+            Each engine is controlled individually.
 
             Args:
                 apply_force: Tuple of force predicted by network and to be applied to BoosterBox.
 
-            """
-            self.force = [random.uniform(0, 1) * self.max_force for _ in range(4)]  # some random data
+            Shorter but less readable solution:
+                position = [b2Vec2(1, 0), b2Vec2(-1, 0), b2Vec2(0, -1), b2Vec2(0, 1)]
 
-            f_left, f_right, f_up, f_down = self.force
+                for force, pos in zip(self.forces, position):
+                    f = self.body.GetWorldVector(localVector=force * pos)
+                    p = self.body.GetWorldPoint(localPoint=-0.5 * self.diam * pos)    
+                    self.body.ApplyForce(f, p, True)
+            """
+            self.forces = [random.uniform(0, 1) * self.max_force for _ in range(4)]  # some random data
+
+            f_left, f_right, f_up, f_down = self.forces
 
             # Left
             f = self.body.GetWorldVector(localVector=b2Vec2(f_left, 0.0))

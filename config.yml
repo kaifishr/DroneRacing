@@ -41,6 +41,6 @@ env:
       angular_velocity: 0.0             # Standard deviation [rad / s]
       angle: 0.0                      # Standard deviation [deg]
     engine:
-      max_force: 4.0
+      max_force: 7.0
 renderer:
   scale_force: 1.0

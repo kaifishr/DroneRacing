@@ -1,11 +1,14 @@
 DEBUG = True
 
+import pygame
+
+import math
 import time
 import random
 
 import numpy as np
 
-from Box2D.Box2D import b2Vec2, b2Color
+from Box2D.Box2D import b2Vec2, b2Color, b2RayCastCallback
 
 if DEBUG:
     from Box2D.examples.framework import Framework
@@ -18,11 +21,36 @@ from src.config import Config
 from src.body import Domain, BoosterBox 
 
 
+class RayCastCallback(b2RayCastCallback):
+    """Callback detects closest hit.
+
+    See also this example for more information about ray casting in PyBox2D:
+    https://github.com/pybox2d/pybox2d/blob/master/library/Box2D/examples/raycast.py
+    
+    """
+    def __init__(self, **kwargs) -> None:
+        b2RayCastCallback.__init__(self, **kwargs)
+        self.fixture = None
+        self.hit = False
+
+    def ReportFixture(self, fixture, point, normal, fraction) -> float:
+        """Reports hit fixture.
+        """
+        self.hit = True
+        self.fixture = fixture          # Fixture of the hit body. Interesting for multi-agent environments.
+        self.point = b2Vec2(point)      # Point of contact of body.
+        self.normal = b2Vec2(normal)    # Normal vector at point of contact. Perpendicular to body surface.
+        return fraction
+
+
 class Optimizer(Framework):
     """Optimizer class for BoxScout"""
 
     name = "BoosterBox"
     description = "Simple learning environment."
+
+    color_raycast_line = b2Color(0, 0, 1)
+    color_raycast_head = b2Color(1, 0, 1)
 
     def __init__(self, config: Config):
         super().__init__()
@@ -40,6 +68,8 @@ class Optimizer(Framework):
         self.writer = SummaryWriter()
         self.iteration = 0
         self.generation = 0
+
+        self.callback = RayCastCallback
 
     def reset(self) -> None:
         """Resets all wheels to initial parameter."""
@@ -95,11 +125,11 @@ class Optimizer(Framework):
         direction the force is coming from.
         """
         alpha = self.config.renderer.scale_force  # Scaling factor
-        self.line_color = (0, 1, 0)
+        self.line_color = (1, 0, 0)
 
         for box in self.boxes:
             
-            f_left, f_right, f_up, f_down = box.force
+            f_left, f_right, f_up, f_down = box.forces
 
             # Left
             local_point_left = b2Vec2(-0.5 * box.diam, 0.0)
@@ -150,10 +180,38 @@ class Optimizer(Framework):
 
         self.iteration += 1
 
+    def render_raycast(self, p1, p2, callback):
+        """Add to renderer."""
+        p1 = self.renderer.to_screen(p1)
+        p2 = self.renderer.to_screen(p2)
+        if callback.hit:
+            print("Hit:", callback.point)
+            cb_point = callback.point
+            cb_point = self.renderer.to_screen(cb_point)
+            self.renderer.DrawPoint(cb_point, 10.0, self.color_raycast_head)
+            self.renderer.DrawSegment(p1, cb_point, self.color_raycast_line)
+        else:
+            print("No hit.")
+            self.renderer.DrawSegment(p1, p2, self.color_raycast_line)
+
     def Step(self, settings):
         super(Optimizer, self).Step(settings)
         self._step()
         self._render_force()
+
+        ###########
+        # Raycast #
+        ###########
+
+        # Set up the raycast line
+        ray_length = 7      # Determines how far we can see.
+        points = [b2Vec2(0, ray_length), b2Vec2(-ray_length, 0), b2Vec2(0, -ray_length), b2Vec2(ray_length, 0)]
+
+        for p2 in points:
+            p1 = b2Vec2(0, 0)
+            callback = self.callback()
+            self.world.RayCast(callback, p1, p2)
+            self.render_raycast(p1, p2, callback)
 
     def run(self) -> None:
         if DEBUG:
