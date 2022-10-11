@@ -1,7 +1,8 @@
+import copy
 import math
 import random
 
-from Box2D import b2EdgeShape, b2FixtureDef, b2PolygonShape
+from Box2D import b2EdgeShape, b2FixtureDef, b2PolygonShape, b2RayCastCallback
 from Box2D.Box2D import b2World, b2Vec2, b2Filter, b2Body
 
 from src.config import Config
@@ -26,6 +27,30 @@ class Domain:
                 b2EdgeShape(vertices=[(x_max, y_min), (x_max, y_max)]),
             ]
         )
+
+
+class RayCastCallback(b2RayCastCallback):
+    """Callback detects closest hit.
+
+    See also this example for more information about ray casting in PyBox2D:
+    https://github.com/pybox2d/pybox2d/blob/master/library/Box2D/examples/raycast.py
+    
+    """
+    def __init__(self, **kwargs) -> None:
+        b2RayCastCallback.__init__(self, **kwargs)
+        self.fixture = None
+        self.hit = False
+
+    def ReportFixture(self, fixture, point, normal, fraction) -> float:
+        """Reports hit fixture.
+        """
+        if fixture.filterData.groupIndex == -1: # Ignore engines.
+            return 1.0
+        self.hit = True
+        self.fixture = fixture          # Fixture of the hit body. Interesting for multi-agent environments.
+        self.point = b2Vec2(point)      # Point of contact of body.
+        self.normal = b2Vec2(normal)    # Normal vector at point of contact. Perpendicular to body surface.
+        return fraction
 
 
 class BoosterBox:
@@ -90,6 +115,7 @@ class BoosterBox:
                 engine_fixture_def = b2FixtureDef(
                     shape=engine_polygon, 
                     density=self.density,
+                    # friction=self.friction,
                     filter=b2Filter(groupIndex=-1),  # negative groups never collide
                 )
 
@@ -98,7 +124,10 @@ class BoosterBox:
     def __init__(self, world: b2World, config: Config):
         """Initializes the wheel class."""
 
+        self.world = world
         self.config = config
+
+        self.ray_length = self.config.env.box.ray_length
         self.max_force = self.config.env.box.engine.max_force
         self.diam = self.config.env.box.diam
         self.density = self.config.env.box.density
@@ -137,6 +166,22 @@ class BoosterBox:
             body=self.body,
             box=self
         )
+
+        self.callback = RayCastCallback
+
+        # Ray casting points
+        # self.points = [
+        #     b2Vec2(0, self.ray_length), 
+        #     b2Vec2(-self.ray_length, 0), 
+        #     b2Vec2(0, -self.ray_length), 
+        #     b2Vec2(self.ray_length, 0)
+        # ]
+        self.points = [
+            b2Vec2(self.ray_length, self.ray_length), 
+            b2Vec2(-self.ray_length, self.ray_length), 
+            b2Vec2(-self.ray_length, -self.ray_length), 
+            b2Vec2(self.ray_length, -self.ray_length)
+        ]
         
         self.force = None
 
@@ -247,3 +292,20 @@ class BoosterBox:
             f = self.body.GetWorldVector(localVector=b2Vec2(0.0, f_down))
             p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))    
             self.body.ApplyForce(f, p, True)
+
+    def ray_casting(self):
+        """"""
+        cb_ = []
+        p1_ = []
+        p2_ = []
+
+        for point in self.points:
+            p1 = self.body.position
+            p2 = p1 + self.body.GetWorldVector(localVector=point)
+            callback = self.callback()
+            self.world.RayCast(callback, p1, p2)
+            cb_.append(copy.copy(callback))
+            p1_.append(copy.copy(p1))
+            p2_.append(copy.copy(p2))
+
+        return p1_, p2_, cb_
