@@ -1,7 +1,7 @@
 seed: 0
 optimizer:
-  n_agents: 1
-  n_max_iterations: 1000
+  n_agents: 4
+  n_max_iterations: 100
   mutation_probability: 0.0
   mutation_rate: 0.16
 env: 
@@ -12,13 +12,13 @@ env:
     y: 0.0
   domain:
     # [m]
-    x_min: -10.0
+    x_min: -15.0
     # [m]
-    x_max: 10.0
+    x_max: 15.0
     # [m]
-    y_min: -10.0
+    y_min: -15.0
     # [m]
-    y_max: 10.0
+    y_max: 15.0
   box:
     diam: 1.0
     density: 1.0
@@ -34,8 +34,8 @@ env:
     ray_length: 8
     noise: 
       position: 
-        x: .0                       # Standard deviation [m]
-        y: .0                       # Standard deviation [m]
+        x: 0.001                       # Standard deviation [m]
+        y: 0.001                       # Standard deviation [m]
       linear_velocity: 
         x: .0                        # Standard deviation [m / s]
         y: .0                        # Standard deviation [m / s]
@@ -46,7 +46,7 @@ env:
     neural_network:
       n_dim_in: 8      # x- and y-coordinates of detected obstacles.
       n_dim_out: 4     # Actions for four engines.
-      n_dim_hidden: 32  # Hidden dimensions.
+      n_dim_hidden: 4  # Hidden dimensions.
       n_hidden: 2   # Hidden layer.
 
 renderer:

@@ -42,6 +42,9 @@ class NeuralNetwork(nn.Module):
         """Initializes NeuralNetwork class."""
         super().__init__()
 
+        self.mutation_prob = self.config.optimizer.mutation_probability
+        self.mutation_rate = self.config.optimizer.mutation_rate
+
         cfg = config.env.box.neural_network
 
         in_features = cfg.n_dim_in
@@ -58,6 +61,21 @@ class NeuralNetwork(nn.Module):
             torch.nn.init.xavier_uniform_(module.weight, gain=1.0)
             if module.bias is not None:
                 torch.nn.init.zeros_(module.bias)
+
+    @torch.no_grad()
+    def _mutate_weights(self, module: nn.Module) -> None:
+        if isinstance(module, nn.Linear):
+            mask = torch.rand_like(module.weight) < self.mutation_prob
+            mutation = self.mutation_rate * torch.randn_like(module.weight)
+            module.weight.add_(mask * mutation)
+            if module.bias is not None:
+                mask = torch.rand_like(module.bias) < self.mutation_prob
+                mutation = self.mutation_rate * torch.randn_like(module.bias)
+                module.bias.add_(mask * mutation)
+
+    def mutate_weights(self) -> None:
+        """Mutates the network's weights."""
+        self.apply(self._mutate_weights)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = torch.flatten(x, start_dim=0)
@@ -245,35 +263,14 @@ class Flyer:
         self.distance = 0.0
         self.position_old = None
 
-    def mutate(self, vertices: list) -> None:
-        """Mutates wheel's vertices.
+    def mutate(self, model: nn.Module) -> None:
+        """Mutates flyers model."""
 
-        TODO: Move to optimizer class.
-        """
-        self.body.DestroyFixture(self.fixture)
+        # Copy weights
+        self.model = copy.deepcopy(model)
 
-        p = self.config.optimizer.mutation_probability
-        rho = self.config.optimizer.mutation_rate
-
-        def _mutate(x: float) -> float:
-            return x + (random.random() < p) * random.gauss(0, rho)
-
-        def _clip(x: float) -> float:
-            return min(x, 0.5 * self.diam)
-
-        # Mutate vertices
-        self.vertices = [(_mutate(x), _mutate(y)) for (x, y) in vertices]
-
-        # Keep wheels from getting too big
-        self.vertices = [(_clip(x), _clip(y)) for (x, y) in self.vertices]
-
-        fixture_def = b2FixtureDef(
-            shape=b2PolygonShape(vertices=self.vertices),
-            density=self.density,
-            friction=self.friction,
-            filter=b2Filter(groupIndex=-1),
-        )
-        self.fixture = self.body.CreateFixture(fixture_def)
+        # Mutate weights
+        self.model.mutate_weights()
 
     def ray_casting(self):
         """"""

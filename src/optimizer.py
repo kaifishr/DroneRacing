@@ -62,11 +62,11 @@ class Optimizer(Framework):
 
     def mutate(self, idx_best: int) -> None:
         """Mutates vertices of box."""
-        # Get vertices of best box:
-        vertices = self.boxes[idx_best].vertices
-        # Pass best vertices to all box 
+        # Get network of best fitest flyer
+        model = self.boxes[idx_best].model
+        # Pass best model to other flyers and mutate weights 
         for box in self.boxes:
-            box.mutate(vertices)
+            box.mutate(model)
 
     def apply_action(self) -> None:
         """Applies action to all boxes."""
@@ -145,14 +145,15 @@ class Optimizer(Framework):
 
         # Method that run at end of simulation 
         if not self.is_awake() or (self.iteration + 1) % self.n_max_iterations == 0:
+
+            # Get index of agent who traveled the farthest
             idx_best, distance = self.get_distance()
-            # self.mutate(idx_best)
+
+            self.mutate(idx_best)
             self.reset()
 
             self.writer.add_scalar("Distance", distance, self.generation)
-            self.writer.add_scalar(
-                "Time_Generation", time.time() - t_0, self.generation
-            )
+            self.writer.add_scalar("Time_Generation", time.time() - t_0, self.generation)
 
             self.iteration = 0
             self.generation += 1

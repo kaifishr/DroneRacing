@@ -19,7 +19,8 @@ The goal of Flyer is to cover as much distance as possible without colliding wit
 - Add graph showing score.
 
 # TODO:
-- Feed actions from network to engines
+- Copy best network to other agents
+- Add simple mutation of neural network
 - Use Environment() / Flyer() / Optimizer()
 
 # License
