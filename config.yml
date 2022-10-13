@@ -1,6 +1,6 @@
 seed: 0
 optimizer:
-  n_agents: 16
+  n_agents: 1
   n_max_iterations: 2000
   mutation_probability: 0.1
   mutation_rate: 0.01
@@ -31,7 +31,7 @@ env:
       y: .0                     # [m / s]
     init_angular_velocity: 0.0            # [rad / s]
     init_angle: 0.0                   # deg 
-    ray_length: 8
+    ray_length: 60
     noise: 
       position: 
         x: 0.001                       # Standard deviation [m]

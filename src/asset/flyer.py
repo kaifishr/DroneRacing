@@ -181,6 +181,7 @@ class Flyer:
             linearVelocity=self.init_linear_velocity,
             angularVelocity=self.init_angular_velocity,
             angle=self.init_angle,
+            fixedRotation=True
         )
 
         self.vertices = [(self.diam * x, self.diam * y) for (x, y) in self._vertices]
@@ -213,6 +214,9 @@ class Flyer:
             b2Vec2(-self.ray_length, -self.ray_length), 
             b2Vec2(self.ray_length, -self.ray_length)
         ]
+
+        # Domain
+        self.domain_diam = config.env.domain.x_max - config.env.domain.x_min
         
         # Odometer
         self.distance = 0.0
@@ -294,7 +298,9 @@ class Flyer:
             else:
                 self.data.append((99.9, 99.9))
 
-        self.data = torch.tensor(self.data)
+        # Normalize data
+        self.data = torch.tensor(self.data) / (0.5 * self.domain_diam)
+        print(self.data)
         return cb_, p1_, p2_
 
     def odometer(self) -> float:
