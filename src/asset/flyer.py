@@ -52,13 +52,14 @@ class NeuralNetwork(nn.Module):
         hidden_features = cfg.n_dim_hidden
 
         self.linear1 = nn.Linear(in_features=in_features, out_features=hidden_features)
-        self.linear2 = nn.Linear(in_features=hidden_features, out_features=out_features)
+        self.linear2 = nn.Linear(in_features=hidden_features, out_features=hidden_features)
+        self.linear3 = nn.Linear(in_features=hidden_features, out_features=out_features)
 
         self.apply(self._init_weights)
 
     def _init_weights(self, module):
         if isinstance(module, nn.Linear):
-            torch.nn.init.xavier_uniform_(module.weight, gain=1.0)
+            torch.nn.init.xavier_uniform_(module.weight, gain=5.0/3.0)
             if module.bias is not None:
                 torch.nn.init.zeros_(module.bias)
 
@@ -79,9 +80,9 @@ class NeuralNetwork(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = torch.flatten(x, start_dim=0)
-        x = self.linear1(x)
-        x = self.linear2(x)
-        return torch.sigmoid(x)
+        x = torch.tanh(self.linear1(x))
+        x = torch.tanh(self.linear2(x))
+        return torch.sigmoid(self.linear3(x))
 
 
 class Flyer:
@@ -300,7 +301,7 @@ class Flyer:
 
         # Normalize data
         self.data = torch.tensor(self.data) / (0.5 * self.domain_diam)
-        print(self.data)
+
         return cb_, p1_, p2_
 
     def odometer(self) -> float:

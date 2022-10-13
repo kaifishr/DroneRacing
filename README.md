@@ -19,6 +19,9 @@ The goal of Flyer is to cover as much distance as possible without colliding wit
 - Add graph showing score.
 
 # TODO:
+- Refactor code
+- Consider contact to domain wall in score
+- Add faster rendering
 - Use Environment() / Flyer() / Optimizer()
 
 # License
