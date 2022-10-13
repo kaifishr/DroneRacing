@@ -1,7 +1,7 @@
 seed: 0
 optimizer:
-  n_agents: 2
-  n_max_iterations: 2000
+  n_agents: 1
+  n_max_iterations: 1000
   mutation_probability: 0.0
   mutation_rate: 0.16
 env: 
@@ -42,6 +42,12 @@ env:
       angular_velocity: 0.0             # Standard deviation [rad / s]
       angle: 0.0                      # Standard deviation [deg]
     engine:
-      max_force: 7.0
+      max_force: 2.0
+    neural_network:
+      n_dim_in: 8      # x- and y-coordinates of detected obstacles.
+      n_dim_out: 4     # Actions for four engines.
+      n_dim_hidden: 32  # Hidden dimensions.
+      n_hidden: 2   # Hidden layer.
+
 renderer:
   scale_force: 1.0

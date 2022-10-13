@@ -14,13 +14,13 @@ else:
 from torch.utils.tensorboard import SummaryWriter
 
 from src.config import Config
-from src.body import Domain, BoosterBox 
+from src.asset import Domain, Flyer
 
 
 class Optimizer(Framework):
-    """Optimizer class for BoxScout"""
+    """Optimizer class for Flyer"""
 
-    name = "BoosterBox"
+    name = "Flyer"
     description = "Simple learning environment."
 
     color_raycast_line = b2Color(0, 0, 1)
@@ -35,7 +35,7 @@ class Optimizer(Framework):
 
         self.world.gravity = (self.config.env.gravity.x, self.config.env.gravity.y)
         self.boxes = [
-            BoosterBox(world=self.world, config=self.config) for _ in range(n_agents)
+            Flyer(world=self.world, config=self.config) for _ in range(n_agents)
         ]
         self.domain = Domain(world=self.world, config=self.config)
 
@@ -43,29 +43,10 @@ class Optimizer(Framework):
         self.iteration = 0
         self.generation = 0
 
-        # self.callback = RayCastCallback
-
     def reset(self) -> None:
         """Resets all wheels to initial parameter."""
         for box in self.boxes:
-            box.reset()
-
-    def comp_fitness(self) -> float:
-        """Computes maximum fitness of box.
-
-        The fitness is determined by the vertical
-        distance traveled by the box.
-
-        This method is called after box have stoped
-        moving or if maximum number of iterations is
-        reached.
-
-        Returns:
-            List holding fitness scores.
-        """
-        scores = [box.body.position.x for box in self.boxes]
-        idx_best = np.argmax(scores)
-        return idx_best, scores[idx_best]
+            box.reset()     # todo: Reset distance traveled
 
     def is_awake(self) -> bool:
         """Checks if box in simulation are awake.
@@ -93,7 +74,7 @@ class Optimizer(Framework):
             box.apply_action()
 
     def _render_force(self):
-        """Displays force applied to BoosterBox.
+        """Displays force applied to Flyer.
 
         Purely cosmetic but helps with debugging. Arrows point towards
         direction the force is coming from.
@@ -133,18 +114,42 @@ class Optimizer(Framework):
             p2 = p1 + box.body.GetWorldVector(force_direction)
             self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), b2Color(*self.line_color))
 
+    def run_odometer(self) -> None:
+        """Computes distances traveled by Flyer."""
+        for box in self.boxes:
+            box.odometer()
+
+    def get_distance(self) -> None:
+        """Gets distance traveled by Flyers."""
+        distances = [box.distance for box in self.boxes]
+        idx_best = np.argmax(distances)
+        return idx_best, distances[idx_best]
+
+    def comp_action(self) -> None:
+        """Computes next set of actions.
+        
+        Next steps of action are computed by feeding obstacle data
+        to the neural network.
+        """
+        for box in self.boxes:
+            box.comp_action()
+
     def _step(self) -> None:
         """Performs single optimization step."""
         t_0 = time.time()
 
+        # Method that run every simulation step
+        self.comp_action()
         self.apply_action()
+        self.run_odometer()
 
+        # Method that run at end of simulation 
         if not self.is_awake() or (self.iteration + 1) % self.n_max_iterations == 0:
-            idx_best, max_score = self.comp_fitness()
-            self.mutate(idx_best)
+            idx_best, distance = self.get_distance()
+            # self.mutate(idx_best)
             self.reset()
 
-            self.writer.add_scalar("Score", max_score, self.generation)
+            self.writer.add_scalar("Distance", distance, self.generation)
             self.writer.add_scalar(
                 "Time_Generation", time.time() - t_0, self.generation
             )
@@ -154,46 +159,32 @@ class Optimizer(Framework):
 
         self.iteration += 1
 
-    def render_raycast_(self, p1, p2, callback):
-        """Add to renderer."""
-        p1 = self.renderer.to_screen(p1)
-        p2 = self.renderer.to_screen(p2)
-        if callback.hit:
-            print("Hit:", callback.point)
-            cb_point = callback.point
-            cb_point = self.renderer.to_screen(cb_point)
-            self.renderer.DrawPoint(cb_point, 5.0, self.color_raycast_head)
-            self.renderer.DrawSegment(p1, cb_point, self.color_raycast_line)
-        else:
-            print("No hit.")
-            self.renderer.DrawSegment(p1, p2, self.color_raycast_line)
-
-    def render_raycast(self, p1_, p2_, callback_):
-        """Add to renderer."""
-        for p1, p2, callback in zip(p1_, p2_, callback_):
+    def _render_raycast(self, cb_, p1_, p2_):
+        """TODO: Add to renderer."""
+        for p1, p2, callback in zip(p1_, p2_, cb_):
             p1 = self.renderer.to_screen(p1)
             p2 = self.renderer.to_screen(p2)
             if callback.hit:
-                print("Hit:", callback.point)
+                # print("Hit:", callback.point)
                 cb_point = callback.point
                 cb_point = self.renderer.to_screen(cb_point)
                 self.renderer.DrawPoint(cb_point, 5.0, self.color_raycast_head)
                 self.renderer.DrawSegment(p1, cb_point, self.color_raycast_line)
             else:
-                print("No hit.")
+                # print("No hit.")
                 self.renderer.DrawSegment(p1, p2, self.color_raycast_line)
 
     def _ray_casting(self) -> None:
         """"""
         for box in self.boxes:
-            callback_, p1_, p2_ = box.ray_casting()
-            self.render_raycast(callback_, p1_, p2_)
+            cb_, p1_, p2_ = box.ray_casting()
+            self._render_raycast(cb_, p1_, p2_)
 
     def Step(self, settings):
         super(Optimizer, self).Step(settings)
-        self._step()
         self._render_force()
         self._ray_casting()
+        self._step()
 
     def run(self) -> None:
         if DEBUG:

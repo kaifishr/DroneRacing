@@ -1,6 +1,6 @@
-# BoosterBox
+# Flyer
 
-The goal of BoosterBox is to cover as much distance as possible without colliding with any wall.
+The goal of Flyer is to cover as much distance as possible without colliding with any wall.
 
 # Method
 
@@ -19,9 +19,8 @@ The goal of BoosterBox is to cover as much distance as possible without collidin
 - Add graph showing score.
 
 # TODO:
-- Add some text to readme.
-- Add ray tracing
-    - Begin first tests without ray tracing. Just compute distances to walls.
+- Feed actions from network to engines
+- Use Environment() / Flyer() / Optimizer()
 
 # License
 

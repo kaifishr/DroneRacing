@@ -2,31 +2,14 @@ import copy
 import math
 import random
 
-from Box2D import b2EdgeShape, b2FixtureDef, b2PolygonShape, b2RayCastCallback
+import torch
+import torch.nn as nn
+import numpy as np
+
+from Box2D import b2FixtureDef, b2PolygonShape, b2RayCastCallback
 from Box2D.Box2D import b2World, b2Vec2, b2Filter, b2Body
 
 from src.config import Config
-
-
-class Domain:
-    """Defines domain for box to reside.
-
-    """
-
-    def __init__(self, world: b2World, config: Config):
-        """Initializes the inclined plane."""
-        cfg = config.env.domain
-        x_min, x_max = cfg.x_min, cfg.x_max
-        y_min, y_max = cfg.y_min, cfg.y_max
-
-        world.CreateStaticBody(
-            shapes=[
-                b2EdgeShape(vertices=[(x_max, y_max), (x_min, y_max)]),
-                b2EdgeShape(vertices=[(x_min, y_max), (x_min, y_min)]),
-                b2EdgeShape(vertices=[(x_min, y_min), (x_max, y_min)]),
-                b2EdgeShape(vertices=[(x_max, y_min), (x_max, y_max)]),
-            ]
-        )
 
 
 class RayCastCallback(b2RayCastCallback):
@@ -53,10 +36,40 @@ class RayCastCallback(b2RayCastCallback):
         return fraction
 
 
-class BoosterBox:
-    """BoosterBox class.
+class NeuralNetwork(nn.Module):
 
-    Creates a box with four boosters.
+    def __init__(self, config: Config) -> None:
+        """Initializes NeuralNetwork class."""
+        super().__init__()
+
+        cfg = config.env.box.neural_network
+
+        in_features = cfg.n_dim_in
+        out_features = cfg.n_dim_out
+        hidden_features = cfg.n_dim_hidden
+
+        self.linear1 = nn.Linear(in_features=in_features, out_features=hidden_features)
+        self.linear2 = nn.Linear(in_features=hidden_features, out_features=out_features)
+
+        self.apply(self._init_weights)
+
+    def _init_weights(self, module):
+        if isinstance(module, nn.Linear):
+            torch.nn.init.xavier_uniform_(module.weight, gain=1.0)
+            if module.bias is not None:
+                torch.nn.init.zeros_(module.bias)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = torch.flatten(x, start_dim=0)
+        x = self.linear1(x)
+        x = self.linear2(x)
+        return torch.sigmoid(x)
+
+
+class Flyer:
+    """Flyer class.
+
+    A flyer consists of a box with four boosters attached.
     """
 
     _vertices = [
@@ -152,7 +165,7 @@ class BoosterBox:
             angle=self.init_angle,
         )
 
-        self.vertices = self.get_vertices()
+        self.vertices = [(self.diam * x, self.diam * y) for (x, y) in self._vertices]
         self.fixture_def = b2FixtureDef(
             shape=b2PolygonShape(vertices=self.vertices),
             density=self.density,
@@ -183,11 +196,18 @@ class BoosterBox:
             b2Vec2(self.ray_length, -self.ray_length)
         ]
         
-        self.force = None
+        # Odometer
+        self.distance = 0.0
+        self.position_old = None
 
-    def get_vertices(self) -> list:
-        """Creates base vertices for wheel."""
-        return [(self.diam * x, self.diam * y) for (x, y) in self._vertices]
+        # Obstacle detection data
+        self.data = None
+
+        # Neural Network
+        self.model = NeuralNetwork(config)
+
+        # Forces predicted by neural network
+        self.forces = [0.0 for _ in range(4)]
 
     def reset(self, noise: bool = False) -> None:
         """Resets wheel to initial position and velocity."""
@@ -221,6 +241,10 @@ class BoosterBox:
         self.body.angularVelocity = init_angular_velocity
         self.body.angle = init_angle
 
+        # Reset variables for odometer
+        self.distance = 0.0
+        self.position_old = None
+
     def mutate(self, vertices: list) -> None:
         """Mutates wheel's vertices.
 
@@ -251,25 +275,52 @@ class BoosterBox:
         )
         self.fixture = self.body.CreateFixture(fixture_def)
 
-    def apply_action(self, force_from_nn: tuple = (0.0, 0.0, 0.0, 0.0)) -> None:
-            """Applies force to BoosterBox coming from neural network.
+    def ray_casting(self):
+        """"""
+        cb_ = []
+        p1_ = []
+        p2_ = []
 
-            Pretty verbose, however, b2Vec2 does not offer much functionality.
+        self.data = []
+
+        for point in self.points:       # for ray in self.rays
+            p1 = self.body.position
+            p2 = p1 + self.body.GetWorldVector(localVector=point)
+            callback = self.callback()
+            self.world.RayCast(callback, p1, p2)
+            cb_.append(copy.copy(callback))
+            p1_.append(copy.copy(p1))
+            p2_.append(copy.copy(p2))
+
+            if callback.hit:
+                self.data.append((callback.point.x, callback.point.y))
+            else:
+                self.data.append((99.9, 99.9))
+
+        self.data = torch.tensor(self.data)
+        return cb_, p1_, p2_
+
+    def odometer(self) -> float:
+        """Measures distance traveled by flyer."""
+        if self.position_old is None:
+            self.position_old = self.body.position
+        d = self.position_old - self.body.position
+        self.distance += math.sqrt(d.x**2 + d.y**2)
+        self.position_old = copy.copy(self.body.position)
+
+    def comp_action(self) -> None:
+        """Computes next section of actions applied to engines."""
+        forces = self.model(self.data)
+        forces = forces.detach().numpy()
+        self.forces = self.config.env.box.engine.max_force * forces.astype(np.float)
+
+    def apply_action(self) -> None:
+            """Applies force to Flyer coming from neural network.
 
             Each engine is controlled individually.
 
-            Args:
-                apply_force: Tuple of force predicted by network and to be applied to BoosterBox.
-
-            Shorter but less readable solution:
-                position = [b2Vec2(1, 0), b2Vec2(-1, 0), b2Vec2(0, -1), b2Vec2(0, 1)]
-
-                for force, pos in zip(self.forces, position):
-                    f = self.body.GetWorldVector(localVector=force * pos)
-                    p = self.body.GetWorldPoint(localPoint=-0.5 * self.diam * pos)    
-                    self.body.ApplyForce(f, p, True)
             """
-            self.forces = [random.uniform(0, 1) * self.max_force for _ in range(4)]  # some random data
+            # self.forces = [random.uniform(0, 1) * self.max_force for _ in range(4)]  # some random data
 
             f_left, f_right, f_up, f_down = self.forces
 
@@ -292,20 +343,3 @@ class BoosterBox:
             f = self.body.GetWorldVector(localVector=b2Vec2(0.0, f_down))
             p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))    
             self.body.ApplyForce(f, p, True)
-
-    def ray_casting(self):
-        """"""
-        cb_ = []
-        p1_ = []
-        p2_ = []
-
-        for point in self.points:
-            p1 = self.body.position
-            p2 = p1 + self.body.GetWorldVector(localVector=point)
-            callback = self.callback()
-            self.world.RayCast(callback, p1, p2)
-            cb_.append(copy.copy(callback))
-            p1_.append(copy.copy(p1))
-            p2_.append(copy.copy(p2))
-
-        return p1_, p2_, cb_
