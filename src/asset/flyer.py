@@ -42,8 +42,8 @@ class NeuralNetwork(nn.Module):
         """Initializes NeuralNetwork class."""
         super().__init__()
 
-        self.mutation_prob = self.config.optimizer.mutation_probability
-        self.mutation_rate = self.config.optimizer.mutation_rate
+        self.mutation_prob = config.optimizer.mutation_probability
+        self.mutation_rate = config.optimizer.mutation_rate
 
         cfg = config.env.box.neural_network
 
@@ -234,25 +234,25 @@ class Flyer:
         init_angular_velocity = self.init_angular_velocity
         init_angle = self.init_angle
 
-        # noise = self.config.env.wheel.noise
-        # if noise:
-        #     # Position
-        #     noise_x = random.gauss(mu=0.0, sigma=noise.position.x)
-        #     noise_y = random.gauss(mu=0.0, sigma=noise.position.y)
-        #     init_position += (noise_x, noise_y)
+        noise = self.config.env.box.noise
+        if noise:
+            # Position
+            noise_x = random.gauss(mu=0.0, sigma=noise.position.x)
+            noise_y = random.gauss(mu=0.0, sigma=noise.position.y)
+            init_position += (noise_x, noise_y)
 
-        #     # Linear velocity
-        #     noise_x = random.gauss(mu=0.0, sigma=noise.linear_velocity.x)
-        #     noise_y = random.gauss(mu=0.0, sigma=noise.linear_velocity.y)
-        #     init_linear_velocity += (noise_x, noise_y)
+            # # Linear velocity
+            # noise_x = random.gauss(mu=0.0, sigma=noise.linear_velocity.x)
+            # noise_y = random.gauss(mu=0.0, sigma=noise.linear_velocity.y)
+            # init_linear_velocity += (noise_x, noise_y)
 
-        #     # Angular velocity
-        #     noise_angular_velocity = random.gauss(mu=0.0, sigma=noise.angular_velocity)
-        #     init_angular_velocity += noise_angular_velocity
+            # # Angular velocity
+            # noise_angular_velocity = random.gauss(mu=0.0, sigma=noise.angular_velocity)
+            # init_angular_velocity += noise_angular_velocity
 
-        #     # Angle
-        #     noise_angle = random.gauss(mu=0.0, sigma=noise.angle)
-        #     init_angle += (noise_angle * math.pi) / 180.0
+            # # Angle
+            # noise_angle = random.gauss(mu=0.0, sigma=noise.angle)
+            # init_angle += (noise_angle * math.pi) / 180.0
 
         self.body.position = init_position
         self.body.linearVelocity = init_linear_velocity
