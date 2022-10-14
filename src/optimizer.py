@@ -134,11 +134,31 @@ class Optimizer(Framework):
         for box in self.boxes:
             box.comp_action()
 
+    def _render_raycast(self):
+        """TODO: Add to renderer."""
+        for box in self.boxes:
+            p1_, p2_, callbacks_ = box.p1, box.p2, box.callbacks
+            for p1, p2, callback in zip(p1_, p2_, callbacks_):
+                p1 = self.renderer.to_screen(p1)
+                p2 = self.renderer.to_screen(p2)
+                if callback.hit:
+                    cb_point = callback.point
+                    cb_point = self.renderer.to_screen(cb_point)
+                    self.renderer.DrawPoint(cb_point, 5.0, self.color_raycast_head)
+                    self.renderer.DrawSegment(p1, cb_point, self.color_raycast_line)
+                else:
+                    self.renderer.DrawSegment(p1, p2, self.color_raycast_line)
+
+    def _ray_casting(self) -> None:
+        """Runs ray casting for each Flyer"""
+        for box in self.boxes:
+            box.ray_casting()
+
     def _step(self) -> None:
         """Performs single optimization step."""
         t_0 = time.time()
 
-        ####
+        ###
         rgb = (1, 0, 0)
         color = b2Color(*rgb)
         p1 = b2Vec2(0, 0)
@@ -168,32 +188,11 @@ class Optimizer(Framework):
 
         self.iteration += 1
 
-    def _render_raycast(self, cb_, p1_, p2_):
-        """TODO: Add to renderer."""
-        for p1, p2, callback in zip(p1_, p2_, cb_):
-            p1 = self.renderer.to_screen(p1)
-            p2 = self.renderer.to_screen(p2)
-            if callback.hit:
-                # print("Hit:", callback.point)
-                cb_point = callback.point
-                cb_point = self.renderer.to_screen(cb_point)
-                self.renderer.DrawPoint(cb_point, 5.0, self.color_raycast_head)
-                self.renderer.DrawSegment(p1, cb_point, self.color_raycast_line)
-            else:
-                # print("No hit.")
-                self.renderer.DrawSegment(p1, p2, self.color_raycast_line)
-
-    def _ray_casting(self) -> None:
-        """TODO: Decouple ray_casting() from _render_raycast()
-        """
-        for box in self.boxes:
-            cb_, p1_, p2_ = box.ray_casting()
-            self._render_raycast(cb_, p1_, p2_)
-
     def Step(self, settings):
         super(Optimizer, self).Step(settings)
         self._render_force()
         self._ray_casting()
+        self._render_raycast()
         self._step()
 
     def run(self) -> None:

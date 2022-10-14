@@ -204,12 +204,6 @@ class Flyer:
         self.callback = RayCastCallback
 
         # Ray casting points
-        # self.points = [
-        #     b2Vec2(0, self.ray_length), 
-        #     b2Vec2(-self.ray_length, 0), 
-        #     b2Vec2(0, -self.ray_length), 
-        #     b2Vec2(self.ray_length, 0)
-        # ]
         self.points = [
             b2Vec2(self.ray_length, self.ray_length), 
             b2Vec2(-self.ray_length, self.ray_length), 
@@ -233,6 +227,11 @@ class Flyer:
 
         # Forces predicted by neural network
         self.forces = [0.0 for _ in range(4)]
+
+        # Ray casting rendering
+        self.callbacks = []
+        self.p1 = []
+        self.p2 = []
 
     def reset(self, noise: bool = False) -> None:
         """Resets wheel to initial position and velocity."""
@@ -280,11 +279,11 @@ class Flyer:
         self.model.mutate_weights()
 
     def ray_casting(self):
-        """"""
-        cb_ = []
-        p1_ = []
-        p2_ = []
+        """Uses ray casting to measure distane to domain walls."""
 
+        self.callbacks = []
+        self.p1 = []
+        self.p2 = []
         self.data = []
 
         for point in self.points:       # for ray in self.rays
@@ -292,24 +291,21 @@ class Flyer:
             p2 = p1 + self.body.GetWorldVector(localVector=point)
             cb = self.callback()
             self.world.RayCast(cb, p1, p2)
-            cb_.append(copy.copy(cb))
-            p1_.append(copy.copy(p1))
-            p2_.append(copy.copy(p2))
+
+            # Store ray casting data for rendering
+            self.callbacks.append(copy.copy(cb))
+            self.p1.append(copy.copy(p1))
+            self.p2.append(copy.copy(p2))
 
             # Collect data
             if cb.hit:
-                # self.data.append((cb.point.x, cb.point.y))
                 # Compute diagonal distance from Flyer to wall from raw features.
                 self.data.append(((cb.point.x - p1.x)**2 + (cb.point.y - p1.y)**2)**0.5)
             else:
-                # self.data.append((-1.0, -1.0))
                 self.data.append(-1.0)
 
         # Normalize data
         self.data = torch.tensor(self.data) / (self.domain_diam_x**2 + self.domain_diam_y**2)**0.5
-
-        # Return data for rendering
-        return cb_, p1_, p2_
 
     def odometer(self) -> float:
         """Measures distance traveled by flyer."""
