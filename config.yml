@@ -2,8 +2,8 @@ seed: 0
 optimizer:
   n_agents: 16
   n_max_iterations: 1000
-  mutation_probability: 0.4
-  mutation_rate: 0.1
+  mutation_probability: 0.05
+  mutation_rate: 0.16
 env: 
   gravity: 
     # [m / s^2]
@@ -24,8 +24,8 @@ env:
     density: 1.0
     friction: 2.0
     init_position: 
-      x: 0.0                       # [m]
-      y: 0.0                      # [m]
+      x: 15.0                       # [m]
+      y: 15.0                      # [m]
     init_linear_velocity: 
       x: .0                       # [m / s]
       y: .0                     # [m / s]
@@ -34,8 +34,8 @@ env:
     ray_length: 60
     noise: 
       position: 
-        x: 0.001                       # Standard deviation [m]
-        y: 0.001                       # Standard deviation [m]
+        x: 0.1                       # Standard deviation [m]
+        y: 0.1                       # Standard deviation [m]
       linear_velocity: 
         x: .0                        # Standard deviation [m / s]
         y: .0                        # Standard deviation [m / s]
@@ -44,8 +44,8 @@ env:
     engine:
       max_force: 2.0
     neural_network:
-      n_dim_in: 8      # x- and y-coordinates of detected obstacles.
-      n_dim_out: 4     # Actions for four engines.
+      n_dim_in: 4     # Distances to the nearest wall.
+      n_dim_out: 4  # Actions for four engines.
       n_dim_hidden: 32  # Hidden dimensions.
       n_hidden: 2   # Hidden layer.
 

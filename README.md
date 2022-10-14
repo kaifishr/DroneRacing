@@ -1,25 +1,23 @@
 # Flyer
 
-The goal of Flyer is to cover as much distance as possible without colliding with any wall.
+The goal of Flyer was to built an environment for an agent with the simple task of covering as much distance as possible and to avoid collisions with the domains border.
 
 # Method
 
-- Gentic optimization method.
-- Rendering can be turned off by pressing 'Space' to accelerate optimization.
+The environment consists of a square box with rigid walls, containing one or more Flyers. Each Flyer consists of a square body with four boosters attached to each side. Additionally, each Flyer is equipped with a distance meter that looks in four directions.
 
 # Experiments
 
-- Used parameters
-- Number of agents.
-- Initial configuration of agents is square.
+...
 
 # Results
 
-- Add image after $0$ and $N$ epochs.
-- Add graph showing score.
+...
 
 # TODO:
+- The rays do not measure the distance to the wall
 - Refactor code
+- Allow thrust to have two components
 - Consider contact to domain wall in score
 - Add faster rendering
 - Use Environment() / Flyer() / Optimizer()

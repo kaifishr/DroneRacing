@@ -176,7 +176,8 @@ class Optimizer(Framework):
                 self.renderer.DrawSegment(p1, p2, self.color_raycast_line)
 
     def _ray_casting(self) -> None:
-        """"""
+        """Decouple ray_casting() from _render_raycast()
+        """
         for box in self.boxes:
             cb_, p1_, p2_ = box.ray_casting()
             self._render_raycast(cb_, p1_, p2_)

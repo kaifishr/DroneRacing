@@ -218,7 +218,8 @@ class Flyer:
         ]
 
         # Domain
-        self.domain_diam = config.env.domain.x_max - config.env.domain.x_min
+        self.domain_diam_x = config.env.domain.x_max - config.env.domain.x_min
+        self.domain_diam_y = config.env.domain.y_max - config.env.domain.y_min
         
         # Odometer
         self.distance = 0.0
@@ -289,20 +290,25 @@ class Flyer:
         for point in self.points:       # for ray in self.rays
             p1 = self.body.position
             p2 = p1 + self.body.GetWorldVector(localVector=point)
-            callback = self.callback()
-            self.world.RayCast(callback, p1, p2)
-            cb_.append(copy.copy(callback))
+            cb = self.callback()
+            self.world.RayCast(cb, p1, p2)
+            cb_.append(copy.copy(cb))
             p1_.append(copy.copy(p1))
             p2_.append(copy.copy(p2))
 
-            if callback.hit:
-                self.data.append((callback.point.x, callback.point.y))
+            # Collect data
+            if cb.hit:
+                # self.data.append((cb.point.x, cb.point.y))
+                # Compute diagonal distance from Flyer to wall from raw features.
+                self.data.append(((cb.point.x - p1.x)**2 + (cb.point.y - p1.y)**2)**0.5)
             else:
-                self.data.append((99.9, 99.9))
+                # self.data.append((-1.0, -1.0))
+                self.data.append(-1.0)
 
         # Normalize data
-        self.data = torch.tensor(self.data) / (0.5 * self.domain_diam)
+        self.data = torch.tensor(self.data) / (self.domain_diam_x**2 + self.domain_diam_y**2)**0.5
 
+        # Return data for rendering
         return cb_, p1_, p2_
 
     def odometer(self) -> float:
