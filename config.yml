@@ -1,7 +1,7 @@
 seed: 0
 optimizer:
-  n_agents: 4
-  n_max_iterations: 1000
+  n_agents: 32
+  n_max_iterations: 200
   mutation_probability: 0.1
   mutation_rate: 0.16
 env: 
@@ -44,11 +44,11 @@ env:
     engine:
       density: 1.0
       friction: 2.0
-      max_force: 2.0
+      max_force: 4.0
     neural_network:
       n_dim_in: 4     # Distances to the nearest wall.
       n_dim_out: 4  # Actions for four engines.
-      n_dim_hidden: 16  # Hidden dimensions.
+      n_dim_hidden: 32  # Hidden dimensions.
       n_hidden: 2   # Hidden layer.
 
 renderer:

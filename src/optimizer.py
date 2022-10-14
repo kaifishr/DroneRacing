@@ -1,6 +1,4 @@
 DEBUG = False
-import time
-
 import numpy as np
 
 from Box2D.Box2D import b2Vec2, b2Color
@@ -153,7 +151,6 @@ class Optimizer(Framework):
 
     def _step(self) -> None:
         """Performs single optimization step."""
-        t_0 = time.time()
 
         # Method that run every simulation step
         self.comp_action()
@@ -170,7 +167,6 @@ class Optimizer(Framework):
             self.reset()
 
             self.writer.add_scalar("Distance", distance, self.generation)
-            self.writer.add_scalar("Time_Generation", time.time() - t_0, self.generation)
 
             self.iteration = 0
             self.generation += 1
@@ -192,7 +188,8 @@ class Optimizer(Framework):
                 # Physics and rendering
                 self.step()
                 # Optimization
-                self._render_force()
                 self._ray_casting()
-                self._render_raycast()
+                if self.is_render:
+                    self._render_raycast()
+                    self._render_force() 
                 self._step()
