@@ -107,6 +107,7 @@ class Flyer:
         height = 0.4
         width_min = 0.1
         width_max = 0.3
+        friction = 2.0      # TODO: move this to config
 
         def __init__(self, body: b2Body, box) -> None:
             """Initializes engines class."""
@@ -147,7 +148,7 @@ class Flyer:
                 engine_fixture_def = b2FixtureDef(
                     shape=engine_polygon, 
                     density=self.density,
-                    # friction=self.friction,
+                    friction=self.friction,
                     filter=b2Filter(groupIndex=-1),  # negative groups never collide
                 )
 
@@ -182,7 +183,7 @@ class Flyer:
             linearVelocity=self.init_linear_velocity,
             angularVelocity=self.init_angular_velocity,
             angle=self.init_angle,
-            fixedRotation=True
+            fixedRotation=True      # TODO: move this to config
         )
 
         self.vertices = [(self.diam * x, self.diam * y) for (x, y) in self._vertices]
