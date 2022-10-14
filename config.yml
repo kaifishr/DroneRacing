@@ -19,7 +19,7 @@ env:
     y_min: -20.0
     # [m]
     y_max: 20.0
-  box:
+  box:    # flyer
     diam: 1.0
     density: 1.0
     friction: 2.0
@@ -42,6 +42,8 @@ env:
       angular_velocity: 0.0             # Standard deviation [rad / s]
       angle: 0.0                      # Standard deviation [deg]
     engine:
+      density: 1.0
+      friction: 2.0
       max_force: 2.0
     neural_network:
       n_dim_in: 4     # Distances to the nearest wall.

@@ -1,5 +1,5 @@
 DEBUG = True
-
+import pygame
 import time
 
 import numpy as np
@@ -138,11 +138,19 @@ class Optimizer(Framework):
         """Performs single optimization step."""
         t_0 = time.time()
 
+        ####
+        rgb = (1, 0, 0)
+        color = b2Color(*rgb)
+        p1 = b2Vec2(0, 0)
+        p2 = b2Vec2(640, 640)
+        pygame.draw.aaline(self.screen, color.bytes, p1, p2)
+        ###
+
         # Method that run every simulation step
         self.comp_action()
         self.apply_action()
         self.run_odometer()
-
+            
         # Method that run at end of simulation 
         if not self.is_awake() or (self.iteration + 1) % self.n_max_iterations == 0:
 
@@ -176,7 +184,7 @@ class Optimizer(Framework):
                 self.renderer.DrawSegment(p1, p2, self.color_raycast_line)
 
     def _ray_casting(self) -> None:
-        """Decouple ray_casting() from _render_raycast()
+        """TODO: Decouple ray_casting() from _render_raycast()
         """
         for box in self.boxes:
             cb_, p1_, p2_ = box.ray_casting()

@@ -15,11 +15,10 @@ The environment consists of a square box with rigid walls, containing one or mor
 ...
 
 # TODO:
-- The rays do not measure the distance to the wall
-- Refactor code
-- Allow thrust to have two components
-- Consider contact to domain wall in score
 - Add faster rendering
+- Allow thrust to have two components
+- Refactor code
+- Consider contact to domain wall in score
 - Use Environment() / Flyer() / Optimizer()
 
 # License
