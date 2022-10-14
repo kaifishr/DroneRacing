@@ -15,7 +15,6 @@ The environment consists of a square box with rigid walls, containing one or mor
 ...
 
 # TODO:
-- Add faster rendering
 - Allow thrust to have two components
 - Refactor code
 - Consider contact to domain wall in score

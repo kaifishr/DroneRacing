@@ -35,9 +35,9 @@ NOTE: Examples with Step() re-implemented are not yet supported, as I wanted
 to do away with the Settings class. This means the following will definitely
 not work: Breakable, Liquid, Raycast, TimeOfImpact, ... (incomplete)
 """
-
 import pygame
 from pygame.locals import QUIT, KEYDOWN, KEYUP
+from Box2D import b2DrawExtended, b2Vec2
 from Box2D.b2 import (
     world,
     staticBody,
@@ -48,97 +48,85 @@ from Box2D.b2 import (
     edgeShape,
     loopShape,
 )
-# from Box2D import b2DrawExtended, b2Vec2
 
 
-# class PygameDraw(b2DrawExtended):
-#     """
-#     This debug draw class accepts callbacks from Box2D (which specifies what to
-#     draw) and handles all of the rendering.
-# 
-#     If you are writing your own game, you likely will not want to use debug
-#     drawing.  Debug drawing, as its name implies, is for debugging.
-#     """
-#     surface = None
-#     axisScale = 10.0
-# 
-#     def __init__(self, test=None, **kwargs):
-#         b2DrawExtended.__init__(self, **kwargs)
-#         self.flipX = False
-#         self.flipY = True
-#         self.convertVertices = True
-#         self.test = test
-# 
-#         self.PPM = 10.0
-#         self.SCREEN_WIDTH, self.SCREEN_HEIGHT = 640, 640
-#         self.SCREEN_OFFSETX, self.SCREEN_OFFSETY = self.SCREEN_WIDTH * 1.0 / 2.0, 0.5 * self.SCREEN_HEIGHT
-#         self.zoom = 10.0
-#         self.center = b2Vec2(0.0, 0.0) 
-#         self.offset = b2Vec2(self.SCREEN_OFFSETX, self.SCREEN_OFFSETY)
-#         self.screenSize = b2Vec2(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
-# 
-#     def DrawPoint(self, p, size, color):
-#         """
-#         Draw a single point at point p given a pixel size and color.
-#         """
-#         self.DrawCircle(p, size / self.zoom, color, drawwidth=0)
-# 
-#     def DrawCircle(self, center, radius, color, drawwidth=1):
-#         """
-#         Draw a wireframe circle given the center, radius, axis of orientation
-#         and color.
-#         """
-#         radius *= self.zoom
-#         if radius < 1:
-#             radius = 1
-#         else:
-#             radius = int(radius)
-# 
-#         pygame.draw.circle(self.surface, color.bytes, center, radius, drawwidth)
-# 
-#     def DrawSegment(self, p1, p2, color):
-#         """
-#         Draw the line segment from p1-p2 with the specified color.
-#         """
-#         print(p1)
-#         print(p2)
-#         def fix_vertices(v):
-#             return (int(self.SCREEN_OFFSETX + v[0]), int(self.SCREEN_OFFSETY - v[1]))
-#         p1 = fix_vertices([item for item in p1])
-#         p2 = fix_vertices([item for item in p2])
-#         print(p1)
-#         print(p2)
-#         pygame.draw.aaline(self.surface, color.bytes, p1, p2)
-# 
-#     def DrawPolygon(self, vertices, color):
-#         """
-#         Draw a wireframe polygon given the screen vertices with the specified color.
-#         """
-#         if not vertices:
-#             return
-# 
-#         if len(vertices) == 2:
-#             pygame.draw.aaline(self.surface, color.bytes, vertices[0], vertices)
-#         else:
-#             pygame.draw.polygon(self.surface, color.bytes, vertices, 1)
-# 
-#     def DrawSolidPolygon(self, vertices, color):
-#         """
-#         Draw a filled polygon given the screen vertices with the specified color.
-#         """
-#         if not vertices:
-#             return
-# 
-#         if len(vertices) == 2:
-#             pygame.draw.aaline(self.surface, color.bytes, vertices[0], vertices[1])
-#         else:
-#             pygame.draw.polygon(self.surface, (color / 2).bytes + [127], vertices, 0)
-#             pygame.draw.polygon(self.surface, color.bytes, vertices, 1)
+class PygameDraw(b2DrawExtended):
+    """
+    This debug draw class accepts callbacks from Box2D (which specifies what to
+    draw) and handles all of the rendering.
+
+    If you are writing your own game, you likely will not want to use debug
+    drawing.  Debug drawing, as its name implies, is for debugging.
+    """
+    surface = None
+    axisScale = 10.0
+
+    def __init__(self, test=None, **kwargs):
+        b2DrawExtended.__init__(self, **kwargs)
+        self.flipX = False
+        self.flipY = True
+        self.convertVertices = False
+        self.test = test
+
+        self.zoom = self.test.viewZoom
+        self.center = self.test.viewCenter
+        self.offset = self.test.viewOffset
+        self.screenSize = self.test.screenSize
+
+    def DrawPoint(self, p, size, color):
+        """
+        Draw a single point at point p given a pixel size and color.
+        """
+        self.DrawCircle(p, size / self.zoom, color, drawwidth=0)
+
+    def DrawCircle(self, center, radius, color, drawwidth=1):
+        """
+        Draw a wireframe circle given the center, radius, axis of orientation
+        and color.
+        """
+        radius *= self.zoom
+        if radius < 1:
+            radius = 1
+        else:
+            radius = int(radius)
+
+        pygame.draw.circle(self.surface, color.bytes, center, radius, drawwidth)
+
+    def DrawSegment(self, p1, p2, color):
+        """
+        Draw the line segment from p1-p2 with the specified color.
+        """
+        pygame.draw.aaline(self.surface, color.bytes, p1, p2)
+
+    def DrawPolygon(self, vertices, color):
+        """
+        Draw a wireframe polygon given the screen vertices with the specified color.
+        """
+        if not vertices:
+            return
+
+        if len(vertices) == 2:
+            pygame.draw.aaline(self.surface, color.bytes, vertices[0], vertices)
+        else:
+            pygame.draw.polygon(self.surface, color.bytes, vertices, 1)
+
+    def DrawSolidPolygon(self, vertices, color):
+        """
+        Draw a filled polygon given the screen vertices with the specified color.
+        """
+        if not vertices:
+            return
+
+        if len(vertices) == 2:
+            pygame.draw.aaline(self.surface, color.bytes, vertices[0], vertices[1])
+        else:
+            pygame.draw.polygon(self.surface, (color / 2).bytes + [127], vertices, 0)
+            pygame.draw.polygon(self.surface, color.bytes, vertices, 1)
 
 
-PPM = 10.0
+PPM = 15.0  # ZOOM
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 640
-SCREEN_OFFSETX, SCREEN_OFFSETY = SCREEN_WIDTH * 1.0 / 2.0, 0.5 * SCREEN_HEIGHT
+SCREEN_OFFSETX, SCREEN_OFFSETY = 0.5 * SCREEN_WIDTH, 0.5 * SCREEN_HEIGHT
 colors = {
     staticBody: (255, 255, 255, 255),
     dynamicBody: (127, 127, 127, 255),
@@ -235,12 +223,17 @@ class SimpleFramework(object):
     # Iterations to compute next position
     POS_ITERS = 10
 
+    viewZoom = 15.0
+    viewCenter = b2Vec2(0.5 * SCREEN_WIDTH, 0.5 * SCREEN_HEIGHT)    # TODO: has no effect
+    viewOffset = b2Vec2(-0.5 * SCREEN_WIDTH, -0.5 * SCREEN_HEIGHT)
+    screenSize = b2Vec2(SCREEN_WIDTH, SCREEN_HEIGHT)
+
     def __init__(self):
         self.world = world()
 
         # Pygame Initialization
         pygame.init()
-        caption = "Python Box2D Testbed - Simple backend - " + self.name
+        caption = "Python Box2D - " + self.name
         pygame.display.set_caption(caption)
 
         # Screen and debug draw
@@ -248,8 +241,8 @@ class SimpleFramework(object):
         self.font = pygame.font.Font(None, 15)
 
         ##
-        # self.renderer = PygameDraw(surface=self.screen, test=self)
-        # self.world.renderer = self.renderer
+        self.renderer = PygameDraw(surface=self.screen, test=self)
+        self.world.renderer = self.renderer
         ##
 
         self.groundbody = self.world.CreateBody()
@@ -300,8 +293,6 @@ class SimpleFramework(object):
 
         if self.is_render:
 
-            self.screen.fill((0, 0, 0))
-
             # Step the world
             self.world.Step(self.TIMESTEP, self.VEL_ITERS, self.POS_ITERS)
             self.world.ClearForces()
@@ -320,6 +311,8 @@ class SimpleFramework(object):
 
             self.clock.tick(self.TARGET_FPS)
             self.fps = self.clock.get_fps()
+
+            self.screen.fill((0, 0, 0))
 
         else:
             self.world.Step(self.TIMESTEP, self.VEL_ITERS, self.POS_ITERS)

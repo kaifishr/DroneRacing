@@ -1,11 +1,9 @@
-DEBUG = True
-import pygame
+DEBUG = False
 import time
 
 import numpy as np
 
 from Box2D.Box2D import b2Vec2, b2Color
-
 if DEBUG:
     from Box2D.examples.framework import Framework
 else:
@@ -137,8 +135,7 @@ class Optimizer(Framework):
     def _render_raycast(self):
         """TODO: Add to renderer."""
         for box in self.boxes:
-            p1_, p2_, callbacks_ = box.p1, box.p2, box.callbacks
-            for p1, p2, callback in zip(p1_, p2_, callbacks_):
+            for p1, p2, callback in zip(box.p1, box.p2, box.callbacks):
                 p1 = self.renderer.to_screen(p1)
                 p2 = self.renderer.to_screen(p2)
                 if callback.hit:
@@ -157,14 +154,6 @@ class Optimizer(Framework):
     def _step(self) -> None:
         """Performs single optimization step."""
         t_0 = time.time()
-
-        ###
-        rgb = (1, 0, 0)
-        color = b2Color(*rgb)
-        p1 = b2Vec2(0, 0)
-        p2 = b2Vec2(640, 640)
-        pygame.draw.aaline(self.screen, color.bytes, p1, p2)
-        ###
 
         # Method that run every simulation step
         self.comp_action()
@@ -203,4 +192,7 @@ class Optimizer(Framework):
                 # Physics and rendering
                 self.step()
                 # Optimization
+                self._render_force()
+                self._ray_casting()
+                self._render_raycast()
                 self._step()
