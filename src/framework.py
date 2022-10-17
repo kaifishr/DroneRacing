@@ -36,7 +36,7 @@ to do away with the Settings class. This means the following will definitely
 not work: Breakable, Liquid, Raycast, TimeOfImpact, ... (incomplete)
 """
 import pygame
-from pygame.locals import QUIT, KEYDOWN, KEYUP
+from pygame.locals import QUIT, KEYDOWN 
 from Box2D import b2DrawExtended, b2Vec2
 from Box2D.b2 import (
     world,
@@ -141,19 +141,11 @@ def fix_vertices(vertices):
 def _draw_polygon(polygon, screen, body, fixture):
     transform = body.transform
     vertices = fix_vertices([transform * v * PPM for v in polygon.vertices])
-    pygame.draw.polygon(screen, [c / 2.0 for c in colors[body.type]], vertices, 0)
-    pygame.draw.polygon(screen, colors[body.type], vertices, 1)
+    pygame.draw.polygon(screen, [c / 2.0 for c in colors[body.type]], vertices, 0)      # Frame
+    pygame.draw.polygon(screen, colors[body.type], vertices, 1)                         # Face color
 
 
 polygonShape.draw = _draw_polygon
-
-
-def _draw_circle(circle, screen, body, fixture):
-    position = fix_vertices([body.transform * circle.pos * PPM])[0]
-    pygame.draw.circle(screen, colors[body.type], position, int(circle.radius * PPM))
-
-
-circleShape.draw = _draw_circle
 
 
 def _draw_edge(edge, screen, body, fixture):
@@ -166,18 +158,6 @@ def _draw_edge(edge, screen, body, fixture):
 edgeShape.draw = _draw_edge
 
 
-def _draw_loop(loop, screen, body, fixture):
-    transform = body.transform
-    vertices = fix_vertices([transform * v * PPM for v in loop.vertices])
-    v1 = vertices[-1]
-    for v2 in vertices:
-        pygame.draw.line(screen, colors[body.type], v1, v2)
-        v1 = v2
-
-
-loopShape.draw = _draw_loop
-
-
 def draw_world(screen, world):
     # Draw the world
     for body in world.bodies:
@@ -185,32 +165,8 @@ def draw_world(screen, world):
             fixture.shape.draw(screen, body, fixture)
 
 
-class Keys(object):
-    pass
-
-
-# The following import is only needed to do the initial loading and
-# overwrite the Keys class.
-import src.framework as framework
-
-# Set up the keys (needed as the normal framework abstracts them between
-# backends)
-keys = [s for s in dir(pygame.locals) if s.startswith("K_")]
-for key in keys:
-    value = getattr(pygame.locals, key)
-    setattr(Keys, key, value)
-framework.Keys = Keys
-
-
-class SimpleFramework(object):
-    """A simple framework for pybox2d with pygame.
-
-    Attributes:
-        screen:
-        font:
-        groundbody:
-        is_render:
-    """
+class SimpleFramework:
+    """A simple framework for pybox2d with pygame."""
 
     name = ""
     description = ""
@@ -229,51 +185,28 @@ class SimpleFramework(object):
     screenSize = b2Vec2(SCREEN_WIDTH, SCREEN_HEIGHT)
 
     def __init__(self):
+
         self.world = world()
+        self.groundbody = self.world.CreateBody()
 
         # Pygame Initialization
         pygame.init()
-        caption = "Python Box2D - " + self.name
+        caption = self.name
         pygame.display.set_caption(caption)
 
         # Screen and debug draw
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.font = pygame.font.Font(None, 15)
 
-        ##
         self.renderer = PygameDraw(surface=self.screen, test=self)
         self.world.renderer = self.renderer
-        ##
-
-        self.groundbody = self.world.CreateBody()
 
         self.is_render = True
         self.clock = pygame.time.Clock()
 
-    ## def Print(self, str, color=(229, 153, 153, 255)):
-    ##     """
-    ##     Draw some text at the top status lines
-    ##     and advance to the next line.
-    ##     """
-    ##     self.screen.blit(self.font.render(str, True, color), (5, self.textLine))
-    ##     self.textLine += 15
-
-    def Keyboard(self, key):
-        """
-        Callback indicating 'key' has been pressed down.
-        The keys are mapped after pygame's style.
-        """
-        # Turn rendering on / off
-        if key == Keys.K_SPACE:
-            self.is_render = False if self.is_render else True
-            print(f"Rendering: {self.is_render}")
-
-    def KeyboardUp(self, key):
-        """
-        Callback indicating 'key' has been released.
-        See Keyboard() for key information
-        """
-        pass
+    def _set_render(self):
+        """Sets rendering on / off."""
+        self.is_render = False if self.is_render else True
 
     def step(self):
         """Performs single simulation step.
@@ -281,13 +214,17 @@ class SimpleFramework(object):
         Updates the world and then the screen.
         """
         for event in pygame.event.get():
-            if event.type == QUIT or (
-                event.type == KEYDOWN and event.key == Keys.K_ESCAPE):
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self._set_render()
+            elif event.type == pygame.QUIT:
+                pygame.quit()
                 exit()
             elif event.type == KEYDOWN:
-                self.Keyboard(event.key)
-            elif event.type == KEYUP:
-                self.KeyboardUp(event.key)
+                if event.key == pygame.K_SPACE:
+                    self._set_render()
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    exit()
 
         # Step the world
         self.world.Step(self.TIMESTEP, self.VEL_ITERS, self.POS_ITERS)
