@@ -57,7 +57,7 @@ class NeuralNetwork(nn.Module):
 
         self.apply(self._init_weights)
 
-    def _init_weights(self, module):
+    def _init_weights(self, module) -> None:
         if isinstance(module, nn.Linear):
             torch.nn.init.xavier_uniform_(module.weight, gain=5.0/3.0)
             if module.bias is not None:
@@ -85,6 +85,64 @@ class NeuralNetwork(nn.Module):
         return torch.sigmoid(self.linear3(x))
 
 
+class Engines:
+    """Engine class.
+    """
+
+    # Engine parameters 
+    height = 0.4
+    width_min = 0.1
+    width_max = 0.3
+
+    def __init__(self, body: b2Body, config: Config) -> None:
+        """Initializes engines class."""
+        self.body = body
+        self.box = config.env.box
+        self.density = config.env.box.engine.density
+        self.friction = config.env.box.engine.friction
+
+        self._add_engines()
+
+    def _add_engines(self) -> None:
+        """Adds engines to booster."""
+
+        def engine_nozzle(mount_point: b2Vec2, theta: float):
+            """Adds three engines to booster."""
+
+            def rotate(x:float , y: float, theta: float) -> b2Vec2:
+                theta = theta * math.pi / 180.0
+                return x * math.cos(theta) - y * math.sin(theta), x * math.sin(theta) + y * math.cos(theta)
+
+            r_0 = mount_point + rotate(-0.5 * self.width_min, 0.0, theta)
+            r_1 = mount_point + rotate(-0.5 * self.width_max, self.height, theta)
+            r_2 = mount_point + rotate(0.5 * self.width_max, self.height, theta)
+            r_3 = mount_point + rotate(0.5 * self.width_min, 0.0, theta)
+
+            return r_0, r_1, r_2, r_3
+
+        mount_points = [
+            b2Vec2(0.0, 0.5 * self.box.diam),   # up
+            b2Vec2(-0.5 * self.box.diam, 0.0),  # left
+            b2Vec2(0.0, -0.5 * self.box.diam),  # down
+            b2Vec2(0.5 * self.box.diam, 0.0),   # right
+        ]
+
+        for mount_point, theta in zip(mount_points, [0.0, 90.0, 180.0, 270.0]):
+
+            engine_polygon = b2PolygonShape(
+                vertices=engine_nozzle(mount_point=mount_point, theta=theta)
+            )
+
+            engine_fixture_def = b2FixtureDef(
+                shape=engine_polygon, 
+                density=self.density,
+                friction=self.friction,
+                filter=b2Filter(groupIndex=-1),  # negative groups never collide
+            )
+
+            self.body.CreateFixture(engine_fixture_def)
+
+
 class Flyer:
     """Flyer class.
 
@@ -98,62 +156,6 @@ class Flyer:
         (0.5, -0.5),
     ]
 
-    class Engines:
-        """Engine class.
-        """
-
-        # Parameters for engine
-        density = 1.0
-        height = 0.4
-        width_min = 0.1
-        width_max = 0.3
-        friction = 2.0      # TODO: move this to config
-
-        def __init__(self, body: b2Body, box) -> None:
-            """Initializes engines class."""
-            self.body = body
-            self.box = box
-            self._add_engines()
-
-        def _add_engines(self) -> None:
-            """Adds engines to booster."""
-
-            def engine_nozzle(mount_point: b2Vec2, theta: float):
-                """Adds three engines to booster."""
-
-                def rotate(x:float , y: float, theta: float) -> b2Vec2:
-                    theta = theta * math.pi / 180.0
-                    return x * math.cos(theta) - y * math.sin(theta), x * math.sin(theta) + y * math.cos(theta)
-
-                r_0 = mount_point + rotate(-0.5 * self.width_min, 0.0, theta)
-                r_1 = mount_point + rotate(-0.5 * self.width_max, self.height, theta)
-                r_2 = mount_point + rotate(0.5 * self.width_max, self.height, theta)
-                r_3 = mount_point + rotate(0.5 * self.width_min, 0.0, theta)
-
-                return r_0, r_1, r_2, r_3
-
-            mount_points = [
-                b2Vec2(0.0, 0.5 * self.box.diam),   # up
-                b2Vec2(-0.5 * self.box.diam, 0.0),  # left
-                b2Vec2(0.0, -0.5 * self.box.diam),  # down
-                b2Vec2(0.5 * self.box.diam, 0.0),   # right
-            ]
-
-            for mount_point, theta in zip(mount_points, [0.0, 90.0, 180.0, 270.0]):
-
-                engine_polygon = b2PolygonShape(
-                    vertices=engine_nozzle(mount_point=mount_point, theta=theta)
-                )
-
-                engine_fixture_def = b2FixtureDef(
-                    shape=engine_polygon, 
-                    density=self.density,
-                    friction=self.friction,
-                    filter=b2Filter(groupIndex=-1),  # negative groups never collide
-                )
-
-                self.body.CreateFixture(engine_fixture_def)
-
     def __init__(self, world: b2World, config: Config):
         """Initializes the wheel class."""
 
@@ -163,8 +165,10 @@ class Flyer:
         self.ray_length = self.config.env.box.ray_length
         self.max_force = self.config.env.box.engine.max_force
         self.diam = self.config.env.box.diam
-        self.density = self.config.env.box.density
-        self.friction = self.config.env.box.friction
+
+        fixed_rotation = self.config.env.box.fixed_rotation
+        density = self.config.env.box.density
+        friction = self.config.env.box.friction
 
         self.init_position = b2Vec2(
             config.env.box.init_position.x, config.env.box.init_position.y
@@ -183,23 +187,20 @@ class Flyer:
             linearVelocity=self.init_linear_velocity,
             angularVelocity=self.init_angular_velocity,
             angle=self.init_angle,
-            fixedRotation=True      # TODO: move this to config
+            fixedRotation=fixed_rotation
         )
 
         self.vertices = [(self.diam * x, self.diam * y) for (x, y) in self._vertices]
         self.fixture_def = b2FixtureDef(
             shape=b2PolygonShape(vertices=self.vertices),
-            density=self.density,
-            friction=self.friction,
+            density=density,
+            friction=friction,
             filter=b2Filter(groupIndex=-1),
         )
 
         self.fixture = self.body.CreateFixture(self.fixture_def)
 
-        self.engines = self.Engines(
-            body=self.body,
-            box=self
-        )
+        self.engines = Engines(body=self.body, config=config)
 
         self.callback = RayCastCallback
 
@@ -234,31 +235,23 @@ class Flyer:
         self.p2 = []
 
     def reset(self, noise: bool = False) -> None:
-        """Resets wheel to initial position and velocity."""
+        """Resets flyer to initial position and velocity."""
         init_position = self.init_position
         init_linear_velocity = self.init_linear_velocity
         init_angular_velocity = self.init_angular_velocity
         init_angle = self.init_angle
 
-        noise = self.config.env.box.noise
-        if noise:
-            # Position
-            noise_x = random.gauss(mu=0.0, sigma=noise.position.x)
-            noise_y = random.gauss(mu=0.0, sigma=noise.position.y)
-            init_position += (noise_x, noise_y)
+        noise_pos_x = self.config.env.box.noise.position.x
+        noise_pos_y = self.config.env.box.noise.position.y
 
-            # # Linear velocity
-            # noise_x = random.gauss(mu=0.0, sigma=noise.linear_velocity.x)
-            # noise_y = random.gauss(mu=0.0, sigma=noise.linear_velocity.y)
-            # init_linear_velocity += (noise_x, noise_y)
+        x_min = self.config.env.domain.x_min
+        x_max = self.config.env.domain.x_max
+        y_min = self.config.env.domain.y_min
+        y_max = self.config.env.domain.y_max
 
-            # # Angular velocity
-            # noise_angular_velocity = random.gauss(mu=0.0, sigma=noise.angular_velocity)
-            # init_angular_velocity += noise_angular_velocity
-
-            # # Angle
-            # noise_angle = random.gauss(mu=0.0, sigma=noise.angle)
-            # init_angle += (noise_angle * math.pi) / 180.0
+        pos_x = noise_pos_x * random.uniform(a=x_min, b=x_max)
+        pos_y = noise_pos_y * random.uniform(a=y_min, b=y_max)
+        init_position = b2Vec2(pos_x, pos_y)
 
         self.body.position = init_position
         self.body.linearVelocity = init_linear_velocity

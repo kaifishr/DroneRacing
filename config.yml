@@ -1,8 +1,8 @@
 seed: 0
 optimizer:
-  n_agents: 32
-  n_max_iterations: 200
-  mutation_probability: 0.1
+  n_agents: 16
+  n_max_iterations: 1000
+  mutation_probability: 0.2
   mutation_rate: 0.16
 env: 
   gravity: 
@@ -20,6 +20,7 @@ env:
     # [m]
     y_max: 20.0
   box:    # flyer
+    fixed_rotation: true
     diam: 1.0
     density: 1.0
     friction: 2.0
@@ -34,8 +35,8 @@ env:
     ray_length: 60
     noise: 
       position: 
-        x: 0.                       # Standard deviation [m]
-        y: 0.                       # Standard deviation [m]
+        x: 0.9
+        y: 0.9 
       linear_velocity: 
         x: 0.                        # Standard deviation [m / s]
         y: 0.                        # Standard deviation [m / s]
@@ -44,7 +45,7 @@ env:
     engine:
       density: 1.0
       friction: 2.0
-      max_force: 4.0
+      max_force: 2.0
     neural_network:
       n_dim_in: 4     # Distances to the nearest wall.
       n_dim_out: 4  # Actions for four engines.

@@ -250,13 +250,13 @@ class SimpleFramework(object):
         self.is_render = True
         self.clock = pygame.time.Clock()
 
-    def Print(self, str, color=(229, 153, 153, 255)):
-        """
-        Draw some text at the top status lines
-        and advance to the next line.
-        """
-        self.screen.blit(self.font.render(str, True, color), (5, self.textLine))
-        self.textLine += 15
+    ## def Print(self, str, color=(229, 153, 153, 255)):
+    ##     """
+    ##     Draw some text at the top status lines
+    ##     and advance to the next line.
+    ##     """
+    ##     self.screen.blit(self.font.render(str, True, color), (5, self.textLine))
+    ##     self.textLine += 15
 
     def Keyboard(self, key):
         """
@@ -289,23 +289,13 @@ class SimpleFramework(object):
             elif event.type == KEYUP:
                 self.KeyboardUp(event.key)
 
-        self.textLine = 15  # move outside?
+        # Step the world
+        self.world.Step(self.TIMESTEP, self.VEL_ITERS, self.POS_ITERS)
+        self.world.ClearForces()
 
         if self.is_render:
 
-            # Step the world
-            self.world.Step(self.TIMESTEP, self.VEL_ITERS, self.POS_ITERS)
-            self.world.ClearForces()
-
             draw_world(self.screen, self.world)
-
-            # Draw the name of the test running
-            self.Print(self.name, (127, 127, 255))
-
-            if self.description:
-                # Draw the name of the test running
-                for s in self.description.split("\n"):
-                    self.Print(s, (127, 255, 127))
 
             pygame.display.flip()
 
@@ -314,9 +304,6 @@ class SimpleFramework(object):
 
             self.screen.fill((0, 0, 0))
 
-        else:
-            self.world.Step(self.TIMESTEP, self.VEL_ITERS, self.POS_ITERS)
-            self.world.ClearForces()
 
         print(f"FPS {self.fps:.0f}", flush=True, end="\r")
 

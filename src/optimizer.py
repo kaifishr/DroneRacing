@@ -1,11 +1,8 @@
-DEBUG = False
+import time
 import numpy as np
 
 from Box2D.Box2D import b2Vec2, b2Color
-if DEBUG:
-    from Box2D.examples.framework import Framework
-else:
-    from src.framework import SimpleFramework as Framework
+from src.framework import SimpleFramework as Framework
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -43,18 +40,6 @@ class Optimizer(Framework):
         """Resets all wheels to initial parameter."""
         for box in self.boxes:
             box.reset()     # todo: Reset distance traveled
-
-    def is_awake(self) -> bool:
-        """Checks if box in simulation are awake.
-
-        Returns:
-            True if at least one body is awake.
-        """
-        for box in self.boxes:
-            if box.body.awake:
-                return True
-
-        return False
 
     def mutate(self, idx_best: int) -> None:
         """Mutates vertices of box."""
@@ -158,7 +143,7 @@ class Optimizer(Framework):
         self.run_odometer()
             
         # Method that run at end of simulation 
-        if not self.is_awake() or (self.iteration + 1) % self.n_max_iterations == 0:
+        if (self.iteration + 1) % self.n_max_iterations == 0:
 
             # Get index of agent who traveled the farthest
             idx_best, distance = self.get_distance()
@@ -166,30 +151,20 @@ class Optimizer(Framework):
             self.mutate(idx_best)
             self.reset()
 
-            self.writer.add_scalar("Distance", distance, self.generation)
-
             self.iteration = 0
             self.generation += 1
 
+            self.writer.add_scalar("Distance", distance, self.generation)
+
         self.iteration += 1
 
-    def Step(self, settings):
-        super(Optimizer, self).Step(settings)
-        self._render_force()
-        self._ray_casting()
-        self._render_raycast()
-        self._step()
-
     def run(self) -> None:
-        if DEBUG:
-            super().run()
-        else:
-            while True:
-                # Physics and rendering
-                self.step()
-                # Optimization
-                self._ray_casting()
-                if self.is_render:
-                    self._render_raycast()
-                    self._render_force() 
-                self._step()
+        while True:
+            # Physics and rendering
+            self.step()
+            # Optimization
+            self._ray_casting()
+            if self.is_render:
+                self._render_raycast()
+                self._render_force() 
+            self._step()
