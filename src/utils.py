@@ -13,7 +13,7 @@ def set_random_seed(seed: int = 0) -> None:
 
 def capture_screen(screen, iteration: int) -> None:
     """Captures screen every simulation step.
-    
+
     Args:
         screen:
         iteration:

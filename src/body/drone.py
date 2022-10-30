@@ -1,3 +1,5 @@
+"""Script with methods for the drones."""
+
 import copy
 import math
 import random
@@ -17,22 +19,24 @@ class RayCastCallback(b2RayCastCallback):
 
     See also this example for more information about ray casting in PyBox2D:
     https://github.com/pybox2d/pybox2d/blob/master/library/Box2D/examples/raycast.py
-    
+
     """
+
     def __init__(self, **kwargs) -> None:
         b2RayCastCallback.__init__(self, **kwargs)
         self.fixture = None
         self.hit = False
 
     def ReportFixture(self, fixture, point, normal, fraction) -> float:
-        """Reports hit fixture.
-        """
-        if fixture.filterData.groupIndex == -1: # Ignore engines.
+        """Reports hit fixture."""
+        if fixture.filterData.groupIndex == -1:  # Ignore engines.
             return 1.0
         self.hit = True
-        self.fixture = fixture          # Fixture of the hit body. Interesting for multi-agent environments.
-        self.point = b2Vec2(point)      # Point of contact of body.
-        self.normal = b2Vec2(normal)    # Normal vector at point of contact. Perpendicular to body surface.
+        self.fixture = fixture  # Fixture of the hit body. Interesting for multi-agent environments.
+        self.point = b2Vec2(point)  # Point of contact of body.
+        self.normal = b2Vec2(
+            normal
+        )  # Normal vector at point of contact. Perpendicular to body surface.
         return fraction
 
 
@@ -53,19 +57,23 @@ class NeuralNetwork(nn.Module):
         hidden_features = cfg.n_dim_hidden
 
         self.linear1 = nn.Linear(in_features=in_features, out_features=hidden_features)
-        self.linear2 = nn.Linear(in_features=hidden_features, out_features=hidden_features)
+        self.linear2 = nn.Linear(
+            in_features=hidden_features, out_features=hidden_features
+        )
         self.linear3 = nn.Linear(in_features=hidden_features, out_features=out_features)
 
         self.apply(self._init_weights)
 
     def _init_weights(self, module) -> None:
         if isinstance(module, nn.Linear):
-            torch.nn.init.xavier_uniform_(module.weight, gain=5.0/3.0)
+            # torch.nn.init.xavier_uniform_(module.weight, gain=5.0/3.0)
+            torch.nn.init.normal_(module.weight, mean=0.0, std=1.0)
             if module.bias is not None:
                 torch.nn.init.zeros_(module.bias)
 
-    @torch.no_grad()
+    @torch.no_grad()  # add to NetLab as regularization tool if not used here.
     def _mutate_weights(self, module: nn.Module) -> None:
+        """Mutates weights."""
         if isinstance(module, nn.Linear):
             mask = torch.rand_like(module.weight) < self.mutation_prob
             mutation = self.mutation_rate * torch.randn_like(module.weight)
@@ -87,10 +95,9 @@ class NeuralNetwork(nn.Module):
 
 
 class Engines:
-    """Engine class.
-    """
+    """Engine class."""
 
-    # Engine parameters 
+    # Engine parameters
     height = 0.4
     width_min = 0.1
     width_max = 0.3
@@ -110,9 +117,11 @@ class Engines:
         def engine_nozzle(mount_point: b2Vec2, theta: float):
             """Adds three engines to booster."""
 
-            def rotate(x:float , y: float, theta: float) -> b2Vec2:
+            def rotate(x: float, y: float, theta: float) -> b2Vec2:
                 theta = theta * math.pi / 180.0
-                return x * math.cos(theta) - y * math.sin(theta), x * math.sin(theta) + y * math.cos(theta)
+                return x * math.cos(theta) - y * math.sin(theta), x * math.sin(
+                    theta
+                ) + y * math.cos(theta)
 
             r_0 = mount_point + rotate(-0.5 * self.width_min, 0.0, theta)
             r_1 = mount_point + rotate(-0.5 * self.width_max, self.height, theta)
@@ -122,10 +131,10 @@ class Engines:
             return r_0, r_1, r_2, r_3
 
         mount_points = [
-            b2Vec2(0.0, 0.5 * self.box.diam),   # up
+            b2Vec2(0.0, 0.5 * self.box.diam),  # up
             b2Vec2(-0.5 * self.box.diam, 0.0),  # left
             b2Vec2(0.0, -0.5 * self.box.diam),  # down
-            b2Vec2(0.5 * self.box.diam, 0.0),   # right
+            b2Vec2(0.5 * self.box.diam, 0.0),  # right
         ]
 
         for mount_point, theta in zip(mount_points, [0.0, 90.0, 180.0, 270.0]):
@@ -135,7 +144,7 @@ class Engines:
             )
 
             engine_fixture_def = b2FixtureDef(
-                shape=engine_polygon, 
+                shape=engine_polygon,
                 density=self.density,
                 friction=self.friction,
                 filter=b2Filter(groupIndex=-1),  # negative groups never collide
@@ -144,10 +153,10 @@ class Engines:
             self.body.CreateFixture(engine_fixture_def)
 
 
-class Flyer:
-    """Flyer class.
+class Drone:
+    """Drone class.
 
-    A flyer consists of a box with four boosters attached.
+    A drone consists of a box with four boosters attached.
     """
 
     _vertices = [
@@ -188,7 +197,7 @@ class Flyer:
             linearVelocity=self.init_linear_velocity,
             angularVelocity=self.init_angular_velocity,
             angle=self.init_angle,
-            fixedRotation=fixed_rotation
+            fixedRotation=fixed_rotation,
         )
 
         self.vertices = [(self.diam * x, self.diam * y) for (x, y) in self._vertices]
@@ -207,16 +216,16 @@ class Flyer:
 
         # Ray casting points
         self.points = [
-            b2Vec2(self.ray_length, self.ray_length), 
-            b2Vec2(-self.ray_length, self.ray_length), 
-            b2Vec2(-self.ray_length, -self.ray_length), 
-            b2Vec2(self.ray_length, -self.ray_length)
+            b2Vec2(self.ray_length, self.ray_length),
+            b2Vec2(-self.ray_length, self.ray_length),
+            b2Vec2(-self.ray_length, -self.ray_length),
+            b2Vec2(self.ray_length, -self.ray_length),
         ]
 
         # Domain
         self.domain_diam_x = config.env.domain.x_max - config.env.domain.x_min
         self.domain_diam_y = config.env.domain.y_max - config.env.domain.y_min
-        
+
         # Odometer
         self.distance = 0.0
         self.position_old = None
@@ -280,7 +289,7 @@ class Flyer:
         self.p2 = []
         self.data = []
 
-        for point in self.points:       # for ray in self.rays
+        for point in self.points:  # for ray in self.rays
             p1 = self.body.position
             p2 = p1 + self.body.GetWorldVector(localVector=point)
             cb = self.callback()
@@ -294,12 +303,17 @@ class Flyer:
             # Collect data
             if cb.hit:
                 # Compute diagonal distance from Flyer to wall from raw features.
-                self.data.append(((cb.point.x - p1.x)**2 + (cb.point.y - p1.y)**2)**0.5)
+                self.data.append(
+                    ((cb.point.x - p1.x) ** 2 + (cb.point.y - p1.y) ** 2) ** 0.5
+                )
             else:
                 self.data.append(-1.0)
 
         # Normalize data
-        self.data = torch.tensor(self.data) / (self.domain_diam_x**2 + self.domain_diam_y**2)**0.5
+        self.data = (
+            torch.tensor(self.data)
+            / (self.domain_diam_x**2 + self.domain_diam_y**2) ** 0.5
+        )
 
     def odometer(self) -> float:
         """Measures distance traveled by flyer."""
@@ -316,31 +330,31 @@ class Flyer:
         self.forces = self.config.env.box.engine.max_force * forces.astype(np.float)
 
     def apply_action(self) -> None:
-            """Applies force to Flyer coming from neural network.
+        """Applies force to Flyer coming from neural network.
 
-            Each engine is controlled individually.
+        Each engine is controlled individually.
 
-            """
-            # self.forces = [random.uniform(0, 1) * self.max_force for _ in range(4)]  # some random data
+        """
+        # self.forces = [random.uniform(0, 1) * self.max_force for _ in range(4)]  # some random data
 
-            f_left, f_right, f_up, f_down = self.forces
+        f_left, f_right, f_up, f_down = self.forces
 
-            # Left
-            f = self.body.GetWorldVector(localVector=b2Vec2(f_left, 0.0))
-            p = self.body.GetWorldPoint(localPoint=b2Vec2(-0.5 * self.diam, 0.0))    
-            self.body.ApplyForce(f, p, True)
+        # Left
+        f = self.body.GetWorldVector(localVector=b2Vec2(f_left, 0.0))
+        p = self.body.GetWorldPoint(localPoint=b2Vec2(-0.5 * self.diam, 0.0))
+        self.body.ApplyForce(f, p, True)
 
-            # Right
-            f = self.body.GetWorldVector(localVector=b2Vec2(-f_right, 0.0))
-            p = self.body.GetWorldPoint(localPoint=b2Vec2(0.5 * self.diam, 0.0))    
-            self.body.ApplyForce(f, p, True)
+        # Right
+        f = self.body.GetWorldVector(localVector=b2Vec2(-f_right, 0.0))
+        p = self.body.GetWorldPoint(localPoint=b2Vec2(0.5 * self.diam, 0.0))
+        self.body.ApplyForce(f, p, True)
 
-            # Up
-            f = self.body.GetWorldVector(localVector=b2Vec2(0.0, -f_up))
-            p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))    
-            self.body.ApplyForce(f, p, True)
+        # Up
+        f = self.body.GetWorldVector(localVector=b2Vec2(0.0, -f_up))
+        p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))
+        self.body.ApplyForce(f, p, True)
 
-            # Down
-            f = self.body.GetWorldVector(localVector=b2Vec2(0.0, f_down))
-            p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))    
-            self.body.ApplyForce(f, p, True)
+        # Down
+        f = self.body.GetWorldVector(localVector=b2Vec2(0.0, f_down))
+        p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))
+        self.body.ApplyForce(f, p, True)

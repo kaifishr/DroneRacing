@@ -2,12 +2,12 @@ import time
 import numpy as np
 
 from Box2D.Box2D import b2Vec2, b2Color
-from src.framework import SimpleFramework as Framework
+from src.framework import Framework
 
 from torch.utils.tensorboard import SummaryWriter
 
 from src.config import Config
-from src.asset import Domain, Flyer
+from src.body import Domain, Drone
 
 
 class Environment(Framework):
@@ -27,7 +27,7 @@ class Environment(Framework):
         n_agents = config.optimizer.n_agents
 
         self.world.gravity = b2Vec2(config.env.gravity.x, config.env.gravity.y)
-        self.flyers = [Flyer(world=self.world, config=config) for _ in range(n_agents)]
+        self.flyers = [Drone(world=self.world, config=config) for _ in range(n_agents)]
         self.domain = Domain(world=self.world, config=config)
 
         setattr(self.world, "flyers", self.flyers)
@@ -35,7 +35,7 @@ class Environment(Framework):
     def reset(self) -> None:
         """Resets all flyers."""
         for flyer in self.flyers:
-            flyer.reset() 
+            flyer.reset()
 
     def ray_casting(self) -> None:
         """Runs ray casting for each Flyer"""
@@ -46,7 +46,7 @@ class Environment(Framework):
         """Mutates vertices of box."""
         # Get network of best fitest flyer
         model = self.flyers[idx_best].model
-        # Pass best model to other flyers and mutate weights 
+        # Pass best model to other flyers and mutate weights
         for flyer in self.flyers:
             flyer.mutate(model)
 
@@ -68,7 +68,7 @@ class Environment(Framework):
 
     def comp_action(self) -> None:
         """Computes next set of actions.
-        
+
         Next steps of action are computed by feeding obstacle data
         to the neural network.
         """
@@ -101,14 +101,13 @@ class Optimizer:
 
             # Ray casting -> Change order. Move before step()?
             self.env.ray_casting()
-        
+
             # Method that run every simulation step
             self.env.comp_action()
             self.env.apply_action()
             self.env.run_odometer()
 
-                
-            # Method that run at end of simulation 
+            # Method that run at end of simulation
             if (self.iteration + 1) % self.n_max_iterations == 0:
 
                 # Get index of agent who traveled the farthest
