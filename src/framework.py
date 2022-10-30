@@ -34,6 +34,8 @@ To use this backend, try:
 NOTE: Examples with Step() re-implemented are not yet supported, as I wanted
 to do away with the Settings class. This means the following will definitely
 not work: Breakable, Liquid, Raycast, TimeOfImpact, ... (incomplete)
+
+See also: https://github.com/pybox2d/pybox2d/blob/f8617198555d2e1539b0be82f0ee6e7db4d26085/library/Box2D/examples/backends/opencv_draw.py
 """
 import pygame
 from pygame.locals import QUIT, KEYDOWN 

@@ -2,8 +2,8 @@ seed: 0
 optimizer:
   n_agents: 8
   n_max_iterations: 1000
-  mutation_probability: 0.1
-  mutation_rate: 0.08
+  mutation_probability: 0.2
+  mutation_rate: 0.16
 env: 
   gravity: 
     # [m / s^2]
