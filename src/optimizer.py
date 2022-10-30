@@ -78,19 +78,19 @@ class Environment(Framework):
         for flyer in self.flyers:
             flyer.reset() 
 
-    def render_raycast(self):
-        """TODO: Add to renderer."""
-        for flyer in self.flyers:
-            for p1, p2, callback in zip(flyer.p1, flyer.p2, flyer.callbacks):
-                p1 = self.renderer.to_screen(p1)
-                p2 = self.renderer.to_screen(p2)
-                if callback.hit:
-                    cb_point = callback.point
-                    cb_point = self.renderer.to_screen(cb_point)
-                    self.renderer.DrawPoint(cb_point, 5.0, self.color_raycast_head)
-                    self.renderer.DrawSegment(p1, cb_point, self.color_raycast_line)
-                else:
-                    self.renderer.DrawSegment(p1, p2, self.color_raycast_line)
+    # def render_raycast(self):
+    #     """TODO: Add to renderer."""
+    #     for flyer in self.flyers:
+    #         for p1, p2, callback in zip(flyer.p1, flyer.p2, flyer.callbacks):
+    #             p1 = self.renderer.to_screen(p1)
+    #             p2 = self.renderer.to_screen(p2)
+    #             if callback.hit:
+    #                 cb_point = callback.point
+    #                 cb_point = self.renderer.to_screen(cb_point)
+    #                 self.renderer.DrawPoint(cb_point, 5.0, self.color_raycast_head)
+    #                 self.renderer.DrawSegment(p1, cb_point, self.color_raycast_line)
+    #             else:
+    #                 self.renderer.DrawSegment(p1, p2, self.color_raycast_line)
 
     def ray_casting(self) -> None:
         """Runs ray casting for each Flyer"""

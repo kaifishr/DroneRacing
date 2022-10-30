@@ -122,9 +122,14 @@ class Renderer: # Drawer
         edgeShape.draw = self._draw_edge
         polygonShape.draw = self._draw_polygon
 
-        ###
+        self.flip_x = False
+        self.flip_y = True
 
+        self.view_zoom = None # --> self.ppm or self.pixel_per_meter
+
+        ###################
         self.pd = PygameDraw(surface=self.screen)
+        ###################
 
     def render(self, world):
 
@@ -141,22 +146,43 @@ class Renderer: # Drawer
         for flyer in world.flyers:
             self._draw_raycast(flyer)
 
+    def _to_screen(self, point: b2Vec2) -> tuple:
+        """Transforms point from simulation to screen coordinates."""
+        x = point.x * viewZoom - viewOffset.x
+        if self.flip_x: x = screenSize.x - x
+        y = point.y * viewZoom - viewOffset.y 
+        if self.flip_y: y = screenSize.y - y
+        return (int(x), int(y))
+
+    def _draw_point(self, point, size, color):
+        """Draws point in specified size and color."""
+        self._draw_circle(point, size / viewZoom, color, width=0)
+
+    def _draw_circle(self, center, radius, color, width=1):
+        """Draws circle in specified size and color."""
+        radius *= viewZoom
+        radius = 1 if radius < 1 else int(radius)
+        pygame.draw.circle(self.screen, color.bytes, center, radius, width)
+
+    def _draw_segment(self, p1, p2, color):
+        """Draws line from points p1 to p2 in specified color."""
+        pygame.draw.aaline(self.screen, color.bytes, p1, p2)
+
     def _draw_raycast(self, flyer):
         for p1, p2, callback in zip(flyer.p1, flyer.p2, flyer.callbacks):
-            print(p1, p2)
-            p1 = self.pd.to_screen(p1)
-            p2 = self.pd.to_screen(p2)
-            print(p1, p2)
-            self.pd.DrawPoint((10, 10), 5.0, b2Color(0, 0, 0))
-            self.pd.DrawPoint((600, 600), 10.0, b2Color(0, 0, 0))
-            print()
+            p1 = self._to_screen(p1)
+            p2 = self._to_screen(p2)
+            # DEBUG >
+            self._draw_point((10, 10), 5.0, b2Color(0, 0, 0))
+            self._draw_point((600, 600), 10.0, b2Color(0, 0, 0))
+            # DEBUG <
             if callback.hit:
                 cb_point = callback.point
-                cb_point = self.pd.to_screen(cb_point)
-                self.pd.DrawPoint(cb_point, 2.0, b2Color(0.2, 0.3, 0.5))
-                self.pd.DrawSegment(p1, cb_point, b2Color(0.2, 0.3, 0.5))
+                cb_point = self._to_screen(cb_point)
+                self._draw_point(cb_point, 2.0, b2Color(0.2, 0.3, 0.5))
+                self._draw_segment(p1, cb_point, b2Color(0.2, 0.3, 0.5))
             else:
-                self.pd.DrawSegment(p1, p2, b2Color(0.2, 0.3, 0.5))
+                self._draw_segment(p1, p2, b2Color(0.2, 0.3, 0.5))
 
     @staticmethod
     def _fix_vertices(vertices):
