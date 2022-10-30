@@ -5,20 +5,17 @@ for renderer.
 """
 import pygame
 from pygame.locals import QUIT, KEYDOWN 
-from Box2D import b2DrawExtended, b2Vec2, b2Color
+from Box2D import b2Vec2, b2Color
 from Box2D.b2 import (
     world,
     staticBody,
     dynamicBody,
     kinematicBody,
     polygonShape,
-    circleShape,
     edgeShape,
-    loopShape,
 )
 
 from src.asset.flyer import Flyer
-
 
 PPM = 15.0  # ZOOM, pixels per meter
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 640
@@ -37,84 +34,8 @@ VEL_ITERS = 10
 POS_ITERS = 10
 
 viewZoom = 15.0
-viewCenter = b2Vec2(0.5 * SCREEN_WIDTH, 0.5 * SCREEN_HEIGHT)    # TODO: has no effect
 viewOffset = b2Vec2(-0.5 * SCREEN_WIDTH, -0.5 * SCREEN_HEIGHT)
 screenSize = b2Vec2(SCREEN_WIDTH, SCREEN_HEIGHT)
-
-
-class PygameDraw(b2DrawExtended):
-    """
-    This debug draw class accepts callbacks from Box2D (which specifies what to
-    draw) and handles all of the rendering.
-
-    If you are writing your own game, you likely will not want to use debug
-    drawing.  Debug drawing, as its name implies, is for debugging.
-    """
-    surface = None
-    axisScale = 10.0
-
-    def __init__(self, test=None, **kwargs):
-        b2DrawExtended.__init__(self, **kwargs)
-        self.flipX = False
-        self.flipY = True
-        self.convertVertices = False
-        self.test = test
-
-        self.zoom = viewZoom
-        self.center = viewCenter
-        self.offset = viewOffset
-        self.screenSize = screenSize
-
-    def DrawPoint(self, p, size, color):
-        """
-        Draw a single point at point p given a pixel size and color.
-        """
-        self.DrawCircle(p, size / self.zoom, color, drawwidth=0)
-
-    def DrawCircle(self, center, radius, color, drawwidth=1):
-        """
-        Draw a wireframe circle given the center, radius, axis of orientation
-        and color.
-        """
-        radius *= self.zoom
-        if radius < 1:
-            radius = 1
-        else:
-            radius = int(radius)
-
-        pygame.draw.circle(self.surface, color.bytes, center, radius, drawwidth)
-
-    def DrawSegment(self, p1, p2, color):
-        """
-        Draw the line segment from p1-p2 with the specified color.
-        """
-        pygame.draw.aaline(self.surface, color.bytes, p1, p2)
-
-    def DrawPolygon(self, vertices, color):
-        """
-        Draw a wireframe polygon given the screen vertices with the specified color.
-        """
-        if not vertices:
-            return
-
-        if len(vertices) == 2:
-            pygame.draw.aaline(self.surface, color.bytes, vertices[0], vertices)
-        else:
-            pygame.draw.polygon(self.surface, color.bytes, vertices, 1)
-
-    def DrawSolidPolygon(self, vertices, color):
-        """
-        Draw a filled polygon given the screen vertices with the specified color.
-        """
-        if not vertices:
-            return
-
-        if len(vertices) == 2:
-            pygame.draw.aaline(self.surface, color.bytes, vertices[0], vertices[1])
-        else:
-            pygame.draw.polygon(self.surface, (color / 2).bytes + [127], vertices, 0)
-            pygame.draw.polygon(self.surface, color.bytes, vertices, 1)
-
 
 class Renderer: # Drawer
 
@@ -128,10 +49,6 @@ class Renderer: # Drawer
         self.flip_y = True
 
         self.view_zoom = None # --> self.ppm or self.pixel_per_meter
-
-        ###################
-        self.pd = PygameDraw(surface=self.screen)
-        ###################
 
     def render(self, world):
 
@@ -170,7 +87,7 @@ class Renderer: # Drawer
         """Draws line from points p1 to p2 in specified color."""
         pygame.draw.aaline(self.screen, color.bytes, p1, p2)
 
-    def _draw_raycast(self, flyer):
+    def _draw_raycast(self, flyer: Flyer) -> None:
         for p1, p2, callback in zip(flyer.p1, flyer.p2, flyer.callbacks):
             p1 = self._to_screen(p1)
             p2 = self._to_screen(p2)
@@ -203,7 +120,6 @@ class Renderer: # Drawer
         force_direction = (-alpha * f_left, 0.0)
         p1 = flyer.body.GetWorldPoint(localPoint=local_point_left)
         p2 = p1 + flyer.body.GetWorldVector(force_direction)
-        # self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), line_color)
         self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
 
         # Right
@@ -211,7 +127,6 @@ class Renderer: # Drawer
         force_direction = (alpha * f_right, 0.0)
         p1 = flyer.body.GetWorldPoint(localPoint=local_point_right)
         p2 = p1 + flyer.body.GetWorldVector(force_direction)
-        # self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), line_color)
         self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
 
         # Up
@@ -219,7 +134,6 @@ class Renderer: # Drawer
         force_direction = (0.0, alpha * f_up)
         p1 = flyer.body.GetWorldPoint(localPoint=local_point_up)
         p2 = p1 + flyer.body.GetWorldVector(force_direction)
-        # self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), line_color)
         self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
         
         # Down
@@ -227,7 +141,6 @@ class Renderer: # Drawer
         force_direction = (0.0, -alpha * f_down)
         p1 = flyer.body.GetWorldPoint(localPoint=local_point_down)
         p2 = p1 + flyer.body.GetWorldVector(force_direction)
-        # self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), line_color)
         self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
 
     @staticmethod
@@ -245,7 +158,6 @@ class Renderer: # Drawer
         edge = fixture.shape
         vertices = self._fix_vertices([body.transform * edge.vertex1 * PPM, body.transform * edge.vertex2 * PPM])
         pygame.draw.line(self.screen, colors[body.type], vertices[0], vertices[1])
-
 
 
 class SimpleFramework:
@@ -266,10 +178,7 @@ class SimpleFramework:
         # Screen and debug draw
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.font = pygame.font.Font(None, 15)
-        self.renderer_ = Renderer(self.screen)
-
-        # self.renderer = PygameDraw(surface=self.screen, test=self)
-        # self.world.renderer = self.renderer
+        self.renderer = Renderer(self.screen)
 
         self.is_render = True
         self.clock = pygame.time.Clock()
@@ -301,17 +210,11 @@ class SimpleFramework:
         self.world.ClearForces()
 
         if self.is_render:
-
-            # draw_world(self.screen, self.world)
-            self.renderer_.render(self.world)
-
+            self.screen.fill((255, 255, 255))
+            self.renderer.render(self.world)
             pygame.display.flip()
-
             self.clock.tick(TARGET_FPS)
             self.fps = self.clock.get_fps()
-
-            self.screen.fill((255, 255, 255))
-
 
         print(f"FPS {self.fps:.0f}", flush=True, end="\r")
 
