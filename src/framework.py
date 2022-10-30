@@ -17,6 +17,8 @@ from Box2D.b2 import (
     loopShape,
 )
 
+from src.asset.flyer import Flyer
+
 
 PPM = 15.0  # ZOOM, pixels per meter
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 640
@@ -140,7 +142,7 @@ class Renderer: # Drawer
 
         # Render forces
         for flyer in world.flyers:
-            pass
+            self._draw_force(flyer)
 
         # Render rays
         for flyer in world.flyers:
@@ -184,6 +186,50 @@ class Renderer: # Drawer
             else:
                 self._draw_segment(p1, p2, b2Color(0.2, 0.3, 0.5))
 
+    def _draw_force(self, flyer: Flyer) -> None:
+        """Draws force vectors.
+
+        Purely cosmetic but helps with debugging. 
+        Arrows point towards direction the force is coming from.
+        """
+        # alpha = self.config.renderer.scale_force  # Scaling factor
+        alpha = 1.0  # Scaling factor
+        line_color = b2Color(1, 0, 0)
+
+        f_left, f_right, f_up, f_down = flyer.forces
+
+        # Left
+        local_point_left = b2Vec2(-0.5 * flyer.diam, 0.0)
+        force_direction = (-alpha * f_left, 0.0)
+        p1 = flyer.body.GetWorldPoint(localPoint=local_point_left)
+        p2 = p1 + flyer.body.GetWorldVector(force_direction)
+        # self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), line_color)
+        self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
+
+        # Right
+        local_point_right = b2Vec2(0.5 * flyer.diam, 0.0)
+        force_direction = (alpha * f_right, 0.0)
+        p1 = flyer.body.GetWorldPoint(localPoint=local_point_right)
+        p2 = p1 + flyer.body.GetWorldVector(force_direction)
+        # self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), line_color)
+        self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
+
+        # Up
+        local_point_up = b2Vec2(0.0, 0.5 * flyer.diam)
+        force_direction = (0.0, alpha * f_up)
+        p1 = flyer.body.GetWorldPoint(localPoint=local_point_up)
+        p2 = p1 + flyer.body.GetWorldVector(force_direction)
+        # self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), line_color)
+        self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
+        
+        # Down
+        local_point_down = b2Vec2(0.0, -0.5 * flyer.diam)
+        force_direction = (0.0, -alpha * f_down)
+        p1 = flyer.body.GetWorldPoint(localPoint=local_point_down)
+        p2 = p1 + flyer.body.GetWorldVector(force_direction)
+        # self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), line_color)
+        self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
+
     @staticmethod
     def _fix_vertices(vertices):
         return [(int(SCREEN_OFFSETX + v[0]), int(SCREEN_OFFSETY - v[1])) for v in vertices]
@@ -222,7 +268,7 @@ class SimpleFramework:
         self.font = pygame.font.Font(None, 15)
         self.renderer_ = Renderer(self.screen)
 
-        self.renderer = PygameDraw(surface=self.screen, test=self)
+        # self.renderer = PygameDraw(surface=self.screen, test=self)
         # self.world.renderer = self.renderer
 
         self.is_render = True

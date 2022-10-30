@@ -32,65 +32,10 @@ class Environment(Framework):
 
         setattr(self.world, "flyers", self.flyers)
 
-    def render_force(self):
-        """Displays force applied to Flyer.
-
-        Purely cosmetic but helps with debugging. Arrows point towards
-        direction the force is coming from.
-        """
-        alpha = self.config.renderer.scale_force  # Scaling factor
-        self.line_color = (1, 0, 0)
-
-        for flyer in self.flyers:
-            
-            f_left, f_right, f_up, f_down = flyer.forces
-
-            # Left
-            local_point_left = b2Vec2(-0.5 * flyer.diam, 0.0)
-            force_direction = (-alpha * f_left, 0.0)
-            p1 = flyer.body.GetWorldPoint(localPoint=local_point_left)
-            p2 = p1 + flyer.body.GetWorldVector(force_direction)
-            self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), b2Color(*self.line_color))
-
-            # Right
-            local_point_right = b2Vec2(0.5 * flyer.diam, 0.0)
-            force_direction = (alpha * f_right, 0.0)
-            p1 = flyer.body.GetWorldPoint(localPoint=local_point_right)
-            p2 = p1 + flyer.body.GetWorldVector(force_direction)
-            self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), b2Color(*self.line_color))
-
-            # Up
-            local_point_up = b2Vec2(0.0, 0.5 * flyer.diam)
-            force_direction = (0.0, alpha * f_up)
-            p1 = flyer.body.GetWorldPoint(localPoint=local_point_up)
-            p2 = p1 + flyer.body.GetWorldVector(force_direction)
-            self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), b2Color(*self.line_color))
-            
-            # Down
-            local_point_down = b2Vec2(0.0, -0.5 * flyer.diam)
-            force_direction = (0.0, -alpha * f_down)
-            p1 = flyer.body.GetWorldPoint(localPoint=local_point_down)
-            p2 = p1 + flyer.body.GetWorldVector(force_direction)
-            self.renderer.DrawSegment(self.renderer.to_screen(p1), self.renderer.to_screen(p2), b2Color(*self.line_color))
-
     def reset(self) -> None:
         """Resets all flyers."""
         for flyer in self.flyers:
             flyer.reset() 
-
-    # def render_raycast(self):
-    #     """TODO: Add to renderer."""
-    #     for flyer in self.flyers:
-    #         for p1, p2, callback in zip(flyer.p1, flyer.p2, flyer.callbacks):
-    #             p1 = self.renderer.to_screen(p1)
-    #             p2 = self.renderer.to_screen(p2)
-    #             if callback.hit:
-    #                 cb_point = callback.point
-    #                 cb_point = self.renderer.to_screen(cb_point)
-    #                 self.renderer.DrawPoint(cb_point, 5.0, self.color_raycast_head)
-    #                 self.renderer.DrawSegment(p1, cb_point, self.color_raycast_line)
-    #             else:
-    #                 self.renderer.DrawSegment(p1, p2, self.color_raycast_line)
 
     def ray_casting(self) -> None:
         """Runs ray casting for each Flyer"""
@@ -150,15 +95,12 @@ class Optimizer:
         is_running = True
 
         while is_running:
-            # TODO: move render methods to environment()
+
             # Physics and rendering
             self.env.step()
 
-            # Optimization
+            # Ray casting -> Change order. Move before step()?
             self.env.ray_casting()
-            # if self.is_render:
-            # self.env.render_raycast()
-            self.env.render_force() 
         
             # Method that run every simulation step
             self.env.comp_action()
