@@ -37,6 +37,7 @@ class RayCastCallback(b2RayCastCallback):
 
 
 class NeuralNetwork(nn.Module):
+    """TODO: Check if pure Numpy network is faster."""
 
     def __init__(self, config: Config) -> None:
         """Initializes NeuralNetwork class."""

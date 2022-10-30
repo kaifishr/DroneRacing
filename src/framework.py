@@ -1,45 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-# C++ version Copyright (c) 2006-2007 Erin Catto http://www.box2d.org
-# Python version Copyright (c) 2010 kne / sirkne at gmail dot com
-#
-# This software is provided 'as-is', without any express or implied
-# warranty.  In no event will the authors be held liable for any damages
-# arising from the use of this software.
-# Permission is granted to anyone to use this software for any purpose,
-# including commercial applications, and to alter it and redistribute it
-# freely, subject to the following restrictions:
-# 1. The origin of this software must not be misrepresented; you must not
-# claim that you wrote the original software. If you use this software
-# in a product, an acknowledgment in the product documentation would be
-# appreciated but is not required.
-# 2. Altered source versions must be plainly marked as such, and must not be
-# misrepresented as being the original software.
-# 3. This notice may not be removed or altered from any source distribution.
-
-"""
-A simple, minimal Pygame-based backend.
-It will only draw and support very basic keyboard input (ESC to quit).
-
-There are no main dependencies other than the actual test you are running.
-Note that this only relies on framework.py for the loading of this backend,
-and holding the Keys class. If you write a test that depends only on this
-backend, you can remove references to that file here and import this module
-directly in your test.
-
-To use this backend, try:
- % python -m examples.web --backend simple
-
-NOTE: Examples with Step() re-implemented are not yet supported, as I wanted
-to do away with the Settings class. This means the following will definitely
-not work: Breakable, Liquid, Raycast, TimeOfImpact, ... (incomplete)
+"""Minimal pygame-based framework for Box2D.
 
 See also: https://github.com/pybox2d/pybox2d/blob/f8617198555d2e1539b0be82f0ee6e7db4d26085/library/Box2D/examples/backends/opencv_draw.py
+for renderer.
 """
 import pygame
 from pygame.locals import QUIT, KEYDOWN 
-from Box2D import b2DrawExtended, b2Vec2
+from Box2D import b2DrawExtended, b2Vec2, b2Color
 from Box2D.b2 import (
     world,
     staticBody,
@@ -50,6 +16,28 @@ from Box2D.b2 import (
     edgeShape,
     loopShape,
 )
+
+
+PPM = 15.0  # ZOOM, pixels per meter
+SCREEN_WIDTH, SCREEN_HEIGHT = 640, 640
+SCREEN_OFFSETX, SCREEN_OFFSETY = 0.5 * SCREEN_WIDTH, 0.5 * SCREEN_HEIGHT
+colors = {
+    staticBody: (0, 0, 0, 255),
+    dynamicBody: (127, 127, 127, 255),
+    kinematicBody: (127, 127, 230, 255),
+}
+# Target frames per second.
+TARGET_FPS = 60
+TIMESTEP = 1.0 / TARGET_FPS
+# Iterations to compute next velocity
+VEL_ITERS = 10
+# Iterations to compute next position
+POS_ITERS = 10
+
+viewZoom = 15.0
+viewCenter = b2Vec2(0.5 * SCREEN_WIDTH, 0.5 * SCREEN_HEIGHT)    # TODO: has no effect
+viewOffset = b2Vec2(-0.5 * SCREEN_WIDTH, -0.5 * SCREEN_HEIGHT)
+screenSize = b2Vec2(SCREEN_WIDTH, SCREEN_HEIGHT)
 
 
 class PygameDraw(b2DrawExtended):
@@ -70,10 +58,10 @@ class PygameDraw(b2DrawExtended):
         self.convertVertices = False
         self.test = test
 
-        self.zoom = self.test.viewZoom
-        self.center = self.test.viewCenter
-        self.offset = self.test.viewOffset
-        self.screenSize = self.test.screenSize
+        self.zoom = viewZoom
+        self.center = viewCenter
+        self.offset = viewOffset
+        self.screenSize = screenSize
 
     def DrawPoint(self, p, size, color):
         """
@@ -126,45 +114,66 @@ class PygameDraw(b2DrawExtended):
             pygame.draw.polygon(self.surface, color.bytes, vertices, 1)
 
 
-PPM = 15.0  # ZOOM
-SCREEN_WIDTH, SCREEN_HEIGHT = 640, 640
-SCREEN_OFFSETX, SCREEN_OFFSETY = 0.5 * SCREEN_WIDTH, 0.5 * SCREEN_HEIGHT
-colors = {
-    staticBody: (255, 255, 255, 255),
-    dynamicBody: (127, 127, 127, 255),
-    kinematicBody: (127, 127, 230, 255),
-}
+class Renderer: # Drawer
 
+    def __init__(self, screen) -> None:
+        self.screen = screen
+        # Installing drawing methods
+        edgeShape.draw = self._draw_edge
+        polygonShape.draw = self._draw_polygon
 
-def fix_vertices(vertices):
-    return [(int(SCREEN_OFFSETX + v[0]), int(SCREEN_OFFSETY - v[1])) for v in vertices]
+        ###
 
+        self.pd = PygameDraw(surface=self.screen)
 
-def _draw_polygon(polygon, screen, body, fixture):
-    transform = body.transform
-    vertices = fix_vertices([transform * v * PPM for v in polygon.vertices])
-    pygame.draw.polygon(screen, [c / 2.0 for c in colors[body.type]], vertices, 0)      # Frame
-    pygame.draw.polygon(screen, colors[body.type], vertices, 1)                         # Face color
+    def render(self, world):
 
+        # Render bodies
+        for body in world.bodies:
+            for fixture in body.fixtures:
+                fixture.shape.draw(body, fixture)
 
-polygonShape.draw = _draw_polygon
+        # Render forces
+        for flyer in world.flyers:
+            pass
 
+        # Render rays
+        for flyer in world.flyers:
+            self._draw_raycast(flyer)
 
-def _draw_edge(edge, screen, body, fixture):
-    vertices = fix_vertices(
-        [body.transform * edge.vertex1 * PPM, body.transform * edge.vertex2 * PPM]
-    )
-    pygame.draw.line(screen, colors[body.type], vertices[0], vertices[1])
+    def _draw_raycast(self, flyer):
+        for p1, p2, callback in zip(flyer.p1, flyer.p2, flyer.callbacks):
+            print(p1, p2)
+            p1 = self.pd.to_screen(p1)
+            p2 = self.pd.to_screen(p2)
+            print(p1, p2)
+            self.pd.DrawPoint((10, 10), 5.0, b2Color(0, 0, 0))
+            self.pd.DrawPoint((600, 600), 10.0, b2Color(0, 0, 0))
+            print()
+            if callback.hit:
+                cb_point = callback.point
+                cb_point = self.pd.to_screen(cb_point)
+                self.pd.DrawPoint(cb_point, 2.0, b2Color(0.2, 0.3, 0.5))
+                self.pd.DrawSegment(p1, cb_point, b2Color(0.2, 0.3, 0.5))
+            else:
+                self.pd.DrawSegment(p1, p2, b2Color(0.2, 0.3, 0.5))
 
+    @staticmethod
+    def _fix_vertices(vertices):
+        return [(int(SCREEN_OFFSETX + v[0]), int(SCREEN_OFFSETY - v[1])) for v in vertices]
 
-edgeShape.draw = _draw_edge
+    def _draw_polygon(self, body, fixture):
+        polygon = fixture.shape
+        transform = body.transform
+        vertices = self._fix_vertices([transform * v * PPM for v in polygon.vertices])
+        pygame.draw.polygon(self.screen, [c / 2.0 for c in colors[body.type]], vertices, 0)      # Frame
+        pygame.draw.polygon(self.screen, colors[body.type], vertices, 1)                         # Face color
 
+    def _draw_edge(self, body, fixture):
+        edge = fixture.shape
+        vertices = self._fix_vertices([body.transform * edge.vertex1 * PPM, body.transform * edge.vertex2 * PPM])
+        pygame.draw.line(self.screen, colors[body.type], vertices[0], vertices[1])
 
-def draw_world(screen, world):
-    # Draw the world
-    for body in world.bodies:
-        for fixture in body.fixtures:
-            fixture.shape.draw(screen, body, fixture)
 
 
 class SimpleFramework:
@@ -173,19 +182,6 @@ class SimpleFramework:
     name = ""
     description = ""
 
-    # Target frames per second.
-    TARGET_FPS = 60
-    TIMESTEP = 1.0 / TARGET_FPS
-    # Iterations to compute next velocity
-    VEL_ITERS = 10
-    # Iterations to compute next position
-    POS_ITERS = 10
-
-    viewZoom = 15.0
-    viewCenter = b2Vec2(0.5 * SCREEN_WIDTH, 0.5 * SCREEN_HEIGHT)    # TODO: has no effect
-    viewOffset = b2Vec2(-0.5 * SCREEN_WIDTH, -0.5 * SCREEN_HEIGHT)
-    screenSize = b2Vec2(SCREEN_WIDTH, SCREEN_HEIGHT)
-
     def __init__(self):
 
         self.world = world()
@@ -193,15 +189,15 @@ class SimpleFramework:
 
         # Pygame Initialization
         pygame.init()
-        caption = self.name
-        pygame.display.set_caption(caption)
+        pygame.display.set_caption(self.name)
 
         # Screen and debug draw
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.font = pygame.font.Font(None, 15)
+        self.renderer_ = Renderer(self.screen)
 
         self.renderer = PygameDraw(surface=self.screen, test=self)
-        self.world.renderer = self.renderer
+        # self.world.renderer = self.renderer
 
         self.is_render = True
         self.clock = pygame.time.Clock()
@@ -229,19 +225,20 @@ class SimpleFramework:
                     exit()
 
         # Step the world
-        self.world.Step(self.TIMESTEP, self.VEL_ITERS, self.POS_ITERS)
+        self.world.Step(TIMESTEP, VEL_ITERS, POS_ITERS)
         self.world.ClearForces()
 
         if self.is_render:
 
-            draw_world(self.screen, self.world)
+            # draw_world(self.screen, self.world)
+            self.renderer_.render(self.world)
 
             pygame.display.flip()
 
-            self.clock.tick(self.TARGET_FPS)
+            self.clock.tick(TARGET_FPS)
             self.fps = self.clock.get_fps()
 
-            self.screen.fill((0, 0, 0))
+            self.screen.fill((255, 255, 255))
 
 
         print(f"FPS {self.fps:.0f}", flush=True, end="\r")

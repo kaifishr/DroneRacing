@@ -1,3 +1,4 @@
+import time
 import numpy as np
 
 from Box2D.Box2D import b2Vec2, b2Color
@@ -11,7 +12,7 @@ from src.asset import Domain, Flyer
 
 class Environment(Framework):
 
-    name = "Flyer"
+    name = "Drones"
     description = "Learning environment."
 
     color_raycast_line = b2Color(0, 0, 1)
@@ -28,6 +29,8 @@ class Environment(Framework):
         self.world.gravity = b2Vec2(config.env.gravity.x, config.env.gravity.y)
         self.flyers = [Flyer(world=self.world, config=config) for _ in range(n_agents)]
         self.domain = Domain(world=self.world, config=config)
+
+        setattr(self.world, "flyers", self.flyers)
 
     def render_force(self):
         """Displays force applied to Flyer.
@@ -150,17 +153,18 @@ class Optimizer:
             # TODO: move render methods to environment()
             # Physics and rendering
             self.env.step()
-            # Optimization
 
+            # Optimization
             self.env.ray_casting()
             # if self.is_render:
-            self.env.render_raycast()
+            # self.env.render_raycast()
             self.env.render_force() 
         
             # Method that run every simulation step
             self.env.comp_action()
             self.env.apply_action()
             self.env.run_odometer()
+
                 
             # Method that run at end of simulation 
             if (self.iteration + 1) % self.n_max_iterations == 0:

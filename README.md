@@ -1,6 +1,6 @@
-# Flyers / Drones
+# Drones
 
-The goal of Flyer was to built an environment for an agent with the simple task of covering as much distance as possible and to avoid collisions with the domains border.
+The goal of *Drones* was to built an environment for an agent with the simple task of covering as much distance as possible.
 
 ![](docs/flyer.png)
 
@@ -17,6 +17,7 @@ The environment consists of a square box with rigid walls, containing one or mor
 ...
 
 # TODO:
+- Refactor rendering.
 - Refactor code
 - Allow thrust to have two components
 - Consider contact to domain wall in score

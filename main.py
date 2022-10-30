@@ -6,5 +6,5 @@ from src.utils import set_random_seed
 if __name__ == "__main__":
     config = load_config(path="config.yml")
     set_random_seed(seed=config.seed)
-    flyer = Optimizer(config=config)
-    flyer.run()
+    optimizer = Optimizer(config=config)
+    optimizer.run()
