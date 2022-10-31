@@ -19,6 +19,7 @@ The environment consists of a square box with rigid walls, containing one or mor
 # TODO:
 
 - Refactor rendering
+    - Dont flip Y
 - Refactor network
 - Profile code
 - Save best networks

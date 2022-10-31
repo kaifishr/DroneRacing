@@ -4,7 +4,7 @@ optimizer:
   num_agents: 8
   num_max_steps: 1000
   mutation_probability: 0.1
-  mutation_rate: 0.05
+  mutation_rate: 0.08
 
 env: 
   allow_collision: false
