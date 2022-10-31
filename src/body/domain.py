@@ -24,8 +24,15 @@ class Domain:
 
         shapes += self._get_domain_boundary()
 
-        if self.config.obstacle.horizontal_bar:
-            shapes += self._get_horizontal_bar()
+        map_ = self.config.map
+        if map_ == "cross":
+            shapes += self._get_map_cross()
+        elif map_ == "dead_end":
+            raise NotImplementedError(f"Map '{map_}' not implemented.")
+        elif map_ == "maze":
+            raise NotImplementedError(f"Map '{map_}' not implemented.")
+        else:
+            raise NotImplementedError(f"Map '{map_}' is not a valid map.")
 
         world.CreateStaticBody(shapes=shapes)
 
@@ -43,7 +50,7 @@ class Domain:
 
         return domain_boundary
 
-    def _get_horizontal_bar(self) -> list:
+    def _get_map_cross(self) -> list:
         """Creates a horizontal bar."""
 
         fraction = 0.75
@@ -54,7 +61,7 @@ class Domain:
 
         x_0 = 0.5 * (x_min + x_max)
         y_0 = y_max
-        x_1 = x_0 
+        x_1 = x_0
         y_1 = fraction * y_max
 
         obstacle = [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]

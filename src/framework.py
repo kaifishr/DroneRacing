@@ -61,7 +61,7 @@ class Framework:
         self.world.ClearForces()
 
         if self.is_render:
-            self.screen.fill((0, 0, 0))   # TODO: move this to renderer?
+            self.screen.fill((0, 0, 0))  # TODO: move this to renderer?
             self.renderer.render(self.world)
             pygame.display.flip()
             self.clock.tick(TARGET_FPS)

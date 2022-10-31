@@ -1,6 +1,6 @@
 # Drones
 
-The goal of *Drones* was to built an environment for an agent with the simple task of covering as much distance as possible.
+*Drones* provides a simple learning environment for genetic optimization with many possible extensions. The drones' goal is to cover as much distance as possible in a certain period of time. *Drones* comes with different worlds that vary in difficulty.
 
 ![](docs/flyer.png)
 

@@ -26,7 +26,7 @@ class Environment(Framework):
 
     Attributes:
         domain: Domain walls.
-        drones: 
+        drones:
     """
 
     def __init__(self, config: Config) -> None:
@@ -37,10 +37,15 @@ class Environment(Framework):
 
         self.world.gravity = b2Vec2(config.env.gravity.x, config.env.gravity.y)
         self.domain = Domain(world=self.world, config=config)
-        self.drones = [Drone(world=self.world, config=config) for _ in range(num_agents)]
+        self.drones = [
+            Drone(world=self.world, config=config) for _ in range(num_agents)
+        ]
 
         # Add reference of drones to world class for easier rendering handling.
         setattr(self.world, "drones", self.drones)
+
+        # Index of current fittest agent
+        self.idx_best = 0
 
     def reset(self) -> None:
         """Resets all drones."""
@@ -52,11 +57,6 @@ class Environment(Framework):
         for drone in self.drones:
             drone.ray_casting()
 
-    def apply_action(self) -> None:
-        """Applies action coming from neural network to all drones."""
-        for drone in self.drones:
-            drone.apply_action()
-
     def run_odometer(self) -> None:
         """Runs odometer to compute distance covered by each drone."""
         for drone in self.drones:
@@ -67,21 +67,22 @@ class Environment(Framework):
         for drone in self.drones:
             drone.comp_action()
 
-    def mutate(self, idx_best: int) -> None:
-        """Mutates network parameters of each drone.
+    def apply_action(self) -> None:
+        """Applies action coming from neural network to all drones."""
+        for drone in self.drones:
+            drone.apply_action()
 
-        Args:
-            idx_best: Index of best drone.
-        """
-        # Get network of fittest drone.
-        model = self.drones[idx_best].model
+    def select(self) -> float:
+        """Selects best agent for reproduction."""
+        distances = [drone.distance for drone in self.drones]
+        self.idx_best = np.argmax(distances)
+        return distances[self.idx_best]
 
-        # Pass best model to other drones and mutate weights.
+    def mutate(self) -> None:
+        """Mutates network parameters of each drone."""
+        # Get network of fittest drone to reproduce.
+        model = self.drones[self.idx_best].model
+
+        # Pass best model to other drones and mutate their weights.
         for drone in self.drones:
             drone.mutate(model)
-
-    def get_distance(self) -> None:
-        """Gets distance traveled by drones."""
-        distances = [drone.distance for drone in self.drones]
-        idx_best = np.argmax(distances)
-        return idx_best, distances[idx_best]

@@ -22,6 +22,7 @@ class Engines:
         density:
         friction:
     """
+
     # Engine design parameters
     height = 0.4
     width_min = 0.1
@@ -61,18 +62,21 @@ class Engines:
         diam = self.config.env.drone.diam
 
         mount_points = [
-            b2Vec2(0.0, 0.5 * diam),   # top
+            b2Vec2(0.0, 0.5 * diam),  # top
             b2Vec2(-0.5 * diam, 0.0),  # left
             b2Vec2(0.0, -0.5 * diam),  # bottom
-            b2Vec2(0.5 * diam, 0.0),   # right
+            b2Vec2(0.5 * diam, 0.0),  # right
         ]
 
         # Negative groups never collide.
-        group_index = -1 if not self.config.env.allow_collision else 0
+        if not self.config.env.allow_collision:
+            group_index = -1
+        else:
+            group_index = 0
 
         for mount_point, theta in zip(mount_points, [0.0, 90.0, 180.0, 270.0]):
 
-            engine_vertices = self._engine_nozzle(mount_point=mount_point, theta=theta) 
+            engine_vertices = self._engine_nozzle(mount_point=mount_point, theta=theta)
             engine_polygon = b2PolygonShape(vertices=engine_vertices)
 
             engine_fixture_def = b2FixtureDef(

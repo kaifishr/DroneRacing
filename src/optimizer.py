@@ -10,7 +10,7 @@ class Optimizer:
     """Optimizer class.
 
     Optimizer uses genetic optimization.
-    
+
     Attributes:
         config:
         env:
@@ -52,12 +52,11 @@ class Optimizer:
             # Method that run at end of simulation.
             if (step + 1) % num_max_steps == 0:
 
-                # Get index of agent who traveled the farthest.
-                idx_best, distance = self.env.get_distance()
+                # Select fittest agent based on distance traveled.
+                distance = self.env.select()
 
-                # Pass networks weights of best agent to next generation
-                # and mutate their weights.
-                self.env.mutate(idx_best)
+                # Reproduce and mutate weights of best agent.
+                self.env.mutate()
 
                 # Reset drones to start over again.
                 self.env.reset()

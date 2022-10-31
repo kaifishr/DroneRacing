@@ -35,27 +35,22 @@ class Drone:
         self.world = world
         self.config = config
 
-        self.ray_length = self.config.env.drone.ray_length
-        self.max_force = self.config.env.drone.engine.max_force
-        self.diam = self.config.env.drone.diam
+        # Initialize drone body
+        rx_init = config.env.drone.init_position.x
+        ry_init = config.env.drone.init_position.y
+        self.init_position = b2Vec2(rx_init, ry_init)
 
-        fixed_rotation = self.config.env.drone.fixed_rotation
-        density = self.config.env.drone.density
-        friction = self.config.env.drone.friction
+        vx_init = config.env.drone.init_linear_velocity.x
+        vy_init = config.env.drone.init_linear_velocity.y
+        self.init_linear_velocity = b2Vec2(vx_init, vy_init)
 
-        self.init_position = b2Vec2(
-            config.env.drone.init_position.x, config.env.drone.init_position.y
-        )
-        self.init_linear_velocity = b2Vec2(
-            config.env.drone.init_linear_velocity.x,
-            config.env.drone.init_linear_velocity.y,
-        )
         self.init_angular_velocity = config.env.drone.init_angular_velocity
         self.init_angle = (config.env.drone.init_angle * math.pi) / 180.0
+        fixed_rotation = config.env.drone.fixed_rotation
 
         self.body = world.CreateDynamicBody(
             bullet=False,
-            allowSleep=True,
+            allowSleep=False,
             position=self.init_position,
             linearVelocity=self.init_linear_velocity,
             angularVelocity=self.init_angular_velocity,
@@ -63,91 +58,108 @@ class Drone:
             fixedRotation=fixed_rotation,
         )
 
-        # Negative groups never collide.
-        group_index = -1 if not self.config.env.allow_collision else 0
-
+        self.diam = config.env.drone.diam
         vertices = [(self.diam * x, self.diam * y) for (x, y) in self._vertices]
-        self.fixture_def = b2FixtureDef(
+
+        # Negative groups never collide.
+        if not config.env.allow_collision:
+            group_index = -1
+        else:
+            group_index = 0
+
+        fixture_def = b2FixtureDef(
             shape=b2PolygonShape(vertices=vertices),
-            density=density,
-            friction=friction,
+            density=config.env.drone.density,
+            friction=config.env.drone.friction,
             filter=b2Filter(groupIndex=group_index),
         )
 
-        self.fixture = self.body.CreateFixture(self.fixture_def)
+        self.fixture = self.body.CreateFixture(fixture_def)
 
+        # Engines   TODO: move this to Engine class?
         self.engines = Engines(body=self.body, config=config)
+        self.max_force = config.env.drone.engine.max_force
 
-        self.callback = RayCastCallback
-
-        # Ray casting points
+        # Define direction in which we look for obstacles
+        ray_length = config.env.drone.ray_length
         self.points = [
-            b2Vec2(self.ray_length, self.ray_length),
-            b2Vec2(-self.ray_length, self.ray_length),
-            b2Vec2(-self.ray_length, -self.ray_length),
-            b2Vec2(self.ray_length, -self.ray_length),
+            b2Vec2(ray_length, ray_length),
+            b2Vec2(-ray_length, ray_length),
+            b2Vec2(-ray_length, -ray_length),
+            b2Vec2(ray_length, -ray_length),
         ]
 
-        # Domain
-        self.domain_diam_x = config.env.domain.limit.x_max - config.env.domain.limit.x_min
-        self.domain_diam_y = config.env.domain.limit.y_max - config.env.domain.limit.y_min
+        # Neural Network
+        self.model = NeuralNetwork(config)
+        self.model.eval()   # No gradients for genetic optimization required.
+
+        # Domain 
+        self.x_max = config.env.domain.limit.x_max
+        self.x_min = config.env.domain.limit.x_min
+        self.y_max = config.env.domain.limit.y_max
+        self.y_min = config.env.domain.limit.y_min
+
+        # Compute normalization parameter
+        domain_diam_x = self.x_max - self.x_min
+        domain_diam_y = self.y_max - self.y_min
+        self.normalizer = 1.0 / (domain_diam_x ** 2 + domain_diam_y ** 2) ** 0.5
 
         # Odometer
         self.distance = 0.0
         self.position_old = None
 
-        # Obstacle detection data
-        self.data = None
-
-        # Neural Network
-        self.model = NeuralNetwork(config)
-        # Use evaluation model as no gradients for genetic optimization required.
-        self.model.eval()   
-
-        # Forces predicted by neural network
+        # Forces predicted by neural network.
+        # Initialized with 0 for each engine.
         self.forces = [0.0 for _ in range(4)]
 
+        # Ray casting   TODO: move this to Raycast class?
+        self.callback = RayCastCallback
         # Ray casting rendering
         self.callbacks = []
         self.p1 = []
         self.p2 = []
 
-    def reset(self, noise: bool = False) -> None:
+        # Input data for neural network 
+        self.data = None
+
+    def reset(self) -> None:
         """Resets Drone to initial position and velocity."""
-        init_position = self.init_position
-        init_linear_velocity = self.init_linear_velocity
-        init_angular_velocity = self.init_angular_velocity
-        init_angle = self.init_angle
 
-        noise_pos_x = self.config.env.drone.noise.position.x
-        noise_pos_y = self.config.env.drone.noise.position.y
-
-        x_min = self.config.env.domain.limit.x_min
-        x_max = self.config.env.domain.limit.x_max
-        y_min = self.config.env.domain.limit.y_min
-        y_max = self.config.env.domain.limit.y_max
-
-        pos_x = noise_pos_x * random.uniform(a=x_min, b=x_max)
-        pos_y = noise_pos_y * random.uniform(a=y_min, b=y_max)
-        init_position = b2Vec2(pos_x, pos_y)
+        if self.config.env.drone.noise.add_noise:
+            # Add noise to position
+            noise_pos_x = self.config.env.drone.noise.position.x
+            noise_pos_y = self.config.env.drone.noise.position.y
+            pos_x = noise_pos_x * random.uniform(a=self.x_min, b=self.x_max)
+            pos_y = noise_pos_y * random.uniform(a=self.y_min, b=self.y_max)
+            init_position = b2Vec2(pos_x, pos_y)
+        else:
+            init_position = self.init_position
 
         self.body.position = init_position
-        self.body.linearVelocity = init_linear_velocity
-        self.body.angularVelocity = init_angular_velocity
-        self.body.angle = init_angle
+        self.body.linearVelocity = self.init_linear_velocity
+        self.body.angularVelocity = self.init_angular_velocity
+        self.body.angle = self.init_angle
 
         # Reset variables for odometer
         self.distance = 0.0
         self.position_old = None
 
     def mutate(self, model: nn.Module) -> None:
-        """Mutates Drone model."""
-
-        # Copy weights
+        """Mutates drone's neural network.
+        
+        Attr:
+            model: The current best model.
+        """
         self.model = copy.deepcopy(model)
-
-        # Mutate weights
         self.model.mutate_weights()
+
+    def odometer(self) -> float:
+        """Computes distance traveled by drone."""
+        if self.position_old is None:
+            self.position_old = self.body.position
+        diff = self.position_old - self.body.position
+        self.distance += (diff.x ** 2 + diff.y ** 2) ** 0.5
+        self.position_old = copy.copy(self.body.position)
 
     def ray_casting(self):
         """Uses ray casting to measure distane to domain walls."""
@@ -157,50 +169,43 @@ class Drone:
         self.p2 = []
         self.data = []
 
-        for point in self.points:  # for ray in self.rays
-            p1 = self.body.position
+        p1 = self.body.position
+
+        for point in self.points: 
+
+            # Perform ray casting from drone position p1 to to point p2.
             p2 = p1 + self.body.GetWorldVector(localVector=point)
             cb = self.callback()
             self.world.RayCast(cb, p1, p2)
 
-            # Store ray casting data for rendering
-            self.callbacks.append(copy.copy(cb))
-            self.p1.append(copy.copy(p1))
-            self.p2.append(copy.copy(p2))
+            # Save ray casting data for rendering.
+            self.p1.append(p1)
+            self.p2.append(p2)
+            self.callbacks.append(cb)
 
-            # Collect data
+            # Gather data
             if cb.hit:
-                # Compute diagonal distance from Drone to wall from raw features.
-                self.data.append(
-                    ((cb.point.x - p1.x) ** 2 + (cb.point.y - p1.y) ** 2) ** 0.5
-                )
+                # When the ray has hit something compute distance
+                # from drone to obstacle from raw features.
+                diff = cb.point - p1
+                dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
+                self.data.append(dist)
             else:
                 self.data.append(-1.0)
 
         # Normalize data
-        self.data = (
-            torch.tensor(self.data)
-            / (self.domain_diam_x**2 + self.domain_diam_y**2) ** 0.5
-        )
-
-    def odometer(self) -> float:
-        """Measures distance traveled by drone."""
-        if self.position_old is None:
-            self.position_old = self.body.position
-        d = self.position_old - self.body.position
-        self.distance += math.sqrt(d.x**2 + d.y**2)
-        self.position_old = copy.copy(self.body.position)
+        self.data = self.normalizer * torch.tensor(self.data)
 
     def comp_action(self) -> None:
         """Computes next section of actions applied to engines.
-        
+
         Next steps of action are computed by feeding obstacle data coming
-        from ray casting to the drone's neural network which then returns 
+        from ray casting to the drone's neural network which then returns
         a set of actions (forces) to be applied to the drone's engines.
         """
         forces = self.model(self.data)
-        forces = forces.detach().numpy()
-        self.forces = self.config.env.drone.engine.max_force * forces.astype(np.float)
+        forces = forces.detach().numpy().astype(np.float)
+        self.forces = self.max_force * forces
 
     def apply_action(self) -> None:
         """Applies force to Drone coming from neural network.
@@ -208,8 +213,6 @@ class Drone:
         Each engine is controlled individually.
 
         """
-        # self.forces = [random.uniform(0, 1) * self.max_force for _ in range(4)]  # some random data
-
         f_left, f_right, f_up, f_down = self.forces
 
         # Left

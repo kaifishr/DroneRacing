@@ -29,7 +29,7 @@ class RayCastCallback(b2RayCastCallback):
             fraction:
         """
         # Ignore engines.
-        if fixture.filterData.groupIndex == -1: 
+        if fixture.filterData.groupIndex == -1:
             return 1.0
 
         # Fixture of the hit body. Interesting for multi-agent environments.
@@ -37,9 +37,9 @@ class RayCastCallback(b2RayCastCallback):
         self.fixture = fixture
 
         # Point of contact of body.
-        self.point = b2Vec2(point)  
+        self.point = b2Vec2(point)
 
         # Normal vector at point of contact. Perpendicular to body surface.
-        self.normal = b2Vec2(normal)  
+        self.normal = b2Vec2(normal)
 
         return fraction

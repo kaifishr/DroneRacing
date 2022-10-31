@@ -8,7 +8,7 @@ from src.config import Config
 class NeuralNetwork(nn.Module):
     """Network class.
 
-    Simple fully-connected neural network. 
+    Simple fully-connected neural network.
 
     Attributes:
         mutation_prob:
@@ -39,7 +39,7 @@ class NeuralNetwork(nn.Module):
         for _ in range(num_hidden):
             layers += [
                 nn.Linear(in_features=hidden_features, out_features=hidden_features),
-                nn.GELU()
+                nn.GELU(),
             ]
 
         layers += [
@@ -75,4 +75,3 @@ class NeuralNetwork(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.net(x)
-    
