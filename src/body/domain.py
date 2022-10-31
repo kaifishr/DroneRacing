@@ -51,19 +51,28 @@ class Domain:
         return domain_boundary
 
     def _get_map_cross(self) -> list:
-        """Creates a horizontal bar."""
+        """Creates a cross in the center of the domain."""
 
-        fraction = 0.75
+        fraction = 0.5
 
         x_min = self.x_min
         x_max = self.x_max
+        y_min = self.y_min
         y_max = self.y_max
 
-        x_0 = 0.5 * (x_min + x_max)
-        y_0 = y_max
-        x_1 = x_0
-        y_1 = fraction * y_max
+        x_0 = fraction * x_min
+        y_0 = 0.0
+        x_1 = fraction * x_max
+        y_1 = 0.0
 
-        obstacle = [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+        x_2 = 0.0 
+        y_2 = fraction * y_min
+        x_3 = 0.0 
+        y_3 = fraction * y_max
+
+        obstacle = [
+            b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)]),
+            b2EdgeShape(vertices=[(x_2, y_2), (x_3, y_3)])
+        ]
 
         return obstacle
