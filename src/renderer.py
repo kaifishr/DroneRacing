@@ -16,7 +16,7 @@ PPM = 15.0  # ZOOM, pixels per meter
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 640
 SCREEN_OFFSETX, SCREEN_OFFSETY = 0.5 * SCREEN_WIDTH, 0.5 * SCREEN_HEIGHT
 colors = {
-    staticBody: (0, 0, 0, 255),
+    staticBody: (220, 220, 220, 255),
     dynamicBody: (127, 127, 127, 255),
     kinematicBody: (127, 127, 230, 255),
 }
@@ -38,18 +38,18 @@ class Renderer:
 
     def render(self, world):
 
-        # Render bodies
+        # Render rays.
+        for drone in world.drones:
+            self._draw_raycast(drone)
+
+        # Render force vectors.
+        for drone in world.drones:
+            self._draw_force(drone)
+
+        # Render bodies.
         for body in world.bodies:
             for fixture in body.fixtures:
                 fixture.shape.draw(body, fixture)
-
-        # Render forces
-        for flyer in world.flyers:
-            self._draw_force(flyer)
-
-        # Render rays
-        for flyer in world.flyers:
-            self._draw_raycast(flyer)
 
     def _to_screen(self, point: b2Vec2) -> tuple:
         """Transforms point from simulation to screen coordinates."""
@@ -75,23 +75,27 @@ class Renderer:
         """Draws line from points p1 to p2 in specified color."""
         pygame.draw.aaline(self.screen, color.bytes, p1, p2)
 
-    def _draw_raycast(self, flyer: Drone) -> None:
-        for p1, p2, callback in zip(flyer.p1, flyer.p2, flyer.callbacks):
+    def _draw_raycast(self, drone: Drone) -> None:
+
+        color_line = b2Color(0.5, 0.0, 0.5)
+        color_head = b2Color(1.0, 0.0, 1.0)
+
+        for p1, p2, callback in zip(drone.p1, drone.p2, drone.callbacks):
             p1 = self._to_screen(p1)
             p2 = self._to_screen(p2)
             # DEBUG >
-            self._draw_point((10, 10), 5.0, b2Color(0, 0, 0))
-            self._draw_point((600, 600), 10.0, b2Color(0, 0, 0))
+            self._draw_point((10, 10), 5.0, color_head)
+            self._draw_point((600, 600), 10.0, color_head)
             # DEBUG <
             if callback.hit:
                 cb_point = callback.point
                 cb_point = self._to_screen(cb_point)
-                self._draw_point(cb_point, 2.0, b2Color(0.2, 0.3, 0.5))
-                self._draw_segment(p1, cb_point, b2Color(0.2, 0.3, 0.5))
+                self._draw_point(cb_point, 3.0, color_head)
+                self._draw_segment(p1, cb_point, color_line)
             else:
-                self._draw_segment(p1, p2, b2Color(0.2, 0.3, 0.5))
+                self._draw_segment(p1, p2, color_line)
 
-    def _draw_force(self, flyer: Drone) -> None:
+    def _draw_force(self, drone: Drone) -> None:
         """Draws force vectors.
 
         Purely cosmetic but helps with debugging.
@@ -101,34 +105,34 @@ class Renderer:
         alpha = 1.0  # Scaling factor
         line_color = b2Color(1, 0, 0)
 
-        f_left, f_right, f_up, f_down = flyer.forces
+        f_left, f_right, f_up, f_down = drone.forces
 
         # Left
-        local_point_left = b2Vec2(-0.5 * flyer.diam, 0.0)
+        local_point_left = b2Vec2(-0.5 * drone.diam, 0.0)
         force_direction = (-alpha * f_left, 0.0)
-        p1 = flyer.body.GetWorldPoint(localPoint=local_point_left)
-        p2 = p1 + flyer.body.GetWorldVector(force_direction)
+        p1 = drone.body.GetWorldPoint(localPoint=local_point_left)
+        p2 = p1 + drone.body.GetWorldVector(force_direction)
         self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
 
         # Right
-        local_point_right = b2Vec2(0.5 * flyer.diam, 0.0)
+        local_point_right = b2Vec2(0.5 * drone.diam, 0.0)
         force_direction = (alpha * f_right, 0.0)
-        p1 = flyer.body.GetWorldPoint(localPoint=local_point_right)
-        p2 = p1 + flyer.body.GetWorldVector(force_direction)
+        p1 = drone.body.GetWorldPoint(localPoint=local_point_right)
+        p2 = p1 + drone.body.GetWorldVector(force_direction)
         self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
 
         # Up
-        local_point_up = b2Vec2(0.0, 0.5 * flyer.diam)
+        local_point_up = b2Vec2(0.0, 0.5 * drone.diam)
         force_direction = (0.0, alpha * f_up)
-        p1 = flyer.body.GetWorldPoint(localPoint=local_point_up)
-        p2 = p1 + flyer.body.GetWorldVector(force_direction)
+        p1 = drone.body.GetWorldPoint(localPoint=local_point_up)
+        p2 = p1 + drone.body.GetWorldVector(force_direction)
         self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
 
         # Down
-        local_point_down = b2Vec2(0.0, -0.5 * flyer.diam)
+        local_point_down = b2Vec2(0.0, -0.5 * drone.diam)
         force_direction = (0.0, -alpha * f_down)
-        p1 = flyer.body.GetWorldPoint(localPoint=local_point_down)
-        p2 = p1 + flyer.body.GetWorldVector(force_direction)
+        p1 = drone.body.GetWorldPoint(localPoint=local_point_down)
+        p2 = p1 + drone.body.GetWorldVector(force_direction)
         self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
 
     @staticmethod

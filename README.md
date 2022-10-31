@@ -17,10 +17,13 @@ The environment consists of a square box with rigid walls, containing one or mor
 ...
 
 # TODO:
-- Refactor rendering.
-- Refactor code
+
+- Refactor rendering
+- Refactor network
+- Profile code
+- Save best networks
 - Allow thrust to have two components
-- Consider contact to domain wall in score
+- Take contact to walls into account when computing score
 
 # License
 

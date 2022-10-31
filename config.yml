@@ -1,25 +1,28 @@
-seed: 0
+random_seed: 122333
+
 optimizer:
-  n_agents: 8
-  n_max_iterations: 1000
+  num_agents: 16
+  num_max_steps: 1000
   mutation_probability: 0.2
   mutation_rate: 0.16
+
 env: 
+  allow_collision: false
+
   gravity: 
-    # [m / s^2]
     x: 0.0
-    # [m / s^2]
     y: 0.0
+
   domain:
-    # [m]
-    x_min: -20.0
-    # [m]
-    x_max: 20.0
-    # [m]
-    y_min: -20.0
-    # [m]
-    y_max: 20.0
-  box:    # flyer
+    limit:
+      x_min: -20.0
+      x_max: 20.0
+      y_min: -20.0
+      y_max: 20.0
+    obstacle:
+      horizontal_bar: true
+
+  drone:
     fixed_rotation: true
     diam: 1.0
     density: 1.0
@@ -46,11 +49,12 @@ env:
       density: 1.0
       friction: 2.0
       max_force: 4.0
-    neural_network:
-      n_dim_in: 4     # Distances to the nearest wall.
-      n_dim_out: 4  # Actions for four engines.
-      n_dim_hidden: 128  # Hidden dimensions.
-      n_hidden: 2   # Hidden layer.
+
+    neural_network: # model
+      num_dim_in: 4     # Distances to the nearest wall.
+      num_dim_out: 4  # Actions for four engines.
+      num_dim_hidden: 32  # Hidden dimensions.
+      num_hidden: 2   # Hidden layer.
 
 renderer:
   scale_force: 1.0

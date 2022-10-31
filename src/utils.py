@@ -3,10 +3,12 @@ import random
 
 import numpy
 import pygame
+import torch
 
 
 def set_random_seed(seed: int = 0) -> None:
     """Sets random seed."""
+    torch.manual_seed(seed)
     random.seed(seed)
     numpy.random.seed(seed)
 
