@@ -25,7 +25,8 @@ screenSize = b2Vec2(SCREEN_WIDTH, SCREEN_HEIGHT)
 
 
 class Renderer:
-    """Renderer class for """
+    """Renderer class for"""
+
     def __init__(self, screen) -> None:
         self.screen = screen
         # Installing drawing methods

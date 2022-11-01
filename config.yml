@@ -3,8 +3,8 @@ random_seed: 122333
 optimizer:
   num_agents: 4
   num_max_steps: 1000
-  mutation_probability: 0.05
-  mutation_rate: 0.05
+  mutation_probability: 0.1
+  mutation_rate: 0.08
 
 env: 
   allow_collision: false
@@ -17,9 +17,9 @@ env:
     limit:
       x_min: -20.0
       x_max: 20.0
-      y_min: -15.0
-      y_max: 15.0
-    map: "cross"  # empty, cross, track 
+      y_min: -20.0
+      y_max: 20.0
+    map: "cross"  # empty, cross, track, block
 
   drone:
     fixed_rotation: true
@@ -50,7 +50,7 @@ env:
     neural_network: # model
       num_dim_in: 4     # Distances to the nearest wall.
       num_dim_out: 4  # Actions for four engines.
-      num_dim_hidden: 128  # Hidden dimensions.
+      num_dim_hidden: 64  # Hidden dimensions.
       num_hidden: 2   # Hidden layer.
 
 # Danger Zone

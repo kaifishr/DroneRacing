@@ -91,9 +91,9 @@ class Drone:
 
         # Neural Network
         self.model = NeuralNetwork(config)
-        self.model.eval()   # No gradients for genetic optimization required.
+        self.model.eval()  # No gradients for genetic optimization required.
 
-        # Domain 
+        # Domain
         self.x_max = config.env.domain.limit.x_max
         self.x_min = config.env.domain.limit.x_min
         self.y_max = config.env.domain.limit.y_max
@@ -102,7 +102,7 @@ class Drone:
         # Compute normalization parameter
         domain_diam_x = self.x_max - self.x_min
         domain_diam_y = self.y_max - self.y_min
-        self.normalizer = 1.0 / (domain_diam_x ** 2 + domain_diam_y ** 2) ** 0.5
+        self.normalizer = 1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5
 
         # Odometer
         self.distance = 0.0
@@ -119,7 +119,7 @@ class Drone:
         self.p1 = []
         self.p2 = []
 
-        # Input data for neural network 
+        # Input data for neural network
         self.data = None
 
     def reset(self) -> None:
@@ -146,7 +146,7 @@ class Drone:
 
     def mutate(self, model: nn.Module) -> None:
         """Mutates drone's neural network.
-        
+
         Attr:
             model: The current best model.
         """
@@ -158,13 +158,13 @@ class Drone:
         if self.position_old is None:
             self.position_old = self.body.position
         diff = self.position_old - self.body.position
-        self.distance += (diff.x ** 2 + diff.y ** 2) ** 0.5
+        self.distance += (diff.x**2 + diff.y**2) ** 0.5
         self.position_old = copy.copy(self.body.position)
 
     def comp_score(self) -> float:
         """Computes current score.
 
-        TODO: Accumulate velocities. 
+        TODO: Accumulate velocities.
         """
         raise NotImplementedError("Method not implemented.")
 
@@ -178,7 +178,7 @@ class Drone:
 
         p1 = self.body.position
 
-        for point in self.points: 
+        for point in self.points:
 
             # Perform ray casting from drone position p1 to to point p2.
             p2 = p1 + self.body.GetWorldVector(localVector=point)
@@ -195,7 +195,7 @@ class Drone:
                 # When the ray has hit something compute distance
                 # from drone to obstacle from raw features.
                 diff = cb.point - p1
-                dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
+                dist = (diff.x**2 + diff.y**2) ** 0.5
                 self.data.append(dist)
             else:
                 self.data.append(-1.0)

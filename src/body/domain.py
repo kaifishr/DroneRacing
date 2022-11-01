@@ -52,11 +52,12 @@ class Domain:
 
         return domain_boundary
 
-    def _get_map_block(self) -> list:
-        """Creates a block in the center of the domain."""
+    def _get_map_block(self, fraction: float = 0.5) -> list:
+        """Creates a block in the center of the domain.
 
-        fraction = 0.5
-
+        Args:
+            fraction: Scalar defining length of map elements.
+        """
         x_min = self.x_min
         x_max = self.x_max
         y_min = self.y_min
@@ -90,11 +91,12 @@ class Domain:
 
         return boundary
 
-    def _get_map_cross(self) -> list:
-        """Creates a cross in the center of the domain."""
+    def _get_map_cross(self, fraction: float = 0.5) -> list:
+        """Creates a cross in the center of the domain.
 
-        fraction = 0.5
-
+        Args:
+            fraction: Scalar defining length of map elements.
+        """
         x_min = self.x_min
         x_max = self.x_max
         y_min = self.y_min
@@ -108,19 +110,44 @@ class Domain:
         y_1 = 0.0
         boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
 
-        x_0 = 0.0 
+        x_0 = 0.0
         y_0 = fraction * y_min
-        x_1 = 0.0 
+        x_1 = 0.0
         y_1 = fraction * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0 = x_max
+        y_0 = y_max
+        x_1 = (1.0 - fraction) * x_max
+        y_1 = (1.0 - fraction) * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0 = x_min
+        y_0 = y_max
+        x_1 = (1.0 - fraction) * x_min
+        y_1 = (1.0 - fraction) * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0 = x_min
+        y_0 = y_min
+        x_1 = (1.0 - fraction) * x_min
+        y_1 = (1.0 - fraction) * y_min
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0 = x_max
+        y_0 = y_min
+        x_1 = (1.0 - fraction) * x_max
+        y_1 = (1.0 - fraction) * y_min
         boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
 
         return boundary
 
-    def _get_map_track(self) -> list:
-        """Creates a simple track."""
+    def _get_map_track(self, fraction: float = 0.5) -> list:
+        """Creates a simple track.
 
-        fraction = 0.5
-
+        Args:
+            fraction: Scalar defining length of map elements.
+        """
         x_min = self.x_min
         x_max = self.x_max
         y_min = self.y_min
@@ -128,15 +155,15 @@ class Domain:
 
         boundary = []
 
-        x_0 = 0.0 
+        x_0 = 0.0
         y_0 = y_max
-        x_1 = 0.0 
+        x_1 = 0.0
         y_1 = (1.0 - fraction) * y_max
         boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
 
-        x_0 = 0.0 
+        x_0 = 0.0
         y_0 = y_min
-        x_1 = 0.0 
+        x_1 = 0.0
         y_1 = (1.0 - fraction) * y_min
         boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
 
