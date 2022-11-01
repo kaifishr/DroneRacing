@@ -27,10 +27,8 @@ class Domain:
         map_ = self.config.map
         if map_ == "cross":
             shapes += self._get_map_cross()
-        elif map_ == "dead_end":
-            raise NotImplementedError(f"Map '{map_}' not implemented.")
-        elif map_ == "maze":
-            raise NotImplementedError(f"Map '{map_}' not implemented.")
+        elif map_ == "track":
+            shapes += self._get_map_track()
         else:
             raise NotImplementedError(f"Map '{map_}' is not a valid map.")
 
@@ -60,19 +58,62 @@ class Domain:
         y_min = self.y_min
         y_max = self.y_max
 
+        boundary = []
+
         x_0 = fraction * x_min
         y_0 = 0.0
         x_1 = fraction * x_max
         y_1 = 0.0
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
 
-        x_2 = 0.0 
-        y_2 = fraction * y_min
-        x_3 = 0.0 
-        y_3 = fraction * y_max
+        x_0 = 0.0 
+        y_0 = fraction * y_min
+        x_1 = 0.0 
+        y_1 = fraction * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
 
-        obstacle = [
-            b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)]),
-            b2EdgeShape(vertices=[(x_2, y_2), (x_3, y_3)])
-        ]
+        return boundary
 
-        return obstacle
+    def _get_map_track(self) -> list:
+        """Creates a simple track."""
+
+        fraction = 0.5
+
+        x_min = self.x_min
+        x_max = self.x_max
+        y_min = self.y_min
+        y_max = self.y_max
+
+        boundary = []
+
+        x_0 = 0.0 
+        y_0 = y_max
+        x_1 = 0.0 
+        y_1 = (1.0 - fraction) * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0 = 0.0 
+        y_0 = y_min
+        x_1 = 0.0 
+        y_1 = (1.0 - fraction) * y_min
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0 = fraction * x_min
+        y_0 = 0.0
+        x_1 = fraction * x_max
+        y_1 = 0.0
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0 = fraction * x_min
+        y_0 = fraction * y_max
+        x_1 = fraction * x_min
+        y_1 = fraction * y_min
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0 = fraction * x_max
+        y_0 = fraction * y_max
+        x_1 = fraction * x_max
+        y_1 = fraction * y_min
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        return boundary

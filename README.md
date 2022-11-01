@@ -24,6 +24,8 @@ The environment consists of a square box with rigid walls, containing one or mor
 - Profile code
 - Save best networks
 - Allow thrust to have two components
+- Use horizontal and vertial rays.
+- Accumulate velocity instead of distance?
 - Take contact to walls into account when computing score
 
 # License
