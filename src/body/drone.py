@@ -161,6 +161,13 @@ class Drone:
         self.distance += (diff.x ** 2 + diff.y ** 2) ** 0.5
         self.position_old = copy.copy(self.body.position)
 
+    def comp_score(self) -> float:
+        """Computes current score.
+
+        TODO: Accumulate velocities. 
+        """
+        raise NotImplementedError("Method not implemented.")
+
     def ray_casting(self):
         """Uses ray casting to measure distane to domain walls."""
 

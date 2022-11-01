@@ -31,12 +31,12 @@ class Environment(Framework):
 
     def __init__(self, config: Config) -> None:
         """Initializes environment class."""
-        super().__init__()
+        super().__init__(config=config)
 
         num_agents = config.optimizer.num_agents
 
         self.world.gravity = b2Vec2(config.env.gravity.x, config.env.gravity.y)
-        self.domain = Domain(world=self.world, config=config)
+        Domain(world=self.world, config=config)
         self.drones = [
             Drone(world=self.world, config=config) for _ in range(num_agents)
         ]
@@ -61,6 +61,12 @@ class Environment(Framework):
         """Runs odometer to compute distance covered by each drone."""
         for drone in self.drones:
             drone.odometer()
+
+    def comp_score(self) -> None:
+        """Computes score of each drone of current generation."""
+        raise NotImplementedError("Method not implemented.")
+        for drone in self.drones:
+            drone.comp_score()
 
     def comp_action(self) -> None:
         """Computes next set of actions."""

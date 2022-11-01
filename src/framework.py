@@ -1,73 +1,96 @@
-"""Minimal pygame-based framework for Box2D."""
+"""Minimal pygame-based framework for Box2D.
+
+For more information about frameworks see also:
+https://github.com/pybox2d/pybox2d/tree/master/library/Box2D/examples/backends
+
+"""
 import pygame
-from Box2D import b2Vec2
 from Box2D.b2 import world
 
 from src.renderer import Renderer
-
-SCREEN_WIDTH, SCREEN_HEIGHT = 640, 640
-TARGET_FPS = 60
-TIMESTEP = 1.0 / TARGET_FPS
-VEL_ITERS = 10  # Iterations to compute next velocity
-POS_ITERS = 10  # Iterations to compute next position
+from src.config import Config
 
 
 class Framework:
-    """A simple framework for pybox2d with pygame."""
+    """A simple framework for PyBox2D with Pygame backend.
 
-    name = ""
-    description = ""
+    Attributes:
+        config:
+        target_fps:
+        velocity_iters:
+        position_iters:
+        time_step:
+        world:
+        clock:
+        screen:
+        renderer:
+        is_rendering:
+    """
 
-    def __init__(self):
+    name = "SpaceDrones"
 
+    def __init__(self, config: Config) -> None:
+        """Initializes Framework."""
+        self.config = config
+
+        # Physics simulation parameters.
+        self.target_fps = self.config.framework.target_fps
+        self.velocity_iters = self.config.framework.velocity_iterations
+        self.position_iters = self.config.framework.position_iterations
+        self.time_step = 1.0 / self.target_fps
+
+        # Instantiating world.
         self.world = world()
-        self.groundbody = self.world.CreateBody()
+        self.world.CreateBody()
 
-        # Pygame Initialization
+        # Pygame initialization.
         pygame.init()
         pygame.display.set_caption(self.name)
-
-        # Screen and debug draw
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        self.font = pygame.font.Font(None, 15)
-        self.renderer = Renderer(self.screen)
-
-        self.is_render = True
         self.clock = pygame.time.Clock()
 
-    def _set_render(self):
-        """Sets rendering on or off."""
-        self.is_render = False if self.is_render else True
+        # Set screen properties.
+        screen_width = self.config.framework.screen.width
+        screen_height = self.config.framework.screen.height
+        screen = pygame.display.set_mode((screen_width, screen_height))
 
-    def step(self):
+        # Rendering.
+        self.renderer = Renderer(screen)
+        self.is_rendering = True
+
+    def _set_rendering(self) -> None:
+        """Sets rendering on or off."""
+        if self.is_rendering:
+            self.is_rendering = False
+        else:
+            self.is_rendering = True
+
+    def step(self) -> None:
         """Catches events, performs simulation step, and renders world."""
 
-        # Catch events
+        # Catch events.
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                self._set_render()
+                self._set_rendering()
             elif event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    self._set_render()
+                    self._set_rendering()
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     exit()
 
-        # Step the world
-        self.world.Step(TIMESTEP, VEL_ITERS, POS_ITERS)
+        # Step the world.
+        self.world.Step(self.time_step, self.velocity_iters, self.position_iters)
         self.world.ClearForces()
 
-        if self.is_render:
-            self.screen.fill((0, 0, 0))  # TODO: move this to renderer?
+        # Render world if true.
+        if self.is_rendering:
             self.renderer.render(self.world)
             pygame.display.flip()
-            self.clock.tick(TARGET_FPS)
-            self.fps = self.clock.get_fps()
-
-        print(f"FPS {self.fps:.0f}", flush=True, end="\r")
+            self.clock.tick(self.target_fps)
+            print(f"{self.clock.get_fps():.1f} FPS", flush=True, end="\r")
 
         self.world.contactListener = None
         self.world.destructionListener = None

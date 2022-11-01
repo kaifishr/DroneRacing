@@ -1,4 +1,8 @@
-"""Contains neural network definitions."""
+"""Contains neural network definitions.
+
+The neural network represents the drone's brain.
+
+"""
 import torch
 import torch.nn as nn
 
@@ -33,13 +37,13 @@ class NeuralNetwork(nn.Module):
         layers = [
             nn.Flatten(start_dim=0),
             nn.Linear(in_features=in_features, out_features=hidden_features),
-            nn.GELU(),
+            nn.Tanh(),
         ]
 
         for _ in range(num_hidden):
             layers += [
                 nn.Linear(in_features=hidden_features, out_features=hidden_features),
-                nn.GELU(),
+                nn.Tanh(),
             ]
 
         layers += [
@@ -53,7 +57,7 @@ class NeuralNetwork(nn.Module):
 
     def _init_weights(self, module) -> None:
         if isinstance(module, nn.Linear):
-            torch.nn.init.normal_(module.weight, mean=0.0, std=0.5)
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.2)
             if module.bias is not None:
                 torch.nn.init.zeros_(module.bias)
 

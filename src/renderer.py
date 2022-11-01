@@ -25,6 +25,7 @@ screenSize = b2Vec2(SCREEN_WIDTH, SCREEN_HEIGHT)
 
 
 class Renderer:
+    """Renderer class for """
     def __init__(self, screen) -> None:
         self.screen = screen
         # Installing drawing methods
@@ -36,7 +37,9 @@ class Renderer:
 
         self.view_zoom = None  # --> self.ppm or self.pixel_per_meter
 
-    def render(self, world):
+    def render(self, world) -> None:
+        """Renders world."""
+        self.screen.fill((0, 0, 0))  # TODO: move this to renderer?
 
         # Render rays.
         for drone in world.drones:
