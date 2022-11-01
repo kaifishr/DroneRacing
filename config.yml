@@ -1,10 +1,10 @@
 random_seed: 122333
 
 optimizer:
-  num_agents: 4
+  num_agents: 16
   num_max_steps: 1000
-  mutation_probability: 0.1
-  mutation_rate: 0.08
+  mutation_probability: 0.05
+  mutation_rate: 0.05
 
 env: 
   allow_collision: false
@@ -19,7 +19,7 @@ env:
       x_max: 20.0
       y_min: -20.0
       y_max: 20.0
-    map: "cross"  # empty, cross, track, block
+    map: "track"  # empty, block, cross, track
 
   drone:
     fixed_rotation: true
@@ -27,7 +27,7 @@ env:
     density: 1.0
     friction: 2.0
     init_position: 
-      x: 5.0
+      x: 15.0
       y: 5.0
     init_linear_velocity: 
       x: 0.0

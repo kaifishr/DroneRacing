@@ -1,10 +1,11 @@
-# Drones | PyDrones2D | SpaceDrones
+# SpaceDrones
 
 *SpaceDrones* provides a simple learning environment for genetic optimization with many possible extensions. The drones' goal is to navigate through the environment, covering as much distance as possible in a certain period of time. *SpaceDrones* comes with different worlds that vary in difficulty.
 
-| Cross map | Track map |
+|||
 |:--:|:--:|
-|![](docs/flyer.png)|![](docs/flyer.png)|
+|![](docs/map_cross.png)|![](docs/map_track.png)|
+|![](docs/map_empty.png)|![](docs/map_block.png)|
 
 # Method
 
@@ -29,10 +30,7 @@ The environment consists of a square box with rigid walls, containing one or mor
 
 # TODO:
 
-- Refactor rendering
-    - Dont flip Y
 - Refactor network
-- Profile code
 - Save best networks
 - Allow thrust to have two components
 - Use horizontal and vertial rays.

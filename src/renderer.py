@@ -118,8 +118,8 @@ class Renderer:
             p1 = self._to_screen(p1)
             p2 = self._to_screen(p2)
             # DEBUG >
-            self._draw_point((10, 10), 5.0, self.color_raycast_head)
-            self._draw_point((600, 600), 10.0, self.color_raycast_head)
+            # self._draw_point((10, 10), 5.0, self.color_raycast_head)
+            # self._draw_point((600, 600), 10.0, self.color_raycast_head)
             # DEBUG <
             if callback.hit:
                 cb_point = callback.point
