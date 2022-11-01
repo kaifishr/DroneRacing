@@ -27,8 +27,8 @@ env:
     density: 1.0
     friction: 2.0
     init_position: 
-      x: 15.0
-      y: -10.0
+      x: 5.0
+      y: 5.0
     init_linear_velocity: 
       x: 0.0
       y: 0.0
@@ -65,3 +65,4 @@ framework:
 
 renderer:
   scale_force: 1.0
+  ppm: 15     # Pixels per meter / zoom

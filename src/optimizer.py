@@ -1,4 +1,5 @@
 """Optimizer class for genetic optimization."""
+import time
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -31,6 +32,7 @@ class Optimizer:
         generation = 0
 
         is_running = True
+        t0 = time.time()
 
         while is_running:
 
@@ -64,8 +66,11 @@ class Optimizer:
                 step = 0
                 generation += 1
 
-                # Write distance traveled to Tensorboard.
+                # Write stats to Tensorboard.
                 self.writer.add_scalar("Distance", distance, generation)
+                self.writer.add_scalar("seconds/generation", time.time() - t0, generation)
                 print(f"{generation = }")
+
+                t0 = time.time()
 
             step += 1

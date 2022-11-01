@@ -1,6 +1,7 @@
 """Renderer for pygame-based framework."""
 import pygame
-from Box2D import b2Vec2, b2Color
+
+from Box2D import b2Vec2
 from Box2D.b2 import (
     staticBody,
     dynamicBody,
@@ -10,37 +11,64 @@ from Box2D.b2 import (
 )
 
 from src.body.drone import Drone
-
-viewZoom = 15.0
-PPM = 15.0  # ZOOM, pixels per meter
-SCREEN_WIDTH, SCREEN_HEIGHT = 640, 640
-SCREEN_OFFSETX, SCREEN_OFFSETY = 0.5 * SCREEN_WIDTH, 0.5 * SCREEN_HEIGHT
-colors = {
-    staticBody: (220, 220, 220, 255),
-    dynamicBody: (127, 127, 127, 255),
-    kinematicBody: (127, 127, 230, 255),
-}
-viewOffset = b2Vec2(-0.5 * SCREEN_WIDTH, -0.5 * SCREEN_HEIGHT)
-screenSize = b2Vec2(SCREEN_WIDTH, SCREEN_HEIGHT)
+from src.config import Config
 
 
 class Renderer:
-    """Renderer class for"""
+    """Renderer class for Box2D world.
 
-    def __init__(self, screen) -> None:
+    Attributes:
+        config:
+        screen
+
+    """
+    # Screen background color
+    color_background = (0, 0, 0, 0)
+
+    # World body colors
+    colors = {
+        staticBody: (220, 220, 220, 255),
+        dynamicBody: (127, 127, 127, 255),
+        kinematicBody: (127, 127, 230, 255),
+    }
+
+    # Raycast colors
+    color_raycast_line = (128, 0, 128, 255)
+    color_raycast_head = (255, 0, 255, 255)
+
+    # Force vector color
+    color_force_line = (255, 0, 0, 255)
+
+    def __init__(self, screen: pygame.Surface, config: Config) -> None:
+        """Initializes Renderer."""
         self.screen = screen
-        # Installing drawing methods
-        edgeShape.draw = self._draw_edge
-        polygonShape.draw = self._draw_polygon
+        self.config = config
+
+        self.ppm = self.config.renderer.ppm
+        screen_width = self.config.framework.screen.width
+        screen_height = self.config.framework.screen.height
+
+        # self.screen_offset = b2Vec2(0.5 * screen_width, 0.5 * screen_height)
+        self.screen_offset = b2Vec2(-0.5 * screen_width, -0.5 * screen_height)
+
+        self.view_offset = b2Vec2(-0.5 * screen_width, -0.5 * screen_height)
+        self.screen_size = b2Vec2(screen_width, screen_height)
 
         self.flip_x = False
         self.flip_y = True
 
         self.view_zoom = None  # --> self.ppm or self.pixel_per_meter
 
+        self._install()
+
+    def _install(self):
+        """Installs drawing methods for world objects."""
+        edgeShape.draw = self._draw_edge
+        polygonShape.draw = self._draw_polygon
+
     def render(self, world) -> None:
         """Renders world."""
-        self.screen.fill((0, 0, 0))  # TODO: move this to renderer?
+        self.screen.fill(self.color_background)  # TODO: move this to renderer?
 
         # Render rays.
         for drone in world.drones:
@@ -56,48 +84,50 @@ class Renderer:
                 fixture.shape.draw(body, fixture)
 
     def _to_screen(self, point: b2Vec2) -> tuple:
-        """Transforms point from simulation to screen coordinates."""
-        x = point.x * viewZoom - viewOffset.x
+        """Transforms point from simulation to screen coordinates.
+        
+        Args:
+            point: Point to be transformed to pixel coordinates.
+        """
+        x = point.x * self.ppm - self.view_offset.x
         if self.flip_x:
-            x = screenSize.x - x
-        y = point.y * viewZoom - viewOffset.y
+            x = self.screen_size.x - x
+        y = point.y * self.ppm - self.view_offset.y
         if self.flip_y:
-            y = screenSize.y - y
+            y = self.screen_size.y - y
         return (int(x), int(y))
 
     def _draw_point(self, point, size, color):
         """Draws point in specified size and color."""
-        self._draw_circle(point, size / viewZoom, color, width=0)
+        self._draw_circle(point, size / self.ppm, color, width=0)
 
     def _draw_circle(self, center, radius, color, width=1):
         """Draws circle in specified size and color."""
-        radius *= viewZoom
+        radius *= self.ppm
         radius = 1 if radius < 1 else int(radius)
-        pygame.draw.circle(self.screen, color.bytes, center, radius, width)
+        pygame.draw.circle(self.screen, color, center, radius, width)
 
     def _draw_segment(self, p1, p2, color):
         """Draws line from points p1 to p2 in specified color."""
-        pygame.draw.aaline(self.screen, color.bytes, p1, p2)
+        pygame.draw.aaline(self.screen, color, p1, p2)
 
     def _draw_raycast(self, drone: Drone) -> None:
-
-        color_line = b2Color(0.5, 0.0, 0.5)
-        color_head = b2Color(1.0, 0.0, 1.0)
+        """Draws rays"""
 
         for p1, p2, callback in zip(drone.p1, drone.p2, drone.callbacks):
             p1 = self._to_screen(p1)
             p2 = self._to_screen(p2)
             # DEBUG >
-            self._draw_point((10, 10), 5.0, color_head)
-            self._draw_point((600, 600), 10.0, color_head)
+            self._draw_point((10, 10), 5.0, self.color_raycast_head)
+            self._draw_point((600, 600), 10.0, self.color_raycast_head)
             # DEBUG <
             if callback.hit:
                 cb_point = callback.point
                 cb_point = self._to_screen(cb_point)
-                self._draw_point(cb_point, 3.0, color_head)
-                self._draw_segment(p1, cb_point, color_line)
+                self._draw_point(cb_point, 3.0, self.color_raycast_head)
+                self._draw_segment(p1, cb_point, self.color_raycast_line)
             else:
-                self._draw_segment(p1, p2, color_line)
+                self._draw_segment(p1, p2, self.color_raycast_line)
 
     def _draw_force(self, drone: Drone) -> None:
         """Draws force vectors.
@@ -105,58 +135,55 @@ class Renderer:
         Purely cosmetic but helps with debugging.
         Arrows point towards direction the force is coming from.
         """
-        # alpha = self.config.renderer.scale_force  # Scaling factor
-        alpha = 1.0  # Scaling factor
-        line_color = b2Color(1, 0, 0)
+        scale_force = self.config.renderer.scale_force 
 
         f_left, f_right, f_up, f_down = drone.forces
 
         # Left
         local_point_left = b2Vec2(-0.5 * drone.diam, 0.0)
-        force_direction = (-alpha * f_left, 0.0)
+        force_direction = (-scale_force * f_left, 0.0)
         p1 = drone.body.GetWorldPoint(localPoint=local_point_left)
         p2 = p1 + drone.body.GetWorldVector(force_direction)
-        self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
+        self._draw_segment(self._to_screen(p1), self._to_screen(p2), self.color_force_line)
 
         # Right
         local_point_right = b2Vec2(0.5 * drone.diam, 0.0)
-        force_direction = (alpha * f_right, 0.0)
+        force_direction = (scale_force * f_right, 0.0)
         p1 = drone.body.GetWorldPoint(localPoint=local_point_right)
         p2 = p1 + drone.body.GetWorldVector(force_direction)
-        self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
+        self._draw_segment(self._to_screen(p1), self._to_screen(p2), self.color_force_line)
 
         # Up
         local_point_up = b2Vec2(0.0, 0.5 * drone.diam)
-        force_direction = (0.0, alpha * f_up)
+        force_direction = (0.0, scale_force * f_up)
         p1 = drone.body.GetWorldPoint(localPoint=local_point_up)
         p2 = p1 + drone.body.GetWorldVector(force_direction)
-        self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
+        self._draw_segment(self._to_screen(p1), self._to_screen(p2), self.color_force_line)
 
         # Down
         local_point_down = b2Vec2(0.0, -0.5 * drone.diam)
-        force_direction = (0.0, -alpha * f_down)
+        force_direction = (0.0, -scale_force * f_down)
         p1 = drone.body.GetWorldPoint(localPoint=local_point_down)
         p2 = p1 + drone.body.GetWorldVector(force_direction)
-        self._draw_segment(self._to_screen(p1), self._to_screen(p2), line_color)
+        self._draw_segment(self._to_screen(p1), self._to_screen(p2), self.color_force_line)
 
-    @staticmethod
-    def _fix_vertices(vertices):
-        return [
-            (int(SCREEN_OFFSETX + v[0]), int(SCREEN_OFFSETY - v[1])) for v in vertices
-        ]
+    def _transform_vertices(self, vertices: tuple):
+        """Transforms points of vertices to pixel coordinates."""
+        return [self._to_screen(vertex) for vertex in vertices]
 
     def _draw_polygon(self, body, fixture):
+        """Draws polygon to screen."""
         polygon = fixture.shape
         transform = body.transform
-        vertices = self._fix_vertices([transform * v * PPM for v in polygon.vertices])
-        pygame.draw.polygon(
-            self.screen, [c / 2.0 for c in colors[body.type]], vertices, 0
-        )  # Frame
-        pygame.draw.polygon(self.screen, colors[body.type], vertices, 1)  # Face color
+        vertices = [transform * vertex for vertex in polygon.vertices]
+        vertices = self._transform_vertices(vertices)
+        edge_color = [0.5 * c for c in self.colors[body.type]]
+        pygame.draw.polygon(self.screen, edge_color, vertices, 0)  # edge
+        pygame.draw.polygon(self.screen, self.colors[body.type], vertices, 1)   # face
 
     def _draw_edge(self, body, fixture):
+        """Draws edge to screen."""
         edge = fixture.shape
-        vertices = self._fix_vertices(
-            [body.transform * edge.vertex1 * PPM, body.transform * edge.vertex2 * PPM]
-        )
-        pygame.draw.line(self.screen, colors[body.type], vertices[0], vertices[1])
+        vertices = [body.transform * edge.vertex1, body.transform * edge.vertex2]
+        vertex1, vertex2 = self._transform_vertices(vertices)
+        pygame.draw.line(self.screen, self.colors[body.type], vertex1, vertex2)

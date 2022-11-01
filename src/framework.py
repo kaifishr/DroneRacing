@@ -54,11 +54,11 @@ class Framework:
         screen = pygame.display.set_mode((screen_width, screen_height))
 
         # Rendering.
-        self.renderer = Renderer(screen)
+        self.renderer = Renderer(screen=screen, config=config)
         self.is_rendering = True
 
     def _set_rendering(self) -> None:
-        """Sets rendering on or off."""
+        """Turns rendering on or off."""
         if self.is_rendering:
             self.is_rendering = False
         else:
