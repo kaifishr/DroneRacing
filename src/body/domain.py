@@ -25,7 +25,11 @@ class Domain:
         shapes += self._get_domain_boundary()
 
         map_ = self.config.map
-        if map_ == "cross":
+        if map_ == "empty":
+            pass
+        elif map_ == "block":
+            shapes += self._get_map_block()
+        elif map_ == "cross":
             shapes += self._get_map_cross()
         elif map_ == "track":
             shapes += self._get_map_track()
@@ -47,6 +51,44 @@ class Domain:
         ]
 
         return domain_boundary
+
+    def _get_map_block(self) -> list:
+        """Creates a block in the center of the domain."""
+
+        fraction = 0.5
+
+        x_min = self.x_min
+        x_max = self.x_max
+        y_min = self.y_min
+        y_max = self.y_max
+
+        boundary = []
+
+        x_0 = fraction * x_max
+        y_0 = fraction * y_max
+        x_1 = fraction * x_min
+        y_1 = fraction * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0 = fraction * x_min
+        y_0 = fraction * y_max
+        x_1 = fraction * x_min
+        y_1 = fraction * y_min
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0 = fraction * x_min
+        y_0 = fraction * y_min
+        x_1 = fraction * x_max
+        y_1 = fraction * y_min
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0 = fraction * x_max
+        y_0 = fraction * y_min
+        x_1 = fraction * x_max
+        y_1 = fraction * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        return boundary
 
     def _get_map_cross(self) -> list:
         """Creates a cross in the center of the domain."""
