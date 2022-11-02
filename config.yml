@@ -19,12 +19,12 @@ env:
       x_max: 20.0
       y_min: -20.0
       y_max: 20.0
-    map: "empty"  # empty, block, cross, track
+    map: "block"  # empty, block, cross, track
 
   drone:
     fixed_rotation: true
     diam: 1.0
-    density: 0.5
+    density: 0.1
     friction: 5.0
     init_position: 
       x: 15.0
@@ -43,9 +43,9 @@ env:
         y: 0.9 
 
     engine:
-      density: 0.5
+      density: 0.1
       friction: 5.0
-      max_force: 5.0
+      max_force: 10.0
 
     neural_network: # model
       num_dim_in: 4     # Distances to the nearest wall.
@@ -62,5 +62,5 @@ framework:
   position_iterations: 10   # Number of iterations to compute next position.
 
 renderer:
-  scale_force: 1.0
+  scale_force: 0.5
   ppm: 15     # Pixels per meter / zoom

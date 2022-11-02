@@ -193,9 +193,6 @@ class Drone:
             else:
                 self.data.append(-1.0)
 
-        # Normalize data
-        self.data = self.normalizer * torch.tensor(self.data)
-
     def comp_action(self) -> None:
         """Computes next section of actions applied to engines.
 
@@ -203,9 +200,16 @@ class Drone:
         from ray casting to the drone's neural network which then returns
         a set of actions (forces) to be applied to the drone's engines.
         """
-        forces = self.model(self.data)
-        forces = forces.detach().numpy().astype(np.float)
-        self.forces = self.max_force * forces
+        # PyTorch model
+        # self.data = self.normalizer * torch.tensor(self.data)
+        # forces = self.model(self.data)
+        # forces = forces.detach().numpy().astype(np.float)
+        # self.forces = self.max_force * forces
+
+        # Numpy model
+        self.data = self.normalizer * np.array(self.data)
+        pred = self.model(self.data)
+        self.forces = self.max_force * pred
 
     def apply_action(self) -> None:
         """Applies force to Drone coming from neural network.

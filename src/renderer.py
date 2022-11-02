@@ -1,7 +1,7 @@
 """Renderer for pygame-based framework."""
 import pygame
 
-from Box2D import b2Vec2
+from Box2D import b2Vec2, b2World
 from Box2D.b2 import (
     staticBody,
     dynamicBody,
@@ -61,7 +61,7 @@ class Renderer:
         edgeShape.draw = self._draw_edge
         polygonShape.draw = self._draw_polygon
 
-    def render(self, world) -> None:
+    def render(self, world: b2World) -> None:
         """Renders world."""
         self.screen.fill(self.color_background)  # TODO: move this to renderer?
 
@@ -77,6 +77,10 @@ class Renderer:
         for body in world.bodies:
             for fixture in body.fixtures:
                 fixture.shape.draw(body, fixture)
+
+    def _transform_vertices(self, vertices: tuple):
+        """Transforms points of vertices to pixel coordinates."""
+        return [self._to_screen(vertex) for vertex in vertices]
 
     def _to_screen(self, point: b2Vec2) -> tuple:
         """Transforms point from simulation to screen coordinates.
@@ -132,7 +136,8 @@ class Renderer:
         Purely cosmetic but helps with debugging.
         Arrows point towards direction the force is coming from.
         """
-        scale_force = self.config.renderer.scale_force 
+        scale_force = self.config.renderer.scale_force
+        color = self.color_force_line
 
         f_left, f_right, f_up, f_down = drone.forces
 
@@ -141,32 +146,28 @@ class Renderer:
         force_direction = (-scale_force * f_left, 0.0)
         p1 = drone.body.GetWorldPoint(localPoint=local_point_left)
         p2 = p1 + drone.body.GetWorldVector(force_direction)
-        self._draw_segment(self._to_screen(p1), self._to_screen(p2), self.color_force_line)
+        self._draw_segment(self._to_screen(p1), self._to_screen(p2), color)
 
         # Right
         local_point_right = b2Vec2(0.5 * drone.diam, 0.0)
         force_direction = (scale_force * f_right, 0.0)
         p1 = drone.body.GetWorldPoint(localPoint=local_point_right)
         p2 = p1 + drone.body.GetWorldVector(force_direction)
-        self._draw_segment(self._to_screen(p1), self._to_screen(p2), self.color_force_line)
+        self._draw_segment(self._to_screen(p1), self._to_screen(p2), color)
 
         # Up
         local_point_up = b2Vec2(0.0, 0.5 * drone.diam)
         force_direction = (0.0, scale_force * f_up)
         p1 = drone.body.GetWorldPoint(localPoint=local_point_up)
         p2 = p1 + drone.body.GetWorldVector(force_direction)
-        self._draw_segment(self._to_screen(p1), self._to_screen(p2), self.color_force_line)
+        self._draw_segment(self._to_screen(p1), self._to_screen(p2), color)
 
         # Down
         local_point_down = b2Vec2(0.0, -0.5 * drone.diam)
         force_direction = (0.0, -scale_force * f_down)
         p1 = drone.body.GetWorldPoint(localPoint=local_point_down)
         p2 = p1 + drone.body.GetWorldVector(force_direction)
-        self._draw_segment(self._to_screen(p1), self._to_screen(p2), self.color_force_line)
-
-    def _transform_vertices(self, vertices: tuple):
-        """Transforms points of vertices to pixel coordinates."""
-        return [self._to_screen(vertex) for vertex in vertices]
+        self._draw_segment(self._to_screen(p1), self._to_screen(p2), color)
 
     def _draw_polygon(self, body, fixture):
         """Draws polygon to screen."""

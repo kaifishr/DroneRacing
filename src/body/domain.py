@@ -55,8 +55,6 @@ class Domain:
     def _get_map_block(self, fraction: float = 0.3) -> list:
         """Creates a block in the center of the domain.
 
-        Block size is proportional to the domain's size.
-
         Args:
             fraction: Scalar defining length of map elements.
         """
