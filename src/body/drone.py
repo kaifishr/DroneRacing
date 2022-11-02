@@ -85,19 +85,19 @@ class Drone:
         # Define direction in which we look for obstacles
         ray_length = config.env.drone.ray_length
         # Diagonal
-        self.points = [
-            b2Vec2(ray_length, ray_length),
-            b2Vec2(-ray_length, ray_length),
-            b2Vec2(-ray_length, -ray_length),
-            b2Vec2(ray_length, -ray_length),
-        ]
-        # Orthogonal
         # self.points = [
-        #     b2Vec2(ray_length, 0.0),
-        #     b2Vec2(0.0, ray_length),
-        #     b2Vec2(-ray_length, 0.0),
-        #     b2Vec2(0.0, -ray_length),
+        #     b2Vec2(ray_length, ray_length),
+        #     b2Vec2(-ray_length, ray_length),
+        #     b2Vec2(-ray_length, -ray_length),
+        #     b2Vec2(ray_length, -ray_length),
         # ]
+        # Orthogonal
+        self.points = [
+            b2Vec2(ray_length, 0.0),
+            b2Vec2(0.0, ray_length),
+            b2Vec2(-ray_length, 0.0),
+            b2Vec2(0.0, -ray_length),
+        ]
 
         # Neural Network
         self.model = NeuralNetwork(config)
@@ -213,13 +213,13 @@ class Drone:
         a set of actions (forces) to be applied to the drone's engines.
         """
         # PyTorch model
-        self.data = self.normalizer * torch.tensor(self.data)
-        pred = self.model(self.data)
-        pred = pred.detach().numpy().astype(np.float)
+        # self.data = self.normalizer * torch.tensor(self.data)
+        # pred = self.model(self.data)
+        # pred = pred.detach().numpy().astype(np.float)
 
         # Numpy model
-        # self.data = self.normalizer * np.array(self.data)
-        # pred = self.model(self.data)
+        self.data = self.normalizer * np.array(self.data)
+        pred = self.model(self.data)
 
         self.forces = self.max_force * pred 
 
@@ -227,7 +227,6 @@ class Drone:
         """Applies force to Drone coming from neural network.
 
         Each engine is controlled individually.
-
         """
         f_left, f_right, f_up, f_down = self.forces
 

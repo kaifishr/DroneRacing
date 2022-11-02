@@ -70,7 +70,7 @@ class Optimizer:
 
                 # Write stats to Tensorboard.
                 self.writer.add_scalar("score", score, generation)
-                self.writer.add_scalar("sec/gen", time.time() - t0, generation)
+                self.writer.add_scalar("seconds", time.time() - t0, generation)
                 print(f"{generation = }")
 
                 # Save model

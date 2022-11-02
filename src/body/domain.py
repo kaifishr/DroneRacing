@@ -33,6 +33,8 @@ class Domain:
             shapes += self._get_map_cross()
         elif map_ == "track":
             shapes += self._get_map_track()
+        elif map_ == "blade":
+            shapes += self._get_map_blade()
         else:
             raise NotImplementedError(f"Map '{map_}' is not a valid map.")
 
@@ -87,6 +89,77 @@ class Domain:
         y_0 = fraction * y_min
         x_1 = fraction * x_max
         y_1 = fraction * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        return boundary
+
+    def _get_map_blade(self, fraction: float = 0.3) -> list:
+        """Saw blade map.
+
+        Args:
+            fraction: Scalar defining length of map elements.
+        """
+        x_min = self.x_min
+        x_max = self.x_max
+        y_min = self.y_min
+        y_max = self.y_max
+
+        boundary = []
+
+        x_0, y_0 = fraction * x_max, fraction * y_max
+        x_1, y_1 = fraction * x_min, fraction * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0, y_0 = fraction * x_min, fraction * y_max
+        x_1, y_1 = fraction * x_min, fraction * y_min
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0, y_0 = fraction * x_min, fraction * y_min
+        x_1, y_1 = fraction * x_max, fraction * y_min
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0, y_0 = fraction * x_max, fraction * y_min
+        x_1, y_1 = fraction * x_max, fraction * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0, y_0 = fraction * x_max, fraction * y_max
+        # x_1, y_1 = fraction * x_max, fraction * y_max + 0.5 * (1.0 - fraction) * y_max
+        x_1, y_1 = fraction * x_max, 0.5 * (1.0 + fraction) * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0, y_0 = fraction * x_min, fraction * y_max
+        # x_1, y_1 = fraction * x_min + 0.5 * (1.0 - fraction) * x_min, fraction * y_max
+        x_1, y_1 = 0.5 * (1.0 + fraction) * x_min, fraction * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0, y_0 = fraction * x_min, fraction * y_min
+        # x_1, y_1 = fraction * x_min, fraction * y_min + 0.5 * (1.0 - fraction) * y_min
+        x_1, y_1 = fraction * x_min, 0.5 * (1.0 + fraction) * y_min
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0, y_0 = fraction * x_max, fraction * y_min
+        # x_1, y_1 = fraction * x_max + 0.5 * (1.0 - fraction) * x_max, fraction * y_min
+        x_1, y_1 = 0.5 * (1.0 + fraction) * x_max, fraction * y_min
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0, y_0 = x_max, fraction * y_max
+        # x_1, y_1 = fraction * x_max + 0.5 * (1.0 - fraction) * x_max, fraction * y_max 
+        x_1, y_1 = 0.5 * (1.0 + fraction) * x_max, fraction * y_max 
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0, y_0 = fraction * x_min, y_max
+        # x_1, y_1 = fraction * x_min, fraction * y_max + + 0.5 * (1.0 - fraction) * y_max
+        x_1, y_1 = fraction * x_min, 0.5 * (1.0 + fraction) * y_max
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0, y_0 = x_min, fraction * y_min
+        # x_1, y_1 = fraction * x_min + 0.5 * (1.0 - fraction) * x_min, fraction * y_min 
+        x_1, y_1 = 0.5 * (1.0 + fraction) * x_min, fraction * y_min 
+        boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
+
+        x_0, y_0 = fraction * x_max, y_min
+        # x_1, y_1 = fraction * x_max, fraction * y_min + 0.5 * (1.0 - fraction) * y_min
+        x_1, y_1 = fraction * x_max, 0.5 * (1.0 + fraction) * y_min
         boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
 
         return boundary

@@ -7,11 +7,12 @@ import numpy
 import numpy as np
 import torch
 import torch.nn as nn
+from scipy.special import expit
 
 from src.utils.config import Config
 
 
-class NeuralNetwork_:
+class NeuralNetwork:
     """Neural network written with Numpy.
 
     Attributes:
@@ -49,7 +50,7 @@ class NeuralNetwork_:
 
     def _init_weights(self, size: tuple[int, int]) -> None:
         """Initializes model weights."""
-        return np.random.normal(loc=0.0, scale=0.4, size=size)
+        return np.random.normal(loc=0.0, scale=0.5, size=size)
 
     def __call__(self, x: numpy.ndarray):
         return self.forward(x)
@@ -59,15 +60,18 @@ class NeuralNetwork_:
         for weight, bias in zip(self.weights, self.biases):
             mask = numpy.random.random(size=weight.shape) < self.mutation_prob
             mutation = self.mutation_rate * numpy.random.normal(size=weight.shape)
-            weight += mask * mutation
+            weight[:] = weight[:] + mask * mutation
+            # weight += mask * mutation
 
             mask = numpy.random.random(size=bias.shape) < self.mutation_prob
             mutation = self.mutation_rate * numpy.random.normal(size=bias.shape)
-            bias += mask * mutation
+            bias[:] = bias[:] + mask * mutation
+            # bias += mask * mutation
 
     @staticmethod
     def _sigmoid(x: numpy.ndarray) -> numpy.ndarray:
-        return 1.0 / (1.0 + np.exp(-x))
+        # return 1.0 / (1.0 + np.exp(-x))
+        return expit(x) 
 
     def eval(self):
         pass
@@ -79,7 +83,7 @@ class NeuralNetwork_:
         return x
 
 
-class NeuralNetwork(nn.Module):
+class NeuralNetwork_(nn.Module):
     """Network class.
 
     Simple fully-connected neural network.
