@@ -1,8 +1,8 @@
 random_seed: 122333
 
 checkpoints:
-  load_model: true 
-  save_model: true
+  load_model: false
+  save_model: false
   model_path: "weights"
 
 optimizer:

@@ -1,6 +1,6 @@
 """Script with helper functions."""
-import os
 import random
+from pathlib import Path
 
 import numpy
 import pygame
@@ -39,7 +39,7 @@ def save_checkpoint(model: torch.nn.Module, config: Config, generation: int) -> 
         model_name:
     """
     model_name = f"weights_{generation}"
-    model_path = os.path.join(config.checkpoints.model_path, f"{model_name}.pth")
+    model_path = Path(config.checkpoints.model_path) / f"{model_name}.pth"
     torch.save(obj=model.state_dict(), f=model_path)
 
 
@@ -52,6 +52,9 @@ def load_checkpoint(model: torch.nn.Module, config: Config) -> None:
         model_name:
     """
     model_name = "weights"
-    model_path = os.path.join(config.checkpoints.model_path, f"{model_name}.pth")
-    state_dict = torch.load(f=model_path)
-    model.load_state_dict(state_dict=state_dict)
+    model_path = Path(config.checkpoints.model_path) / f"{model_name}.pth"
+    if model_path.is_file():
+        state_dict = torch.load(f=model_path)
+        model.load_state_dict(state_dict=state_dict)
+    else:
+        print(f"Model '{model_name}' not found. Continuing with random weights.")

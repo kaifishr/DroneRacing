@@ -10,8 +10,8 @@ import numpy as np
 from Box2D import b2FixtureDef, b2PolygonShape
 from Box2D.Box2D import b2World, b2Vec2, b2Filter
 
-from src.utils.config import Config
 from src.utils.utils import load_checkpoint
+from src.utils.config import Config
 from src.body.engine import Engines
 from src.body.raycast import RayCastCallback
 from src.body.model import NeuralNetwork
@@ -77,18 +77,27 @@ class Drone:
 
         self.fixture = self.body.CreateFixture(fixture_def)
 
-        # Engines   TODO: move this to Engine class?
+        # Engines   
         self.engines = Engines(body=self.body, config=config)
+        # TODO: move this to Engine class?
         self.max_force = config.env.drone.engine.max_force
 
         # Define direction in which we look for obstacles
         ray_length = config.env.drone.ray_length
+        # Diagonal
         self.points = [
             b2Vec2(ray_length, ray_length),
             b2Vec2(-ray_length, ray_length),
             b2Vec2(-ray_length, -ray_length),
             b2Vec2(ray_length, -ray_length),
         ]
+        # Orthogonal
+        # self.points = [
+        #     b2Vec2(ray_length, 0.0),
+        #     b2Vec2(0.0, ray_length),
+        #     b2Vec2(-ray_length, 0.0),
+        #     b2Vec2(0.0, -ray_length),
+        # ]
 
         # Neural Network
         self.model = NeuralNetwork(config)

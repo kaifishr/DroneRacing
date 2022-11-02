@@ -30,8 +30,7 @@ The environment consists of a square box with rigid walls, containing one or mor
 
 # TODO:
 
-- Save best networks
-- Use horizontal and vertial rays.
+- Compare diagonal to vertical rays.
 - Allow thrust to have two components
 - Take contact to walls into account
     - Reduce score
