@@ -11,7 +11,7 @@ from Box2D.b2 import (
 )
 
 from src.body.drone import Drone
-from src.config import Config
+from src.utils.config import Config
 
 
 class Renderer:

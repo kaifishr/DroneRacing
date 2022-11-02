@@ -7,7 +7,7 @@ import math
 from Box2D import b2FixtureDef, b2PolygonShape
 from Box2D.Box2D import b2Vec2, b2Filter, b2Body
 
-from src.config import Config
+from src.utils.config import Config
 
 
 class Engines:

@@ -30,12 +30,9 @@ The environment consists of a square box with rigid walls, containing one or mor
 
 # TODO:
 
-- Refactor network
-- Restructure scripts
 - Save best networks
-- Allow thrust to have two components
 - Use horizontal and vertial rays.
-- Accumulate velocity instead of distance?
+- Allow thrust to have two components
 - Take contact to walls into account
     - Reduce score
     - Deactivate drone if it hits wall

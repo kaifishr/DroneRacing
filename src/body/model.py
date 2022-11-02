@@ -8,11 +8,18 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from src.config import Config
+from src.utils.config import Config
 
 
-class NeuralNetwork:
-    """Neural network written with Numpy."""
+class NeuralNetwork_:
+    """Neural network written with Numpy.
+
+    Attributes:
+        mutation_prob:
+        mutation_rate:
+        weights:
+        biases: 
+    """
 
     def __init__(self, config: Config) -> None:
         """Initializes NeuralNetwork."""
@@ -50,7 +57,6 @@ class NeuralNetwork:
     def mutate_weights(self) -> None:
         """Mutates the network's weights."""
         for weight, bias in zip(self.weights, self.biases):
-
             mask = numpy.random.random(size=weight.shape) < self.mutation_prob
             mutation = self.mutation_rate * numpy.random.normal(size=weight.shape)
             weight += mask * mutation
@@ -73,7 +79,7 @@ class NeuralNetwork:
         return x
 
 
-class NeuralNetwork_(nn.Module):
+class NeuralNetwork(nn.Module):
     """Network class.
 
     Simple fully-connected neural network.

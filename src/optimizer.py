@@ -3,7 +3,8 @@ import time
 
 from torch.utils.tensorboard import SummaryWriter
 
-from src.config import Config
+from src.utils.config import Config
+from src.utils.utils import save_checkpoint
 from src.environment import Environment
 
 
@@ -30,6 +31,7 @@ class Optimizer:
         num_max_steps = self.config.optimizer.num_max_steps
         step = 0
         generation = 0
+        best_score = 0.0 
 
         is_running = True
         t0 = time.time()
@@ -55,7 +57,7 @@ class Optimizer:
             if (step + 1) % num_max_steps == 0:
 
                 # Select fittest agent based on distance traveled.
-                distance = self.env.select()
+                score = self.env.select()
 
                 # Reproduce and mutate weights of best agent.
                 self.env.mutate()
@@ -67,9 +69,16 @@ class Optimizer:
                 generation += 1
 
                 # Write stats to Tensorboard.
-                self.writer.add_scalar("Distance", distance, generation)
-                self.writer.add_scalar("seconds/generation", time.time() - t0, generation)
+                self.writer.add_scalar("score", score, generation)
+                self.writer.add_scalar("seconds/gen", time.time() - t0, generation)
                 print(f"{generation = }")
+
+                # Save model
+                if self.config.checkpoints.save_model:
+                    if score > best_score:
+                        model = self.env.drones[self.env.idx_best].model
+                        save_checkpoint(model=model, config=self.config, generation=generation)
+                        best_score = score
 
                 t0 = time.time()
 

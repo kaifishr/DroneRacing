@@ -8,7 +8,7 @@ import pygame
 from Box2D.b2 import world
 
 from src.renderer import Renderer
-from src.config import Config
+from src.utils.config import Config
 
 
 class Framework:

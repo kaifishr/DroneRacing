@@ -1,10 +1,16 @@
 random_seed: 122333
 
+checkpoints:
+  load_model: true 
+  save_model: true
+  model_path: "weights"
+
 optimizer:
   num_agents: 8
   num_max_steps: 2000
   mutation_probability: 0.01
-  mutation_rate: 0.08
+  mutation_rate: 0.1
+  # lib: "numpy"    # numpy, torch
 
 env: 
   allow_collision: false

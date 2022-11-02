@@ -10,7 +10,8 @@ import numpy as np
 from Box2D import b2FixtureDef, b2PolygonShape
 from Box2D.Box2D import b2World, b2Vec2, b2Filter
 
-from src.config import Config
+from src.utils.config import Config
+from src.utils.utils import load_checkpoint
 from src.body.engine import Engines
 from src.body.raycast import RayCastCallback
 from src.body.model import NeuralNetwork
@@ -91,6 +92,8 @@ class Drone:
 
         # Neural Network
         self.model = NeuralNetwork(config)
+        if self.config.checkpoints.load_model:
+            load_checkpoint(model=self.model, config=config)
         self.model.eval()  # No gradients for genetic optimization required.
 
         # Domain
@@ -201,15 +204,15 @@ class Drone:
         a set of actions (forces) to be applied to the drone's engines.
         """
         # PyTorch model
-        # self.data = self.normalizer * torch.tensor(self.data)
-        # forces = self.model(self.data)
-        # forces = forces.detach().numpy().astype(np.float)
-        # self.forces = self.max_force * forces
+        self.data = self.normalizer * torch.tensor(self.data)
+        pred = self.model(self.data)
+        pred = pred.detach().numpy().astype(np.float)
 
         # Numpy model
-        self.data = self.normalizer * np.array(self.data)
-        pred = self.model(self.data)
-        self.forces = self.max_force * pred
+        # self.data = self.normalizer * np.array(self.data)
+        # pred = self.model(self.data)
+
+        self.forces = self.max_force * pred 
 
     def apply_action(self) -> None:
         """Applies force to Drone coming from neural network.

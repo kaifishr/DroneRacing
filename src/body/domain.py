@@ -5,7 +5,7 @@ The domain defines the physical space the drone can interact with.
 from Box2D import b2EdgeShape
 from Box2D.Box2D import b2World
 
-from src.config import Config
+from src.utils.config import Config
 
 
 class Domain:
