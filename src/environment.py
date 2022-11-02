@@ -57,14 +57,8 @@ class Environment(Framework):
         for drone in self.drones:
             drone.ray_casting()
 
-    def run_odometer(self) -> None:
-        """Runs odometer to compute distance covered by each drone."""
-        for drone in self.drones:
-            drone.odometer()
-
     def comp_score(self) -> None:
-        """Computes score of each drone of current generation."""
-        raise NotImplementedError("Method not implemented.")
+        """Computes fitness score of each drones."""
         for drone in self.drones:
             drone.comp_score()
 
@@ -80,9 +74,9 @@ class Environment(Framework):
 
     def select(self) -> float:
         """Selects best agent for reproduction."""
-        distances = [drone.distance for drone in self.drones]
-        self.idx_best = np.argmax(distances)
-        return distances[self.idx_best]
+        scores = [drone.score for drone in self.drones]
+        self.idx_best = np.argmax(scores)
+        return scores[self.idx_best]
 
     def mutate(self) -> None:
         """Mutates network parameters of each drone."""

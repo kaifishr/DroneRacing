@@ -104,10 +104,6 @@ class Drone:
         domain_diam_y = self.y_max - self.y_min
         self.normalizer = 1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5
 
-        # Odometer
-        self.distance = 0.0
-        self.position_old = None
-
         # Forces predicted by neural network.
         # Initialized with 0 for each engine.
         self.forces = [0.0 for _ in range(4)]
@@ -121,6 +117,9 @@ class Drone:
 
         # Input data for neural network
         self.data = None
+
+        # Fitness score
+        self.score = 0.0
 
     def reset(self) -> None:
         """Resets Drone to initial position and velocity."""
@@ -140,9 +139,8 @@ class Drone:
         self.body.angularVelocity = self.init_angular_velocity
         self.body.angle = self.init_angle
 
-        # Reset variables for odometer
-        self.distance = 0.0
-        self.position_old = None
+        # Reset fitness score for next generation.
+        self.score = 0.0
 
     def mutate(self, model: nn.Module) -> None:
         """Mutates drone's neural network.
@@ -153,20 +151,15 @@ class Drone:
         self.model = copy.deepcopy(model)
         self.model.mutate_weights()
 
-    def odometer(self) -> float:
-        """Computes distance traveled by drone."""
-        if self.position_old is None:
-            self.position_old = self.body.position
-        diff = self.position_old - self.body.position
-        self.distance += (diff.x**2 + diff.y**2) ** 0.5
-        self.position_old = copy.copy(self.body.position)
+    def comp_score(self) -> None:
+        """Computes current fitness score.
 
-    def comp_score(self) -> float:
-        """Computes current score.
-
-        TODO: Accumulate velocities.
+        Accumulates drone's linear velocity over one generation. 
+        This effectively computes the distance traveled by the 
+        drone over time divided by the simulation's step size.
         """
-        raise NotImplementedError("Method not implemented.")
+        vel = self.body.linearVelocity
+        self.score += (vel.x**2 + vel.y**2) ** 0.5  # Square root not really necessary.
 
     def ray_casting(self):
         """Uses ray casting to measure distane to domain walls."""

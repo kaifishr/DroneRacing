@@ -48,8 +48,8 @@ class Optimizer:
             # Apply network predictions to drone.
             self.env.apply_action()
 
-            # Compute distance covered so far.
-            self.env.run_odometer()
+            # Compute current fitness / score of drone.
+            self.env.comp_score()
 
             # Method that run at end of simulation.
             if (step + 1) % num_max_steps == 0:
