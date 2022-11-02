@@ -36,6 +36,7 @@ The environment consists of a square box with rigid walls, containing one or mor
 - Use horizontal and vertial rays.
 - Accumulate velocity instead of distance?
 - Take contact to walls into account when computing score
+    - Deactivate drone if it hits wall
 - Use data of last $N$ time steps as new input
 
 # License

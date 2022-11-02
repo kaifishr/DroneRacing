@@ -1,10 +1,10 @@
 random_seed: 122333
 
 optimizer:
-  num_agents: 16
-  num_max_steps: 1000
-  mutation_probability: 0.05
-  mutation_rate: 0.05
+  num_agents: 8
+  num_max_steps: 2000
+  mutation_probability: 0.01
+  mutation_rate: 0.08
 
 env: 
   allow_collision: false
@@ -19,12 +19,12 @@ env:
       x_max: 20.0
       y_min: -20.0
       y_max: 20.0
-    map: "track"  # empty, block, cross, track
+    map: "empty"  # empty, block, cross, track
 
   drone:
     fixed_rotation: true
     diam: 1.0
-    density: 1.0
+    density: 5.0
     friction: 2.0
     init_position: 
       x: 15.0
@@ -43,18 +43,16 @@ env:
         y: 0.9 
 
     engine:
-      density: 1.0
+      density: 5.0
       friction: 2.0
       max_force: 5.0
 
     neural_network: # model
       num_dim_in: 4     # Distances to the nearest wall.
       num_dim_out: 4  # Actions for four engines.
-      num_dim_hidden: 64  # Hidden dimensions.
+      num_dim_hidden: 32  # Hidden dimensions.
       num_hidden: 2   # Hidden layer.
 
-# Danger Zone
-# Do not change these settings unless you know what you are doing.
 framework:
   screen:
     width: 640

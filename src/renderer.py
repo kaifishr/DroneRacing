@@ -48,16 +48,11 @@ class Renderer:
         screen_width = self.config.framework.screen.width
         screen_height = self.config.framework.screen.height
 
-        # self.screen_offset = b2Vec2(0.5 * screen_width, 0.5 * screen_height)
         self.screen_offset = b2Vec2(-0.5 * screen_width, -0.5 * screen_height)
-
-        self.view_offset = b2Vec2(-0.5 * screen_width, -0.5 * screen_height)
         self.screen_size = b2Vec2(screen_width, screen_height)
 
         self.flip_x = False
         self.flip_y = True
-
-        self.view_zoom = None  # --> self.ppm or self.pixel_per_meter
 
         self._install()
 
@@ -89,12 +84,14 @@ class Renderer:
         Args:
             point: Point to be transformed to pixel coordinates.
         """
-        x = point.x * self.ppm - self.view_offset.x
+        x = point.x * self.ppm - self.screen_offset.x
+        y = point.y * self.ppm - self.screen_offset.y
+
         if self.flip_x:
             x = self.screen_size.x - x
-        y = point.y * self.ppm - self.view_offset.y
         if self.flip_y:
             y = self.screen_size.y - y
+
         return (int(x), int(y))
 
     def _draw_point(self, point, size, color):
