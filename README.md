@@ -24,10 +24,11 @@ The drones' fitness is determined by the distance covered during one generation.
 
 # TODO:
 
-- Compare diagonal to vertical rays.
 - Allow to deactivate drone if it hits wall.
-- Allow thrust to have two components.
+- Allow interaction between drones.
+- Add drone's position to input data.
 - Use data of last $N$ time steps as new input.
+- Allow thrust to have two components.
 
 # License
 

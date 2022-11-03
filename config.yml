@@ -6,10 +6,10 @@ checkpoints:
   model_path: "weights"
 
 optimizer:
-  num_agents: 8
+  num_agents: 64
   num_max_steps: 2000
-  mutation_probability: 0.01
-  mutation_rate: 0.02
+  mutation_probability: 0.05
+  mutation_rate: 0.05
   # lib: "numpy"    # numpy, torch
 
 env: 
@@ -26,13 +26,19 @@ env:
       x_max: 20.0
       y_min: -20.0
       y_max: 20.0
-    map: "blade"  # empty, block, cross, track
+    map: "block"  # empty, block, cross, track
 
   drone:
     fixed_rotation: true
     diam: 1.0
-    density: 0.1
+    density: 0.5
     friction: 5.0
+
+    # kinematics:
+    #   init_position:
+    #     x: -1
+    #     y: -1
+
     init_position: 
       x: 5.0
       y: 10.0
@@ -41,7 +47,6 @@ env:
       y: 0.0
     init_angular_velocity: 0.0
     init_angle: 0.0
-    ray_length: 60
 
     noise:
       add_noise: false
@@ -49,16 +54,20 @@ env:
         x: 0.9
         y: 0.9 
 
+    raycasting:
+      alignment: "diagonal"   # orthogonal, diagonal
+      ray_length: 60
+
     engine:
-      density: 0.1
+      density: 0.5
       friction: 5.0
       max_force: 10.0
 
     neural_network: # model
       num_dim_in: 4     # Distances to the nearest wall.
       num_dim_out: 4  # Actions for four engines.
-      num_dim_hidden: 32  # Hidden dimensions.
-      num_hidden: 2   # Hidden layer.
+      num_dim_hidden: 16  
+      num_hidden_layers: 2
 
 framework:
   screen:

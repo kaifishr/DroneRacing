@@ -3,7 +3,6 @@ import copy
 import math
 import random
 
-import torch
 import torch.nn as nn
 import numpy as np
 
@@ -79,25 +78,29 @@ class Drone:
 
         # Engines   
         self.engines = Engines(body=self.body, config=config)
-        # TODO: move this to Engine class?
-        self.max_force = config.env.drone.engine.max_force
+        self.max_force = config.env.drone.engine.max_force # TODO: move this to Engine class?
+
+        # Raycasting
+        ray_length = config.env.drone.raycasting.ray_length
+        alignment = config.env.drone.raycasting.alignment
 
         # Define direction in which we look for obstacles
-        ray_length = config.env.drone.ray_length
-        # Diagonal
-        # self.points = [
-        #     b2Vec2(ray_length, ray_length),
-        #     b2Vec2(-ray_length, ray_length),
-        #     b2Vec2(-ray_length, -ray_length),
-        #     b2Vec2(ray_length, -ray_length),
-        # ]
-        # Orthogonal
-        self.points = [
-            b2Vec2(ray_length, 0.0),
-            b2Vec2(0.0, ray_length),
-            b2Vec2(-ray_length, 0.0),
-            b2Vec2(0.0, -ray_length),
-        ]
+        if alignment == "diagonal":
+            self.points = [
+                b2Vec2(ray_length, ray_length),
+                b2Vec2(-ray_length, ray_length),
+                b2Vec2(-ray_length, -ray_length),
+                b2Vec2(ray_length, -ray_length)
+            ]
+        elif alignment == "orthogonal":
+            self.points = [
+                b2Vec2(ray_length, 0.0),
+                b2Vec2(0.0, ray_length),
+                b2Vec2(-ray_length, 0.0),
+                b2Vec2(0.0, -ray_length)
+            ]
+        else:
+            raise NotImplementedError(f"'{alignment}' aligment not implemented.")
 
         # Neural Network
         self.model = NeuralNetwork(config)
@@ -121,7 +124,7 @@ class Drone:
         self.forces = [0.0 for _ in range(4)]
 
         # Ray casting   TODO: move this to Raycast class?
-        self.callback = RayCastCallback
+        # self.callback = RayCastCallback
         # Ray casting rendering
         self.callbacks = []
         self.p1 = []
@@ -187,7 +190,8 @@ class Drone:
 
             # Perform ray casting from drone position p1 to to point p2.
             p2 = p1 + self.body.GetWorldVector(localVector=point)
-            cb = self.callback()
+            # cb = self.callback()
+            cb = RayCastCallback()
             self.world.RayCast(cb, p1, p2)
 
             # Save ray casting data for rendering.

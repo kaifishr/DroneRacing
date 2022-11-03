@@ -28,9 +28,10 @@ class RayCastCallback(b2RayCastCallback):
             normal:
             fraction:
         """
-        # Ignore engines.
+        # Ignore other drones.
+        # TODO: Change this to allow interaction between drones.
         if fixture.filterData.groupIndex == -1:
-            return 1.0
+            return -1
 
         # Fixture of the hit body. Interesting for multi-agent environments.
         self.hit = True

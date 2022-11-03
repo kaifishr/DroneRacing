@@ -33,14 +33,14 @@ class NeuralNetwork:
         in_features = config.num_dim_in
         out_features = config.num_dim_out
         hidden_features = config.num_dim_hidden
-        num_hidden = config.num_hidden
+        num_hidden_layers = config.num_hidden_layers
 
         # Input layer weights
         self.weights = [self._init_weights(size=(hidden_features, in_features))]
         self.biases = [np.zeros(shape=(hidden_features, 1))]
 
         # Hidden layer weights
-        for _ in range(num_hidden):
+        for _ in range(num_hidden_layers):
             self.weights += [self._init_weights(size=(hidden_features, hidden_features))]
             self.biases += [np.zeros(shape=(hidden_features, 1))]
 
@@ -106,7 +106,7 @@ class NeuralNetwork_(nn.Module):
         in_features = config.num_dim_in
         out_features = config.num_dim_out
         hidden_features = config.num_dim_hidden
-        num_hidden = config.num_hidden
+        num_hidden_layers = config.num_hidden_layers
 
         layers = [
             nn.Flatten(start_dim=0),
@@ -114,7 +114,7 @@ class NeuralNetwork_(nn.Module):
             nn.Tanh(),
         ]
 
-        for _ in range(num_hidden):
+        for _ in range(num_hidden_layers):
             layers += [
                 nn.Linear(in_features=hidden_features, out_features=hidden_features),
                 nn.Tanh(),
@@ -130,11 +130,11 @@ class NeuralNetwork_(nn.Module):
 
     def _init_weights(self, module) -> None:
         if isinstance(module, nn.Linear):
-            torch.nn.init.normal_(module.weight, mean=0.0, std=0.4)
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.5)
             if module.bias is not None:
                 torch.nn.init.zeros_(module.bias)
 
-    @torch.no_grad()  # add to NetLab as regularization tool if not used here.
+    @torch.no_grad()  # TODO: add to NetLab as regularization tool if not used here.
     def _mutate_weights(self, module: nn.Module) -> None:
         """Mutates weights."""
         if isinstance(module, nn.Linear):
