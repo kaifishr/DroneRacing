@@ -38,19 +38,22 @@ class Optimizer:
 
         while is_running:
 
-            # Physics and rendering.
+            # Physics and rendering
             self.env.step()
 
-            # Ray casting and positioning.
+            # Ray casting and positioning
             self.env.ray_casting()
 
-            # Run neural network prediction.
+            # Detect collisions with other bodies
+            # self.env.collision_detection()
+
+            # Run neural network prediction
             self.env.comp_action()
 
-            # Apply network predictions to drone.
+            # Apply network predictions to drone
             self.env.apply_action()
 
-            # Compute current fitness / score of drone.
+            # Compute current fitness / score of drone
             self.env.comp_score()
 
             # Method that run at end of simulation.

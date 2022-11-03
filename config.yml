@@ -6,7 +6,7 @@ checkpoints:
   model_path: "weights"
 
 optimizer:
-  num_agents: 64
+  num_agents: 4
   num_max_steps: 2000
   mutation_probability: 0.05
   mutation_rate: 0.05

@@ -209,6 +209,16 @@ class Drone:
             else:
                 self.data.append(-1.0)
 
+    def detect_collision(self):
+        """Detects collision with objects."""
+        raise NotImplementedError("Method 'detect_collision' not implemented.")
+        # Draft
+        # if self.body.active:
+        #     is_collision = True
+        #     if is_collision:
+        #         self.body.active = False
+        #         # set active = True in reset()
+
     def comp_action(self) -> None:
         """Computes next section of actions applied to engines.
 

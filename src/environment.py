@@ -57,6 +57,11 @@ class Environment(Framework):
         for drone in self.drones:
             drone.ray_casting()
 
+    def collision_detection(self) -> None:
+        """Detects collision of drone."""
+        for drone in self.drones:
+            drone.detect_collision()
+
     def comp_score(self) -> None:
         """Computes fitness score of each drones."""
         for drone in self.drones:
