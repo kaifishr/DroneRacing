@@ -173,8 +173,16 @@ class Drone:
         This effectively computes the distance traveled by the 
         drone over time divided by the simulation's step size.
         """
+        # Maximise distance traveled.
         vel = self.body.linearVelocity
         self.score += (vel.x**2 + vel.y**2) ** 0.5  # Square root not really necessary.
+
+        # Minimize distance to surrounding objects.
+        for p1, cb in zip(self.p1, self.callbacks):
+            diff = cb.point - p1
+            # self.score -= 10. * (diff.x**2 + diff.y**2) ** 0.5
+            self.score += 10. * (diff.x**2 + diff.y**2) ** 0.5
+
 
     def ray_casting(self):
         """Uses ray casting to measure distane to domain walls."""
