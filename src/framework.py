@@ -92,6 +92,10 @@ class Framework:
             self.clock.tick(self.target_fps)
             print(f"{self.clock.get_fps():.1f} FPS", flush=True, end="\r")
 
+        filename = f"map_{self.config.env.domain.map}.png"
+        pygame.image.save(self.renderer.screen, filename)
+        exit()
+
         self.world.contactListener = None
         self.world.destructionListener = None
         self.world.renderer = None
