@@ -45,7 +45,7 @@ class Optimizer:
             self.env.ray_casting()
 
             # Detect collisions with other bodies
-            # self.env.collision_detection()
+            self.env.collision_detection()
 
             # Run neural network prediction
             self.env.comp_action()

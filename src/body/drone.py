@@ -77,7 +77,7 @@ class Drone:
         self.fixture = self.body.CreateFixture(fixture_def)
 
         # Engines   
-        self.engines = Engines(body=self.body, config=config)
+        self.engine = Engines(body=self.body, config=config)
         self.max_force = config.env.drone.engine.max_force # TODO: move this to Engine class?
 
         # Raycasting
@@ -102,6 +102,9 @@ class Drone:
         else:
             raise NotImplementedError(f"'{alignment}' aligment not implemented.")
 
+        # Collision threshold
+        self.collision_threshold = (2.0**0.5) * (0.5 * self.diam + self.engine.height)
+
         # Neural Network
         self.model = NeuralNetwork(config)
         if self.config.checkpoints.load_model:
@@ -117,14 +120,12 @@ class Drone:
         # Compute normalization parameter
         domain_diam_x = self.x_max - self.x_min
         domain_diam_y = self.y_max - self.y_min
-        self.normalizer = 1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5
+        self.normalizer = 1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5    # TODO: add normalizer to model
 
         # Forces predicted by neural network.
         # Initialized with 0 for each engine.
         self.forces = [0.0 for _ in range(4)]
 
-        # Ray casting   TODO: move this to Raycast class?
-        # self.callback = RayCastCallback
         # Ray casting rendering
         self.callbacks = []
         self.p1 = []
@@ -156,6 +157,7 @@ class Drone:
 
         # Reset fitness score for next generation.
         self.score = 0.0
+        self.body.active = True
 
     def mutate(self, model: nn.Module) -> None:
         """Mutates drone's neural network.
@@ -180,8 +182,10 @@ class Drone:
         # Minimize distance to surrounding objects.
         for p1, cb in zip(self.p1, self.callbacks):
             diff = cb.point - p1
-            # self.score -= 10. * (diff.x**2 + diff.y**2) ** 0.5
-            self.score += 10. * (diff.x**2 + diff.y**2) ** 0.5
+            # self.score -= 0.01 * (diff.x**2 + diff.y**2) ** 0.5
+            # self.score += 0.01 * (diff.x**2 + diff.y**2) ** 0.5
+            if (diff.x**2 + diff.y**2) ** 0.5 < 4.0:
+                self.score -= (vel.x**2 + vel.y**2) ** 0.5  # Square root not really necessary.
 
 
     def ray_casting(self):
@@ -198,7 +202,6 @@ class Drone:
 
             # Perform ray casting from drone position p1 to to point p2.
             p2 = p1 + self.body.GetWorldVector(localVector=point)
-            # cb = self.callback()
             cb = RayCastCallback()
             self.world.RayCast(cb, p1, p2)
 
@@ -219,13 +222,13 @@ class Drone:
 
     def detect_collision(self):
         """Detects collision with objects."""
-        raise NotImplementedError("Method 'detect_collision' not implemented.")
-        # Draft
-        # if self.body.active:
-        #     is_collision = True
-        #     if is_collision:
-        #         self.body.active = False
-        #         # set active = True in reset()
+        if self.body.active:
+            for p1, cb in zip(self.p1, self.callbacks):
+                diff = cb.point - p1
+                dist = (diff.x**2 + diff.y**2) ** 0.5
+                if dist < self.collision_threshold:
+                    self.body.active = False
+                    break
 
     def comp_action(self) -> None:
         """Computes next section of actions applied to engines.
