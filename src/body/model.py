@@ -19,7 +19,7 @@ class NeuralNetwork:
         mutation_prob:
         mutation_rate:
         weights:
-        biases: 
+        biases:
     """
 
     def __init__(self, config: Config) -> None:
@@ -41,7 +41,9 @@ class NeuralNetwork:
 
         # Hidden layer weights
         for _ in range(num_hidden_layers):
-            self.weights += [self._init_weights(size=(hidden_features, hidden_features))]
+            self.weights += [
+                self._init_weights(size=(hidden_features, hidden_features))
+            ]
             self.biases += [np.zeros(shape=(hidden_features, 1))]
 
         # Output layer weights
@@ -71,7 +73,7 @@ class NeuralNetwork:
     @staticmethod
     def _sigmoid(x: numpy.ndarray) -> numpy.ndarray:
         # return 1.0 / (1.0 + np.exp(-x))
-        return expit(x) 
+        return expit(x)
 
     def eval(self):
         pass

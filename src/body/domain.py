@@ -171,7 +171,7 @@ class Domain:
         boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
 
         x_0, y_0 = x_max, fraction * y_max
-        x_1, y_1 = 0.5 * (1.0 + fraction) * x_max, fraction * y_max 
+        x_1, y_1 = 0.5 * (1.0 + fraction) * x_max, fraction * y_max
         boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
 
         x_0, y_0 = fraction * x_min, y_max
@@ -179,7 +179,7 @@ class Domain:
         boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
 
         x_0, y_0 = x_min, fraction * y_min
-        x_1, y_1 = 0.5 * (1.0 + fraction) * x_min, fraction * y_min 
+        x_1, y_1 = 0.5 * (1.0 + fraction) * x_min, fraction * y_min
         boundary += [b2EdgeShape(vertices=[(x_0, y_0), (x_1, y_1)])]
 
         x_0, y_0 = fraction * x_max, y_min

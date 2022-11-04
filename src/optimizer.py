@@ -31,7 +31,7 @@ class Optimizer:
         num_max_steps = self.config.optimizer.num_max_steps
         step = 0
         generation = 0
-        best_score = 0.0 
+        best_score = 0.0
 
         is_running = True
         t0 = time.time()
@@ -80,7 +80,9 @@ class Optimizer:
                 if self.config.checkpoints.save_model:
                     if score > best_score:
                         model = self.env.drones[self.env.idx_best].model
-                        save_checkpoint(model=model, config=self.config, generation=generation)
+                        save_checkpoint(
+                            model=model, config=self.config, generation=generation
+                        )
                         best_score = score
 
                 t0 = time.time()

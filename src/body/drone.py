@@ -76,9 +76,11 @@ class Drone:
 
         self.fixture = self.body.CreateFixture(fixture_def)
 
-        # Engines   
+        # Engines
         self.engine = Engines(body=self.body, config=config)
-        self.max_force = config.env.drone.engine.max_force # TODO: move this to Engine class?
+        self.max_force = (
+            config.env.drone.engine.max_force
+        )  # TODO: move this to Engine class?
 
         # Raycasting
         ray_length = config.env.drone.raycasting.ray_length
@@ -90,14 +92,14 @@ class Drone:
                 b2Vec2(ray_length, ray_length),
                 b2Vec2(-ray_length, ray_length),
                 b2Vec2(-ray_length, -ray_length),
-                b2Vec2(ray_length, -ray_length)
+                b2Vec2(ray_length, -ray_length),
             ]
         elif alignment == "orthogonal":
             self.points = [
                 b2Vec2(ray_length, 0.0),
                 b2Vec2(0.0, ray_length),
                 b2Vec2(-ray_length, 0.0),
-                b2Vec2(0.0, -ray_length)
+                b2Vec2(0.0, -ray_length),
             ]
         else:
             raise NotImplementedError(f"'{alignment}' aligment not implemented.")
@@ -120,7 +122,9 @@ class Drone:
         # Compute normalization parameter
         domain_diam_x = self.x_max - self.x_min
         domain_diam_y = self.y_max - self.y_min
-        self.normalizer = 1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5    # TODO: add normalizer to model
+        self.normalizer = (
+            1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5
+        )  # TODO: add normalizer to model
 
         # Forces predicted by neural network.
         # Initialized with 0 for each engine.
@@ -171,13 +175,15 @@ class Drone:
     def comp_score(self) -> None:
         """Computes current fitness score.
 
-        Accumulates drone's linear velocity over one generation. 
-        This effectively computes the distance traveled by the 
+        Accumulates drone's linear velocity over one generation.
+        This effectively computes the distance traveled by the
         drone over time divided by the simulation's step size.
         """
         # Maximise distance traveled.
         vel = self.body.linearVelocity
-        self.score += (vel.x**2 + vel.y**2) ** 0.5  # Square root not really necessary.
+        self.score += (
+            vel.x**2 + vel.y**2
+        ) ** 0.5  # Square root not really necessary.
 
         # Minimize distance to surrounding objects.
         for p1, cb in zip(self.p1, self.callbacks):
@@ -185,8 +191,9 @@ class Drone:
             # self.score -= 0.01 * (diff.x**2 + diff.y**2) ** 0.5
             # self.score += 0.01 * (diff.x**2 + diff.y**2) ** 0.5
             if (diff.x**2 + diff.y**2) ** 0.5 < 4.0:
-                self.score -= (vel.x**2 + vel.y**2) ** 0.5  # Square root not really necessary.
-
+                self.score -= (
+                    vel.x**2 + vel.y**2
+                ) ** 0.5  # Square root not really necessary.
 
     def ray_casting(self):
         """Uses ray casting to measure distane to domain walls."""
@@ -221,7 +228,15 @@ class Drone:
                 self.data.append(-1.0)
 
     def detect_collision(self):
-        """Detects collision with objects."""
+        """Detects collision with objects.
+
+        We use the raycast information here and speak of a collision
+        when an imaginary circle with the total diameter of the drone
+        touches another object.
+
+        TODO: Simulation of one generation can be terminated early,
+              if all drones have been deactivated.
+        """
         if self.body.active:
             for p1, cb in zip(self.p1, self.callbacks):
                 diff = cb.point - p1
@@ -246,7 +261,7 @@ class Drone:
         self.data = self.normalizer * np.array(self.data)
         pred = self.model(self.data)
 
-        self.forces = self.max_force * pred 
+        self.forces = self.max_force * pred
 
     def apply_action(self) -> None:
         """Applies force to Drone coming from neural network.

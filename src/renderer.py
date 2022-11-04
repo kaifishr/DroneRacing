@@ -22,6 +22,7 @@ class Renderer:
         screen
 
     """
+
     # Screen background color
     color_background = (0, 0, 0, 0)
 
@@ -84,7 +85,7 @@ class Renderer:
 
     def _to_screen(self, point: b2Vec2) -> tuple:
         """Transforms point from simulation to screen coordinates.
-        
+
         Args:
             point: Point to be transformed to pixel coordinates.
         """
@@ -177,7 +178,7 @@ class Renderer:
         vertices = self._transform_vertices(vertices)
         edge_color = [0.5 * c for c in self.colors[body.type]]
         pygame.draw.polygon(self.screen, edge_color, vertices, 0)  # edge
-        pygame.draw.polygon(self.screen, self.colors[body.type], vertices, 1)   # face
+        pygame.draw.polygon(self.screen, self.colors[body.type], vertices, 1)  # face
 
     def _draw_edge(self, body, fixture):
         """Draws edge to screen."""
