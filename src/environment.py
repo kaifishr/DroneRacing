@@ -9,6 +9,7 @@ can interact with each other. Currently, these are
 The Environment class also wraps the Framework class 
 that calls the pyhsics engine and rendering engines.
 """
+import random
 import numpy as np
 
 from Box2D.Box2D import b2Vec2
@@ -41,6 +42,12 @@ class Environment(Framework):
             Drone(world=self.world, config=config) for _ in range(num_agents)
         ]
 
+        # Domain
+        self.x_max = config.env.domain.limit.x_max
+        self.x_min = config.env.domain.limit.x_min
+        self.y_max = config.env.domain.limit.y_max
+        self.y_min = config.env.domain.limit.y_min
+
         # Add reference of drones to world class for easier rendering handling.
         setattr(self.world, "drones", self.drones)
 
@@ -48,9 +55,36 @@ class Environment(Framework):
         self.idx_best = 0
 
     def reset(self) -> None:
-        """Resets all drones."""
+        """Resets Drone to initial position and velocity.
+        """
+        if self.config.env.drone.respawn.is_random:
+            # Respawn drones every generation at different 
+            # predefined location in map.
+            phi = 0.8
+            respawn_points = [
+                b2Vec2(phi * self.x_max, phi * self.y_max),
+                b2Vec2(phi * self.x_min, phi * self.y_max),
+                b2Vec2(phi * self.x_min, phi * self.y_min),
+                b2Vec2(phi * self.x_max, phi * self.y_min),
+            ]
+            init_position_rand = random.choice(respawn_points)
+
         for drone in self.drones:
-            drone.reset()
+
+            if self.config.env.drone.respawn.is_random:
+                drone.body.position = init_position_rand
+            else:
+                drone.body.position = drone.init_position
+
+            drone.body.linearVelocity = drone.init_linear_velocity
+            drone.body.angularVelocity = drone.init_angular_velocity
+            drone.body.angle = drone.init_angle
+
+            # Reset fitness score for next generation.
+            drone.score = 0.0
+
+            # Reactivate drone after collision in last generation.
+            drone.body.active = True
 
     def ray_casting(self) -> None:
         """Runs ray casting for each drone"""
@@ -76,6 +110,13 @@ class Environment(Framework):
         """Applies action coming from neural network to all drones."""
         for drone in self.drones:
             drone.apply_action()
+
+    def is_active(self) -> bool:
+        """Checks if at least one drone is active."""
+        for drone in self.drones:
+            if drone.body.active:
+                return False
+        return True
 
     def select(self) -> float:
         """Selects best agent for reproduction."""

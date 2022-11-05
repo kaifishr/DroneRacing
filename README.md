@@ -1,11 +1,6 @@
 # SpaceDrones 🚀
 
-*SpaceDrones* provides a simple learning environment for genetic optimization with many possible extensions. The drones' goal is to navigate through an environment, covering as much distance as possible in a certain period of time. *SpaceDrones* comes with different worlds that vary in difficulty.
-
-|||
-|:--:|:--:|
-|![](docs/map_cross.png)|![](docs/map_track.png)|
-|![](docs/map_empty.png)|![](docs/map_block.png)|
+*SpaceDrones* provides a simple learning environment for genetic optimization with many possible extensions. The drones' goal is to navigate through an environment, covering as much distance as possible in a certain period of time. 
 
 Under the hodde, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation and *Pygame* for visualization. The visualization can be turned off and on by clicking on the *Pygame* window or by pressing the space bar. Turning off the visualization greatly accelerates the optimization process.
 
@@ -17,6 +12,15 @@ The drones' fitness is determined by the distance covered during one generation.
 
 Drones are deactivated for the current generation when they collide with other objects.
 
+# Maps
+
+*SpaceDrones* comes with different worlds that vary in difficulty. Depending on the map, the drones learn different flight behavior. Maps can be easily added or modified.
+
+|||||
+|:--:|:--:|:--:|:--:|
+|![](docs/map_empty.png)|![](docs/map_block.png)|![](docs/map_locks.png)|
+|![](docs/map_blade.png)|![](docs/map_track.png)|![](docs/map_smile.png)|
+
 # References
 
 - [PyBox2D](https://github.com/pybox2d/pybox2d) on GitHub.
@@ -27,7 +31,6 @@ Drones are deactivated for the current generation when they collide with other o
 # TODO:
 
 - Allow interaction between drones.
-- Add drone's position to input data.
 - Use data of last $N$ time steps as new input.
 - Allow thrust to have two components.
 

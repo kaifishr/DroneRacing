@@ -69,7 +69,7 @@ class Engines:
         ]
 
         # Negative groups never collide.
-        if not self.config.env.allow_collision:
+        if not self.config.env.allow_collision_drones:
             group_index = -1
         else:
             group_index = 0

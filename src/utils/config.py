@@ -48,6 +48,25 @@ class Config:
                 cfg.append(f"{indent_}{key}: {value}\n")
 
 
+def load_config(path: str) -> Config:
+    """Loads configuration file.
+
+    Args:
+        path: Path to yaml file.
+
+    Returns:
+        Dictionary holding content of yaml file.
+
+    """
+    with open(path, "r") as fp:
+        try:
+            config = yaml.safe_load(fp)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    return config
+
+
 def init_config(path: str) -> Config:
     """Initializes configuration class.
 
@@ -66,24 +85,6 @@ def init_config(path: str) -> Config:
 
     # Create folder if not exist.
     Path(config.checkpoints.model_path).mkdir(parents=True, exist_ok=True)
-
-    return config
-
-
-def load_config(path: str) -> Config:
-    """Loads configuration file.
-
-    Args:
-        path: Path to yaml file.
-
-    Returns:
-        Dictionary holding content of yaml file.
-
-    """
-    with open(path, "r") as fp:
-        try:
-            config = yaml.safe_load(fp)
-        except yaml.YAMLError as exc:
-            print(exc)
+    Path(config.dirs.frames).mkdir(parents=True, exist_ok=True)
 
     return config

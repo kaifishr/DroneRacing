@@ -22,12 +22,14 @@ class Drone:
     A drone consists of a body with four boosters attached.
     """
 
-    _vertices = [
+    vertices = [
         (0.5, 0.5),
         (-0.5, 0.5),
         (-0.5, -0.5),
         (0.5, -0.5),
     ]
+
+    num_engines = 4
 
     def __init__(self, world: b2World, config: Config) -> None:
         """Initializes the wheel class."""
@@ -59,10 +61,10 @@ class Drone:
         )
 
         self.diam = config.env.drone.diam
-        vertices = [(self.diam * x, self.diam * y) for (x, y) in self._vertices]
+        vertices = [(self.diam * x, self.diam * y) for (x, y) in self.vertices]
 
         # Negative groups never collide.
-        if not config.env.allow_collision:
+        if not config.env.allow_collision_drones:
             group_index = -1
         else:
             group_index = 0
@@ -84,28 +86,22 @@ class Drone:
 
         # Raycasting
         ray_length = config.env.drone.raycasting.ray_length
-        alignment = config.env.drone.raycasting.alignment
 
-        # Define direction in which we look for obstacles
-        if alignment == "diagonal":
-            self.points = [
-                b2Vec2(ray_length, ray_length),
-                b2Vec2(-ray_length, ray_length),
-                b2Vec2(-ray_length, -ray_length),
-                b2Vec2(ray_length, -ray_length),
-            ]
-        elif alignment == "orthogonal":
-            self.points = [
-                b2Vec2(ray_length, 0.0),
-                b2Vec2(0.0, ray_length),
-                b2Vec2(-ray_length, 0.0),
-                b2Vec2(0.0, -ray_length),
-            ]
-        else:
-            raise NotImplementedError(f"'{alignment}' aligment not implemented.")
+        # Define direction for raycasting in which we look for obstacles.
+        self.points = [
+            b2Vec2(ray_length, 0.0),
+            b2Vec2(0.0, ray_length),
+            b2Vec2(-ray_length, 0.0),
+            b2Vec2(0.0, -ray_length),
+            b2Vec2(ray_length, ray_length),
+            b2Vec2(-ray_length, ray_length),
+            b2Vec2(-ray_length, -ray_length),
+            b2Vec2(ray_length, -ray_length),
+        ]
 
         # Collision threshold
-        self.collision_threshold = (2.0**0.5) * (0.5 * self.diam + self.engine.height)
+        # self.collision_threshold = 1.1 * (2.0**0.5)*(0.5*self.diam+self.engine.height) # TODO: test this
+        self.collision_threshold = 1.1 * ((0.5*self.diam+self.engine.height)**2 + (0.5*self.engine.width_max)**2)**0.5 
 
         # Neural Network
         self.model = NeuralNetwork(config)
@@ -113,22 +109,17 @@ class Drone:
             load_checkpoint(model=self.model, config=config)
         self.model.eval()  # No gradients for genetic optimization required.
 
-        # Domain
-        self.x_max = config.env.domain.limit.x_max
-        self.x_min = config.env.domain.limit.x_min
-        self.y_max = config.env.domain.limit.y_max
-        self.y_min = config.env.domain.limit.y_min
-
-        # Compute normalization parameter
-        domain_diam_x = self.x_max - self.x_min
-        domain_diam_y = self.y_max - self.y_min
-        self.normalizer = (
-            1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5
-        )  # TODO: add normalizer to model
+        # Compute normalization parameter for input data
+        x_min, x_max = config.env.domain.limit.x_min, config.env.domain.limit.x_max
+        y_min, y_max = config.env.domain.limit.y_min, config.env.domain.limit.y_max
+        domain_diam_x = x_max - x_min
+        domain_diam_y = y_max - y_min
+        # TODO: Add normalizer to the model.
+        self.normalizer = 1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5
 
         # Forces predicted by neural network.
         # Initialized with 0 for each engine.
-        self.forces = [0.0 for _ in range(4)]
+        self.forces = [0.0 for _ in range(self.num_engines)]
 
         # Ray casting rendering
         self.callbacks = []
@@ -140,28 +131,6 @@ class Drone:
 
         # Fitness score
         self.score = 0.0
-
-    def reset(self) -> None:
-        """Resets Drone to initial position and velocity."""
-
-        if self.config.env.drone.noise.add_noise:
-            # Add noise to position
-            noise_pos_x = self.config.env.drone.noise.position.x
-            noise_pos_y = self.config.env.drone.noise.position.y
-            pos_x = noise_pos_x * random.uniform(a=self.x_min, b=self.x_max)
-            pos_y = noise_pos_y * random.uniform(a=self.y_min, b=self.y_max)
-            init_position = b2Vec2(pos_x, pos_y)
-        else:
-            init_position = self.init_position
-
-        self.body.position = init_position
-        self.body.linearVelocity = self.init_linear_velocity
-        self.body.angularVelocity = self.init_angular_velocity
-        self.body.angle = self.init_angle
-
-        # Reset fitness score for next generation.
-        self.score = 0.0
-        self.body.active = True
 
     def mutate(self, model: nn.Module) -> None:
         """Mutates drone's neural network.
@@ -179,53 +148,51 @@ class Drone:
         This effectively computes the distance traveled by the
         drone over time divided by the simulation's step size.
         """
-        # Maximise distance traveled.
-        vel = self.body.linearVelocity
-        self.score += (
-            vel.x**2 + vel.y**2
-        ) ** 0.5  # Square root not really necessary.
+        if self.body.active:
+            # Maximise distance traveled.
+            vel = self.body.linearVelocity
+            self.score += (vel.x**2 + vel.y**2) ** 0.5  # Square root optional.
 
-        # Minimize distance to surrounding objects.
-        for p1, cb in zip(self.p1, self.callbacks):
-            diff = cb.point - p1
-            # self.score -= 0.01 * (diff.x**2 + diff.y**2) ** 0.5
-            # self.score += 0.01 * (diff.x**2 + diff.y**2) ** 0.5
-            if (diff.x**2 + diff.y**2) ** 0.5 < 4.0:
-                self.score -= (
-                    vel.x**2 + vel.y**2
-                ) ** 0.5  # Square root not really necessary.
+            # Penalize drone when too close to an obstacle.
+            eta = 2.0
+            for p1, cb in zip(self.p1, self.callbacks):
+                diff = cb.point - p1
+                if (diff.x**2 + diff.y**2) ** 0.5 < eta * self.collision_threshold:
+                    self.score -= (vel.x**2 + vel.y**2) ** 0.5
 
     def ray_casting(self):
         """Uses ray casting to measure distane to domain walls."""
 
-        self.callbacks = []
-        self.p1 = []
-        self.p2 = []
-        self.data = []
+        if self.body.active:
 
-        p1 = self.body.position
+            self.callbacks = []
+            self.p1 = []
+            self.p2 = []
+            self.data = []
 
-        for point in self.points:
+            p1 = self.body.position
 
-            # Perform ray casting from drone position p1 to to point p2.
-            p2 = p1 + self.body.GetWorldVector(localVector=point)
-            cb = RayCastCallback()
-            self.world.RayCast(cb, p1, p2)
+            for point in self.points:
 
-            # Save ray casting data for rendering.
-            self.p1.append(p1)
-            self.p2.append(p2)
-            self.callbacks.append(cb)
+                # Perform ray casting from drone position p1 to to point p2.
+                p2 = p1 + self.body.GetWorldVector(localVector=point)
+                cb = RayCastCallback()
+                self.world.RayCast(cb, p1, p2)
 
-            # Gather data
-            if cb.hit:
-                # When the ray has hit something compute distance
-                # from drone to obstacle from raw features.
-                diff = cb.point - p1
-                dist = (diff.x**2 + diff.y**2) ** 0.5
-                self.data.append(dist)
-            else:
-                self.data.append(-1.0)
+                # Save ray casting data for rendering.
+                self.p1.append(p1)
+                self.p2.append(p2)
+                self.callbacks.append(cb)
+
+                # Gather distance data.
+                if cb.hit:
+                    # When the ray has hit something compute distance
+                    # from drone to obstacle from raw features.
+                    diff = cb.point - p1
+                    dist = (diff.x**2 + diff.y**2) ** 0.5
+                    self.data.append(dist)
+                else:
+                    self.data.append(-1.0)
 
     def detect_collision(self):
         """Detects collision with objects.
@@ -233,9 +200,6 @@ class Drone:
         We use the raycast information here and speak of a collision
         when an imaginary circle with the total diameter of the drone
         touches another object.
-
-        TODO: Simulation of one generation can be terminated early,
-              if all drones have been deactivated.
         """
         if self.body.active:
             for p1, cb in zip(self.p1, self.callbacks):
@@ -243,6 +207,10 @@ class Drone:
                 dist = (diff.x**2 + diff.y**2) ** 0.5
                 if dist < self.collision_threshold:
                     self.body.active = False
+                    self.forces = self.num_engines * [0.0] 
+                    self.callbacks = []
+                    self.p1 = []
+                    self.p2 = []
                     break
 
     def comp_action(self) -> None:
@@ -252,16 +220,18 @@ class Drone:
         from ray casting to the drone's neural network which then returns
         a set of actions (forces) to be applied to the drone's engines.
         """
-        # PyTorch model
-        # self.data = self.normalizer * torch.tensor(self.data)
-        # pred = self.model(self.data)
-        # pred = pred.detach().numpy().astype(np.float)
+        if self.body.active:
 
-        # Numpy model
-        self.data = self.normalizer * np.array(self.data)
-        pred = self.model(self.data)
+            # PyTorch model
+            # self.data = self.normalizer * torch.tensor(self.data)
+            # pred = self.model(self.data)
+            # pred = pred.detach().numpy().astype(np.float)
 
-        self.forces = self.max_force * pred
+            # Numpy model
+            self.data = self.normalizer * np.array(self.data)
+            pred = self.model(self.data)
+
+            self.forces = self.max_force * pred
 
     def apply_action(self) -> None:
         """Applies force to Drone coming from neural network.

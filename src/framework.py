@@ -9,6 +9,7 @@ from Box2D.b2 import world
 
 from src.renderer import Renderer
 from src.utils.config import Config
+from src.utils.utils import capture_screen
 
 
 class Framework:
@@ -57,6 +58,8 @@ class Framework:
         self.renderer = Renderer(screen=screen, config=config)
         self.is_rendering = True
 
+        self.iteration = 0
+
     def _set_rendering(self) -> None:
         """Turns rendering on or off."""
         if self.is_rendering:
@@ -92,9 +95,9 @@ class Framework:
             self.clock.tick(self.target_fps)
             print(f"{self.clock.get_fps():.1f} FPS", flush=True, end="\r")
 
-        filename = f"map_{self.config.env.domain.map}.png"
-        pygame.image.save(self.renderer.screen, filename)
-        exit()
+            # Capture screen
+            # capture_screen(screen=self.renderer.screen, iteration=self.iteration)
+            # self.iteration += 1
 
         self.world.contactListener = None
         self.world.destructionListener = None

@@ -56,7 +56,7 @@ class Domain:
 
         return domain_boundary
 
-    def _get_map_block(self, fraction: float = 0.3) -> list:
+    def _get_map_block(self, fraction: float = 0.2) -> list:
         """Creates a block in the center of the domain.
 
         Args:

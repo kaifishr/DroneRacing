@@ -45,7 +45,8 @@ class Optimizer:
             self.env.ray_casting()
 
             # Detect collisions with other bodies
-            self.env.collision_detection()
+            if not self.config.env.allow_collision_domain:
+                self.env.collision_detection()
 
             # Run neural network prediction
             self.env.comp_action()
@@ -57,7 +58,7 @@ class Optimizer:
             self.env.comp_score()
 
             # Method that run at end of simulation.
-            if (step + 1) % num_max_steps == 0:
+            if ((step + 1) % num_max_steps == 0) or self.env.is_active():
 
                 # Select fittest agent based on distance traveled.
                 score = self.env.select()
