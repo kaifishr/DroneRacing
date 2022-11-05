@@ -100,7 +100,7 @@ class Drone:
         ]
 
         # Collision threshold
-        # self.collision_threshold = 1.1 * (2.0**0.5)*(0.5*self.diam+self.engine.height) # TODO: test this
+        # self.collision_threshold = 1.1 * (2.0**0.5)*(0.5*self.diam+self.engine.height)
         self.collision_threshold = 1.1 * ((0.5*self.diam+self.engine.height)**2 + (0.5*self.engine.width_max)**2)**0.5 
 
         # Neural Network
@@ -154,11 +154,12 @@ class Drone:
             self.score += (vel.x**2 + vel.y**2) ** 0.5  # Square root optional.
 
             # Penalize drone when too close to an obstacle.
-            eta = 2.0
+            eta = 1.5
+            phi = 8.0
             for p1, cb in zip(self.p1, self.callbacks):
                 diff = cb.point - p1
                 if (diff.x**2 + diff.y**2) ** 0.5 < eta * self.collision_threshold:
-                    self.score -= (vel.x**2 + vel.y**2) ** 0.5
+                    self.score -= phi * (vel.x**2 + vel.y**2) ** 0.5
 
     def ray_casting(self):
         """Uses ray casting to measure distane to domain walls."""

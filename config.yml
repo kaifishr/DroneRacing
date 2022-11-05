@@ -25,7 +25,7 @@ optimizer:
 
 env: 
   allow_collision_drones: false   # do not change
-  allow_collision_domain: true
+  allow_collision_domain: false
 
   gravity: 
     x: 0.0
@@ -74,7 +74,7 @@ env:
       num_hidden_layers: 2
 
     respawn:
-      is_random: true
+      is_random: false
 
 framework:
   screen:

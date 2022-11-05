@@ -33,6 +33,7 @@ Drones are deactivated for the current generation when they collide with other o
 - Allow interaction between drones.
 - Use data of last $N$ time steps as new input.
 - Allow thrust to have two components.
+- Add score for exploration.
 
 # License
 

@@ -1,5 +1,6 @@
 """Optimizer class for genetic optimization."""
 import time
+from pathlib import Path
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -22,8 +23,17 @@ class Optimizer:
     def __init__(self, config: Config) -> None:
         """Initializes Optimizer"""
         self.config = config
-        self.env = Environment(config=config)
         self.writer = SummaryWriter()
+
+        # Create UUID for Pygame window.
+        self.config.id = self.writer.log_dir.split("/")[-1]
+
+        self.env = Environment(config=config)
+
+        # Save config file
+        file_path = Path(self.writer.log_dir) / "config.txt" 
+        with open(file_path, "w") as file:
+            file.write(self.config.__str__())
 
     def run(self) -> None:
         """Runs genetic optimization."""

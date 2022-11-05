@@ -46,7 +46,7 @@ class Framework:
 
         # Pygame initialization.
         pygame.init()
-        pygame.display.set_caption(self.name)
+        pygame.display.set_caption(f"{self.name} {self.config.id}")
         self.clock = pygame.time.Clock()
 
         # Set screen properties.

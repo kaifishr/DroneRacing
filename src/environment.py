@@ -49,7 +49,7 @@ class Environment(Framework):
         self.y_min = config.env.domain.limit.y_min
 
         # Add reference of drones to world class for easier rendering handling.
-        setattr(self.world, "drones", self.drones)
+        self.world.drones = self.drones
 
         # Index of current fittest agent
         self.idx_best = 0
