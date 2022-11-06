@@ -33,7 +33,7 @@ class Config:
         cfg = []
         self._build_str(self, cfg)
         return "".join(cfg)
-
+    
     @staticmethod
     def _build_str(self: object, cfg: list, indent: int = 0) -> None:
         """Recursively iterates through all configuration nodes."""

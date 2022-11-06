@@ -52,7 +52,7 @@ class NeuralNetwork:
 
     def _init_weights(self, size: tuple[int, int]) -> None:
         """Initializes model weights."""
-        return np.random.normal(loc=0.0, scale=0.5, size=size)
+        return np.random.normal(loc=0.0, scale=0.2, size=size)
 
     def __call__(self, x: numpy.ndarray):
         return self.forward(x)

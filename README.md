@@ -10,9 +10,17 @@ Under the hodde, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation a
 
 The drones' fitness is determined by the distance covered during one generation. The neural network weights of the fittest drone are mutated and passed on to the next generation of drones.
 
-Drones are deactivated for the current generation when they collide with other objects.
+The implementation allows to deactivate Drones of the current generation when they collide with other objects.
 
-# Maps
+The drone's brain is modeled by a multilayer perceptron neural network. Neural networks are implemented in NumPy and PyTorch. For small networks, the network implemented in NumPy is considerably faster due to less overhead.
+
+## Learning
+
+The fitness function controls the learning behavior of the drone. Currently, the score computed by the fitness function depends on how much distance has been covered by the drone, and how close it flys to obstacles. How the fitness score is computed can be modified as desired.
+
+*SpaceDrones* lets you modify many hyperparameters that affect how fast and what the drones learn. Most of the hyperparameters can be found in the *config.yml* file.
+
+## Maps
 
 *SpaceDrones* comes with different worlds that vary in difficulty. Depending on the map, the drones learn different flight behavior. Maps can be easily added or modified.
 
