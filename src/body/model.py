@@ -1,7 +1,6 @@
 """Contains neural network definitions.
 
-The neural network represents the drone's brain.
-
+The drone's brain represented by a feedforward neural network.
 """
 import numpy
 import numpy as np
@@ -36,23 +35,44 @@ class NeuralNetwork:
         num_hidden_layers = config.num_hidden_layers
 
         # Input layer weights
-        self.weights = [self._init_weights(size=(hidden_features, in_features))]
+        size = (hidden_features, in_features)
+        self.weights = [self._init_weights(size=size, nonlinearity="tanh")]
         self.biases = [np.zeros(shape=(hidden_features, 1))]
 
         # Hidden layer weights
+        size = (hidden_features, hidden_features)
         for _ in range(num_hidden_layers):
             self.weights += [
-                self._init_weights(size=(hidden_features, hidden_features))
+                self._init_weights(size=size, nonlinearity="tanh")
             ]
             self.biases += [np.zeros(shape=(hidden_features, 1))]
 
         # Output layer weights
-        self.weights += [self._init_weights(size=(out_features, hidden_features))]
+        size = (out_features, hidden_features)
+        self.weights += [self._init_weights(size=size, nonlinearity="sigmoid")]
         self.biases += [np.zeros(shape=(out_features, 1))]
 
-    def _init_weights(self, size: tuple[int, int]) -> None:
-        """Initializes model weights."""
-        return np.random.normal(loc=0.0, scale=0.2, size=size)
+    @staticmethod
+    def _init_weights(size: tuple[int, int], nonlinearity: str) -> None:
+        """Initializes model weights.
+
+        Xavier normal initialization for feedforward neural networks described in 
+        'Understanding the difficulty of training deep feedforward neural networks'
+        by Glorot and Bengio (2010).
+
+            std = gain * (2 / (fan_in + fan_out)) ** 0.5
+        
+        """
+        if nonlinearity == "tanh":
+            gain = 5.0 / 3.0
+        elif nonlinearity == "sigmoid":
+            gain = 1.0
+        else:
+            raise NotImplementedError(
+                f"Initialization for '{nonlinearity}' not implemented."
+            )
+        std = gain * (2.0 / sum(size)) ** 0.5
+        return np.random.normal(loc=0.0, scale=std, size=size)
 
     def __call__(self, x: numpy.ndarray):
         return self.forward(x)

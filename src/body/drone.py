@@ -130,9 +130,8 @@ class Drone:
 
         # Fitness score
         self.score = 0.0
-        self.path_length = 10
-        self.path_points = self.path_length * [b2Vec2(0.0, 0.0), ]
-        # self.every_point = 10 # do not save every point
+        self.path_length = 800 
+        self.path_points = []
         self.path_idx = 0
 
     def mutate(self, model: nn.Module) -> None:
@@ -154,7 +153,7 @@ class Drone:
         if self.body.active:
             # Add score just for being alive.
             # Reward drone for living long.
-            # self.score += 1.0 
+            self.score += 1.0 
 
             # Maximise distance traveled.
             vel = self.body.linearVelocity
@@ -162,28 +161,28 @@ class Drone:
             self.score += score
 
             # Penalize drone when too close to an obstacle.
-            eta = 1.5
-            phi = 0.125
-            score = 0.0
+            eta = 4.0
+            phi = 1.0
+            score = 1.0
             for cb in self.callbacks:
                 diff = cb.point - self.body.position
                 dist = (diff.x**2 + diff.y**2) ** 0.5
-                if dist > eta * self.collision_threshold:
-                    score += phi 
-            self.score += score
+                if dist < eta * self.collision_threshold:
+                    score = 0.0 
+                    break
+            self.score += phi * score
 
             # Maximise exploration by maximising distance to past path points.
-            rho = 1.0
-            score = 0.0
-            for path_point in self.path_points:
-                diff = path_point - self.body.position
-                score += (diff.x**2 + diff.y**2) ** 0.5
+            # rho = 1.0
+            # score = 0.0
+            # for path_point in self.path_points:
+            #     diff = path_point - self.body.position
+            #     score += (1.0 / len(self.path_points)) * (diff.x**2 + diff.y**2) ** 0.5
+            # self.score += rho * score 
+            # self.path_points.append(copy.copy(self.body.position))
+            # if len(self.path_points) > self.path_length:
+            #     self.path_points.pop(0)
 
-            self.score += rho * score
-            self.path_points[self.path_idx] = copy.copy(self.body.position)
-            self.path_idx += 1
-            if self.path_idx == self.path_length:
-                self.path_idx = 0
 
     def ray_casting(self):
         """Uses ray casting to measure distane to domain walls."""

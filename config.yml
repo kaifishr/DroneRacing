@@ -17,9 +17,9 @@ checkpoints:
   model_path: "weights"
 
 optimizer:
-  num_agents: 1
+  num_agents: 8
   num_max_steps: 1000
-  mutation_probability: 0.02
+  mutation_probability: 0.05
   mutation_rate: 0.04
   # mllib: "numpy"    # numpy, torch
 
@@ -42,12 +42,12 @@ env:
   drone:
     fixed_rotation: true
     diam: 1.0
-    density: 0.1
+    density: 1.0
     friction: 5.0
 
     engine:
       max_force: 10.0
-      density: 0.1
+      density: 1.0
       friction: 5.0
 
     # kinematics:

@@ -82,7 +82,7 @@ class Environment(Framework):
 
             # Reset fitness score for next generation.
             drone.score = 0.0
-            drone.path_points = drone.path_length * [b2Vec2(0.0, 0.0), ]
+            self.path_points = []
 
             # Reactivate drone after collision in last generation.
             drone.body.active = True
