@@ -13,7 +13,7 @@ from src.utils.utils import load_checkpoint
 from src.utils.config import Config
 from src.body.engine import Engines
 from src.body.raycast import RayCastCallback
-from src.body.model import NeuralNetwork
+from src.body.model import NetworkLoader
 
 
 class Drone:
@@ -103,18 +103,19 @@ class Drone:
         # self.collision_threshold = 1.1 * ((0.5*self.diam+self.engine.height)**2 + (0.5*self.engine.width_max)**2)**0.5 
 
         # Neural Network
-        self.model = NeuralNetwork(config)
-        if self.config.checkpoints.load_model:
-            load_checkpoint(model=self.model, config=config)
-        self.model.eval()  # No gradients for genetic optimization required.
+        self.model = NetworkLoader(config=config)()
+        # self.model = NeuralNetwork(config)
+        # if self.config.checkpoints.load_model:
+        #     load_checkpoint(model=self.model, config=config)
+        # self.model.eval()  # No gradients for genetic optimization required.
 
         # Compute normalization parameter for input data
-        x_min, x_max = config.env.domain.limit.x_min, config.env.domain.limit.x_max
-        y_min, y_max = config.env.domain.limit.y_min, config.env.domain.limit.y_max
-        domain_diam_x = x_max - x_min
-        domain_diam_y = y_max - y_min
-        # TODO: Add normalizer to the model.
-        self.normalizer = 1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5
+        # x_min, x_max = config.env.domain.limit.x_min, config.env.domain.limit.x_max
+        # y_min, y_max = config.env.domain.limit.y_min, config.env.domain.limit.y_max
+        # domain_diam_x = x_max - x_min
+        # domain_diam_y = y_max - y_min
+        # # TODO: Add normalizer to the model.
+        # self.normalizer = 1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5
 
         # Forces predicted by neural network.
         # Initialized with 0 for each engine.
@@ -161,8 +162,8 @@ class Drone:
             self.score += score
 
             # Penalize drone when too close to an obstacle.
-            eta = 4.0
-            phi = 1.0
+            eta = 2.0
+            phi = 0.2
             score = 1.0
             for cb in self.callbacks:
                 diff = cb.point - self.body.position
@@ -249,13 +250,12 @@ class Drone:
             # PyTorch model
             # self.data = self.normalizer * torch.tensor(self.data)
             # pred = self.model(self.data)
-            # pred = pred.detach().numpy().astype(np.float)
+            # force_pred = pred.detach().numpy().astype(np.float)
 
             # Numpy model
-            self.data = self.normalizer * np.array(self.data)
-            pred = self.model(self.data)
-
-            self.forces = self.max_force * pred
+            # self.data = self.normalizer * np.array(self.data)
+            force_pred = self.model(self.data)
+            self.forces = self.max_force * force_pred
 
     def apply_action(self) -> None:
         """Applies force to Drone coming from neural network.

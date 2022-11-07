@@ -9,9 +9,56 @@ import torch.nn as nn
 from scipy.special import expit
 
 from src.utils.config import Config
+from src.utils.utils import load_checkpoint
 
 
-class NeuralNetwork:
+class NetworkLoader:
+    """Loads NumPy or PyTorch neural network."""
+
+    def __init__(self, config: Config) -> None:
+        """Initializes Network wrapper."""
+        self.config = config
+
+        # Compute normalization parameter for input data
+        x_min = config.env.domain.limit.x_min
+        x_max = config.env.domain.limit.x_max
+        y_min = config.env.domain.limit.y_min
+        y_max = config.env.domain.limit.y_max
+
+        domain_diam_x = x_max - x_min
+        domain_diam_y = y_max - y_min
+
+        self.normalizer = 1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5
+
+    def __call__(self):
+        """Loads and returns model.
+        
+        Args:
+            lib: Library "numpy" or "pytorch".
+        """
+        lib = self.config.optimizer.lib
+
+        if lib == "numpy":
+            model = NumpyNeuralNetwork(self.config, normalizer=self.normalizer)
+            if self.config.checkpoints.load_model:
+                raise NotImplementedError(
+                    f"Loading checkpoints not implemented for NumPy neural networks."
+                )
+
+        elif lib == "torch":
+            model = TorchNeuralNetwork(self.config, normalizer=self.normalizer)
+            if self.config.checkpoints.load_model:
+                load_checkpoint(model=self.model, config=self.config)
+
+        else:
+            raise NotImplementedError(f"Network for {lib} not implemented.")
+
+        model.eval()  # No gradients for genetic optimization required.
+
+        return model
+
+
+class NumpyNeuralNetwork:
     """Neural network written with Numpy.
 
     Attributes:
@@ -21,8 +68,10 @@ class NeuralNetwork:
         biases:
     """
 
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, normalizer: float) -> None:
         """Initializes NeuralNetwork."""
+
+        self.normalizer = normalizer
 
         self.mutation_prob = config.optimizer.mutation_probability
         self.mutation_rate = config.optimizer.mutation_rate
@@ -93,19 +142,25 @@ class NeuralNetwork:
     @staticmethod
     def _sigmoid(x: numpy.ndarray) -> numpy.ndarray:
         # return 1.0 / (1.0 + np.exp(-x))
-        return expit(x)
+        return expit(x)     # Numerically stable sigmoid
 
     def eval(self):
         pass
 
-    def forward(self, x: numpy.ndarray):
+    def forward(self, data: list):
+
+        # Normalize data
+        x = self.normalizer * np.array(data)
+
+        # Feedforward
         for weight, bias in zip(self.weights[:-1], self.biases[:-1]):
             x = np.tanh(np.matmul(x, weight.T) + bias.T)
         x = self._sigmoid(np.matmul(x, self.weights[-1].T) + self.biases[-1].T)[0, :]
+
         return x
 
 
-class NeuralNetwork_(nn.Module):
+class TorchNeuralNetwork(nn.Module):
     """Network class.
 
     Simple fully-connected neural network.
@@ -116,9 +171,11 @@ class NeuralNetwork_(nn.Module):
         net:
     """
 
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, normalizer:  float) -> None:
         """Initializes NeuralNetwork class."""
         super().__init__()
+
+        self.normalizer = normalizer
 
         self.mutation_prob = config.optimizer.mutation_probability
         self.mutation_rate = config.optimizer.mutation_rate
@@ -172,5 +229,15 @@ class NeuralNetwork_(nn.Module):
         """Mutates the network's weights."""
         self.apply(self._mutate_weights)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.net(x)
+    def forward(self, data: list) -> torch.Tensor:
+
+        # Normalize data.
+        x = self.normalizer * torch.tensor(data)
+
+        # Feedforward.
+        x = self.net(x)
+
+        # Detach prediction from graph.
+        x = x.detach().numpy().astype(np.float)
+
+        return x 
