@@ -1,15 +1,12 @@
 """Contains drone definition."""
 import copy
 import math
-import random
 
 import torch.nn as nn
-import numpy as np
 
 from Box2D import b2FixtureDef, b2PolygonShape
 from Box2D.Box2D import b2World, b2Vec2, b2Filter
 
-from src.utils.utils import load_checkpoint
 from src.utils.config import Config
 from src.body.engine import Engines
 from src.body.raycast import RayCastCallback
@@ -104,18 +101,6 @@ class Drone:
 
         # Neural Network
         self.model = NetworkLoader(config=config)()
-        # self.model = NeuralNetwork(config)
-        # if self.config.checkpoints.load_model:
-        #     load_checkpoint(model=self.model, config=config)
-        # self.model.eval()  # No gradients for genetic optimization required.
-
-        # Compute normalization parameter for input data
-        # x_min, x_max = config.env.domain.limit.x_min, config.env.domain.limit.x_max
-        # y_min, y_max = config.env.domain.limit.y_min, config.env.domain.limit.y_max
-        # domain_diam_x = x_max - x_min
-        # domain_diam_y = y_max - y_min
-        # # TODO: Add normalizer to the model.
-        # self.normalizer = 1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5
 
         # Forces predicted by neural network.
         # Initialized with 0 for each engine.
@@ -131,9 +116,11 @@ class Drone:
 
         # Fitness score
         self.score = 0.0
-        self.path_length = 800 
+
         self.path_points = []
-        self.path_idx = 0
+        self.path_length = 100
+        self.every_point = 10
+        self.point_counter = 0
 
     def mutate(self, model: nn.Module) -> None:
         """Mutates drone's neural network.
@@ -158,31 +145,40 @@ class Drone:
 
             # Maximise distance traveled.
             vel = self.body.linearVelocity
-            score = 0.0167 * (vel.x**2 + vel.y**2) ** 0.5
+            time_step = 0.0167
+            score = time_step * (vel.x**2 + vel.y**2) ** 0.5
+            # print("vel score", score)
             self.score += score
 
             # Penalize drone when too close to an obstacle.
-            eta = 2.0
-            phi = 0.2
-            score = 1.0
-            for cb in self.callbacks:
-                diff = cb.point - self.body.position
-                dist = (diff.x**2 + diff.y**2) ** 0.5
-                if dist < eta * self.collision_threshold:
-                    score = 0.0 
-                    break
-            self.score += phi * score
+            # eta = 2.0
+            # phi = 0.2
+            # score = 1.0
+            # for cb in self.callbacks:
+            #     diff = cb.point - self.body.position
+            #     dist = (diff.x**2 + diff.y**2) ** 0.5
+            #     if dist < eta * self.collision_threshold:
+            #         score = 0.0 
+            #         break
+            # print("dist score", score)
+            # self.score += phi * score
 
             # Maximise exploration by maximising distance to past path points.
-            # rho = 1.0
+            # rho = 0.1
             # score = 0.0
             # for path_point in self.path_points:
             #     diff = path_point - self.body.position
-            #     score += (1.0 / len(self.path_points)) * (diff.x**2 + diff.y**2) ** 0.5
-            # self.score += rho * score 
-            # self.path_points.append(copy.copy(self.body.position))
+            #     score += (diff.x**2 + diff.y**2) ** 0.5
+            # if score:
+            #     score *= rho / len(self.path_points)
+            # self.score += score
+            # # print("expl score", score)
+            # if self.point_counter % self.every_point == 0:
+            #     self.path_points.append(copy.copy(self.body.position))
             # if len(self.path_points) > self.path_length:
             #     self.path_points.pop(0)
+            # self.point_counter += 1
+            # # print()
 
 
     def ray_casting(self):
@@ -246,14 +242,6 @@ class Drone:
         a set of actions (forces) to be applied to the drone's engines.
         """
         if self.body.active:
-
-            # PyTorch model
-            # self.data = self.normalizer * torch.tensor(self.data)
-            # pred = self.model(self.data)
-            # force_pred = pred.detach().numpy().astype(np.float)
-
-            # Numpy model
-            # self.data = self.normalizer * np.array(self.data)
             force_pred = self.model(self.data)
             self.forces = self.max_force * force_pred
 
@@ -262,24 +250,25 @@ class Drone:
 
         Each engine is controlled individually.
         """
-        f_left, f_right, f_up, f_down = self.forces
+        if self.body.active:
+            f_left, f_right, f_up, f_down = self.forces
 
-        # Left
-        f = self.body.GetWorldVector(localVector=b2Vec2(f_left, 0.0))
-        p = self.body.GetWorldPoint(localPoint=b2Vec2(-0.5 * self.diam, 0.0))
-        self.body.ApplyForce(f, p, True)
+            # Left
+            f = self.body.GetWorldVector(localVector=b2Vec2(f_left, 0.0))
+            p = self.body.GetWorldPoint(localPoint=b2Vec2(-0.5 * self.diam, 0.0))
+            self.body.ApplyForce(f, p, True)
 
-        # Right
-        f = self.body.GetWorldVector(localVector=b2Vec2(-f_right, 0.0))
-        p = self.body.GetWorldPoint(localPoint=b2Vec2(0.5 * self.diam, 0.0))
-        self.body.ApplyForce(f, p, True)
+            # Right
+            f = self.body.GetWorldVector(localVector=b2Vec2(-f_right, 0.0))
+            p = self.body.GetWorldPoint(localPoint=b2Vec2(0.5 * self.diam, 0.0))
+            self.body.ApplyForce(f, p, True)
 
-        # Up
-        f = self.body.GetWorldVector(localVector=b2Vec2(0.0, -f_up))
-        p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))
-        self.body.ApplyForce(f, p, True)
+            # Up
+            f = self.body.GetWorldVector(localVector=b2Vec2(0.0, -f_up))
+            p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))
+            self.body.ApplyForce(f, p, True)
 
-        # Down
-        f = self.body.GetWorldVector(localVector=b2Vec2(0.0, f_down))
-        p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))
-        self.body.ApplyForce(f, p, True)
+            # Down
+            f = self.body.GetWorldVector(localVector=b2Vec2(0.0, f_down))
+            p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))
+            self.body.ApplyForce(f, p, True)

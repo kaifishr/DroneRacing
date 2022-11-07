@@ -209,7 +209,9 @@ class TorchNeuralNetwork(nn.Module):
 
     def _init_weights(self, module) -> None:
         if isinstance(module, nn.Linear):
-            torch.nn.init.normal_(module.weight, mean=0.0, std=0.5)
+            # torch.nn.init.normal_(module.weight, mean=0.0, std=0.5)
+            gain = 5.0 / 3.0    # Gain for tanh nonlinearity.
+            torch.nn.init.xavier_normal_(module.weight, gain=gain)
             if module.bias is not None:
                 torch.nn.init.zeros_(module.bias)
 
