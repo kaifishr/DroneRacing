@@ -55,10 +55,9 @@ class Environment(Framework):
         self.idx_best = 0
 
     def reset(self) -> None:
-        """Resets Drone to initial position and velocity.
-        """
+        """Resets Drone to initial position and velocity."""
         if self.config.env.drone.respawn.is_random:
-            # Respawn drones every generation at different 
+            # Respawn drones every generation at different
             # predefined location in map.
             phi = 0.8
             respawn_points = [

@@ -17,10 +17,10 @@ checkpoints:
   model_path: "weights"
 
 optimizer:
-  num_agents: 8
+  num_agents: 16
   num_max_steps: 2000
-  mutation_probability: 0.04
-  mutation_rate: 0.08
+  mutation_probability: 0.05
+  mutation_rate: 0.06
   lib: "numpy"    # numpy, torch
 
 env: 
@@ -42,12 +42,12 @@ env:
   drone:
     fixed_rotation: true
     diam: 1.0
-    density: 1.0
+    density: 0.5
     friction: 5.0
 
     engine:
       max_force: 10.0
-      density: 1.0
+      density: 0.5
       friction: 5.0
 
     # kinematics:
@@ -56,8 +56,8 @@ env:
     #     y: -1
 
     init_position: 
-      x: 12.0
-      y: 12.0
+      x: 10.0
+      y: 11.0
     init_linear_velocity: 
       x: 0.0
       y: 0.0
@@ -70,7 +70,7 @@ env:
     neural_network: # model
       num_dim_in: 8       # Distances to the nearest wall.
       num_dim_out: 4      # Actions for four engines.
-      num_dim_hidden: 32
+      num_dim_hidden: 16
       num_hidden_layers: 2
 
     respawn:

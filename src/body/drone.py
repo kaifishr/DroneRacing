@@ -96,8 +96,10 @@ class Drone:
         ]
 
         # Collision threshold
-        self.collision_threshold = 1.1 * (2.0**0.5)*(0.5*self.diam+self.engine.height)
-        # self.collision_threshold = 1.1 * ((0.5*self.diam+self.engine.height)**2 + (0.5*self.engine.width_max)**2)**0.5 
+        self.collision_threshold = (
+            1.1 * (2.0**0.5) * (0.5 * self.diam + self.engine.height)
+        )
+        # self.collision_threshold = 1.1 * ((0.5*self.diam+self.engine.height)**2 + (0.5*self.engine.width_max)**2)**0.5
 
         # Neural Network
         self.model = NetworkLoader(config=config)()
@@ -141,7 +143,7 @@ class Drone:
         if self.body.active:
             # Add score just for being alive.
             # Reward drone for living long.
-            self.score += 1.0 
+            # self.score += 1.0
 
             # Maximise distance traveled.
             vel = self.body.linearVelocity
@@ -151,17 +153,17 @@ class Drone:
             self.score += score
 
             # Penalize drone when too close to an obstacle.
-            # eta = 2.0
-            # phi = 0.2
-            # score = 1.0
-            # for cb in self.callbacks:
-            #     diff = cb.point - self.body.position
-            #     dist = (diff.x**2 + diff.y**2) ** 0.5
-            #     if dist < eta * self.collision_threshold:
-            #         score = 0.0 
-            #         break
+            eta = 4.0
+            phi = 0.5
+            score = 1.0
+            for cb in self.callbacks:
+                diff = cb.point - self.body.position
+                dist = (diff.x**2 + diff.y**2) ** 0.5
+                if dist < eta * self.collision_threshold:
+                    score = 0.0
+                    break
             # print("dist score", score)
-            # self.score += phi * score
+            self.score += phi * score
 
             # Maximise exploration by maximising distance to past path points.
             # rho = 0.1
@@ -179,7 +181,6 @@ class Drone:
             #     self.path_points.pop(0)
             # self.point_counter += 1
             # # print()
-
 
     def ray_casting(self):
         """Uses ray casting to measure distane to domain walls."""
@@ -228,7 +229,7 @@ class Drone:
                 dist = (diff.x**2 + diff.y**2) ** 0.5
                 if dist < self.collision_threshold:
                     self.body.active = False
-                    self.forces = self.num_engines * [0.0] 
+                    self.forces = self.num_engines * [0.0]
                     self.callbacks = []
                     self.p1 = []
                     self.p2 = []

@@ -32,7 +32,7 @@ class NetworkLoader:
 
     def __call__(self):
         """Loads and returns model.
-        
+
         Args:
             lib: Library "numpy" or "pytorch".
         """
@@ -91,9 +91,7 @@ class NumpyNeuralNetwork:
         # Hidden layer weights
         size = (hidden_features, hidden_features)
         for _ in range(num_hidden_layers):
-            self.weights += [
-                self._init_weights(size=size, nonlinearity="tanh")
-            ]
+            self.weights += [self._init_weights(size=size, nonlinearity="tanh")]
             self.biases += [np.zeros(shape=(hidden_features, 1))]
 
         # Output layer weights
@@ -105,12 +103,12 @@ class NumpyNeuralNetwork:
     def _init_weights(size: tuple[int, int], nonlinearity: str) -> None:
         """Initializes model weights.
 
-        Xavier normal initialization for feedforward neural networks described in 
+        Xavier normal initialization for feedforward neural networks described in
         'Understanding the difficulty of training deep feedforward neural networks'
         by Glorot and Bengio (2010).
 
             std = gain * (2 / (fan_in + fan_out)) ** 0.5
-        
+
         """
         if nonlinearity == "tanh":
             gain = 5.0 / 3.0
@@ -142,7 +140,7 @@ class NumpyNeuralNetwork:
     @staticmethod
     def _sigmoid(x: numpy.ndarray) -> numpy.ndarray:
         # return 1.0 / (1.0 + np.exp(-x))
-        return expit(x)     # Numerically stable sigmoid
+        return expit(x)  # Numerically stable sigmoid
 
     def eval(self):
         pass
@@ -171,7 +169,7 @@ class TorchNeuralNetwork(nn.Module):
         net:
     """
 
-    def __init__(self, config: Config, normalizer:  float) -> None:
+    def __init__(self, config: Config, normalizer: float) -> None:
         """Initializes NeuralNetwork class."""
         super().__init__()
 
@@ -210,7 +208,7 @@ class TorchNeuralNetwork(nn.Module):
     def _init_weights(self, module) -> None:
         if isinstance(module, nn.Linear):
             # torch.nn.init.normal_(module.weight, mean=0.0, std=0.5)
-            gain = 5.0 / 3.0    # Gain for tanh nonlinearity.
+            gain = 5.0 / 3.0  # Gain for tanh nonlinearity.
             torch.nn.init.xavier_normal_(module.weight, gain=gain)
             if module.bias is not None:
                 torch.nn.init.zeros_(module.bias)
@@ -242,4 +240,4 @@ class TorchNeuralNetwork(nn.Module):
         # Detach prediction from graph.
         x = x.detach().numpy().astype(np.float)
 
-        return x 
+        return x

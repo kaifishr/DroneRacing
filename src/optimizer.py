@@ -31,7 +31,7 @@ class Optimizer:
         self.env = Environment(config=config)
 
         # Save config file
-        file_path = Path(self.writer.log_dir) / "config.txt" 
+        file_path = Path(self.writer.log_dir) / "config.txt"
         with open(file_path, "w") as file:
             file.write(self.config.__str__())
 
