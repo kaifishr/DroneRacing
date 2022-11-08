@@ -6,9 +6,11 @@ The drones' behavior is controlled by the reward function. With the default sett
 
 Under the hood, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation and *Pygame* for visualization. The visualization can be turned on and off by clicking on the *Pygame* window or by pressing the space bar. Turning off visualization greatly accelerates the optimization process.
 
-![](docs/sample.gif)
+<p align="center">
+    <img src="docs/sample.gif" width="420" height="420"/>
+</p>
 
-The example above shows non-interacting drones of one generation during the genetic optimization process. The purple lines are determined by ray casting. They can be used to calculate distances to obstacles. The red lines show the force with which the rocket engines are run.
+ The example above shows non-interacting drones of one generation during the genetic optimization process. The purple lines are determined by ray casting. They can be used to calculate distances to obstacles. The red lines show the force with which the rocket engines are run.
 
 # Method
 
