@@ -6,6 +6,8 @@ The drones' behavior is controlled by the reward function. With the default sett
 
 Under the hood, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation and *Pygame* for visualization. The visualization can be turned off and on by clicking on the *Pygame* window or by pressing the space bar. Turning off the visualization greatly accelerates the optimization process.
 
+![](docs/sample.png)
+
 # Method
 
 *SpaceDrones* uses *PyBox2D* to create a physical environemnt the drones can interact with. Drones use ray casting to gather distance information about obstacles in their surrounding. This information is fed into the drone's neural network to predict the next set of actions. These actions are passed on to the engines and command the power at which they should run.
