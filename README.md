@@ -32,8 +32,8 @@ The reward function controls the learning behavior of the drone. As a default, t
 
 *SpaceDrones* has different maps that vary in difficulty. Depending on the map, the drones learn different flight behaviors. Maps can be easily added or modified.
 
-|||||
-|:--:|:--:|:--:|:--:|
+||||
+|:--:|:--:|:--:|
 |![](docs/map_empty.png)|![](docs/map_block.png)|![](docs/map_locks.png)|
 |![](docs/map_blade.png)|![](docs/map_track.png)|![](docs/map_smile.png)|
 
