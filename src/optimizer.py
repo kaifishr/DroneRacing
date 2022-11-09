@@ -51,8 +51,8 @@ class Optimizer:
             # Physics and rendering
             self.env.step()
 
-            # Ray casting and positioning
-            self.env.ray_casting()
+            # Fetch data for neural network. 
+            self.env.fetch_data()
 
             # Detect collisions with other bodies
             if not self.config.env.allow_collision_domain:

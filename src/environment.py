@@ -86,10 +86,10 @@ class Environment(Framework):
             # Reactivate drone after collision in last generation.
             drone.body.active = True
 
-    def ray_casting(self) -> None:
-        """Runs ray casting for each drone"""
+    def fetch_data(self) -> None:
+        """Fetches data for each drone"""
         for drone in self.drones:
-            drone.ray_casting()
+            drone.fetch_data()
 
     def collision_detection(self) -> None:
         """Detects collision of drone."""
