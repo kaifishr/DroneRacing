@@ -94,7 +94,6 @@ class Drone:
         ]
 
         # Collision threshold
-        # self.collision_threshold = 1.1 * (2.0**0.5) * (0.5 * self.diam + self.engine.height)
         self.collision_threshold = 1.1 * ((0.5*self.diam+self.engine.height)**2 + (0.5*self.engine.width_max)**2)**0.5
 
         # Neural Network

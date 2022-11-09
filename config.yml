@@ -17,7 +17,7 @@ checkpoints:
   model_path: "weights"
 
 optimizer:
-  num_agents: 32
+  num_agents: 8
   num_max_steps: 2000
   mutation_probability: 0.06
   mutation_rate: 0.06
@@ -37,17 +37,17 @@ env:
       x_max: 20.0
       y_min: -20.0
       y_max: 20.0
-    map: "smile"  # empty, block, track, locks, blade, smile
+    map: "block"  # empty, block, track, locks, blade, smile
 
   drone:
     fixed_rotation: true
     diam: 1.0
-    density: 0.1
+    density: 1.0
     friction: 5.0
 
     engine:
       max_force: 10.0
-      density: 0.1
+      density: 1.0
       friction: 5.0
 
     init_position: 
