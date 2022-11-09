@@ -14,7 +14,7 @@ Under the hood, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation an
 
 # Usage
 
-To run the optimization process, you need to install *PyGame*, *PyBox2D*, *PyTorch*, and *NumPy*. Then run the optimization process by executing the following command:
+To run the optimization process, you need to install *PyGame*, *PyBox2D*, *PyTorch*, and *NumPy* via Anaconda or Pip. Then run the optimization process by executing the following command:
 
 ```bash
 python main.py
