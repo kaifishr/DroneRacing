@@ -54,7 +54,6 @@ The reward function controls the learning behavior of the drone. As a default, t
 
 # TODO:
 
-- Add drone's position to input data.
 - Allow interaction between drones
 - Allow thrust to have two components
 

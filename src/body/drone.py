@@ -150,11 +150,13 @@ class Drone:
             #         break
             # self.score += phi * score
 
-    def ray_casting(self):
-        """Uses ray casting to measure distance to domain walls."""
+    def fetch_data(self):
+        """Fetches data from drone for neural network."""
 
         if self.body.active:
 
+            # Add distance to obstacles to input data
+            # Uses ray casting to measure distance to domain walls.
             self.callbacks = []
             self.p1 = []
             self.p2 = []
@@ -183,6 +185,13 @@ class Drone:
                     self.data.append(dist)
                 else:
                     self.data.append(-1.0)
+
+            # Add position and velocity to input data
+            for pos in self.body.position:
+                self.data.append(pos)
+
+            for vel in self.body.linearVelocity:
+                self.data.append(vel)
 
     def detect_collision(self):
         """Detects collision with objects.

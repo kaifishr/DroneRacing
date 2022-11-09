@@ -8,9 +8,12 @@
 #
 random_seed: 192837465
 
+# Directory to save frames to create video.
 dirs:
   frames: "frames"
 
+# Note: Saving and loading model weights currently only
+# possible for PyTorch models.
 checkpoints:
   load_model: false
   save_model: false
@@ -19,7 +22,7 @@ checkpoints:
 optimizer:
   num_agents: 8
   num_max_steps: 2000
-  mutation_probability: 0.06
+  mutation_probability: 0.02
   mutation_rate: 0.06
   lib: "numpy"    # numpy, torch
 
@@ -63,7 +66,7 @@ env:
       ray_length: 60
 
     neural_network: # model
-      num_dim_in: 8       # Distances to the nearest wall.
+      num_dim_in: 12       # Distances to the nearest wall, position, velocity
       num_dim_out: 4      # Actions for four engines.
       num_dim_hidden: 8
       num_hidden_layers: 2
