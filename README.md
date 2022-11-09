@@ -12,6 +12,14 @@ Under the hood, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation an
 
  The example above shows non-interacting drones of one generation during the genetic optimization process. The purple lines are determined by ray casting. They can be used to calculate distances to obstacles. The red lines show the force with which the rocket engines are run.
 
+# Usage
+
+To run the optimization process, you need to install *PyGame*, *PyBox2D*, *PyTorch*, and *NumPy*. Then run the optimization process by executing the following command:
+
+```bash
+python main.py
+```
+
 # Method
 
 *SpaceDrones* uses *PyBox2D* to create a physical environment the drones can interact with. Drones use raycasting to gather distance information about obstacles in their surroundings. This information is fed into the drone's neural network to predict the next set of actions. These actions are passed on to the engines, which then command the power at which they should run.
