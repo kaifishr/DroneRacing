@@ -1,12 +1,12 @@
-# SpaceDrones configuration file
+# SpaceDrones configuration
 #
-# At the moment the following parameters aren't changeable:
+# At the moment, the following parameters can't be changed:
 #
 #   - allow_collision_drones
 #   - num_dim_in
 #   - num_dim_out
 #
-random_seed: 122333
+random_seed: 192837465
 
 dirs:
   frames: "frames"
@@ -17,9 +17,9 @@ checkpoints:
   model_path: "weights"
 
 optimizer:
-  num_agents: 16
+  num_agents: 32
   num_max_steps: 2000
-  mutation_probability: 0.05
+  mutation_probability: 0.06
   mutation_rate: 0.06
   lib: "numpy"    # numpy, torch
 
@@ -37,27 +37,22 @@ env:
       x_max: 20.0
       y_min: -20.0
       y_max: 20.0
-    map: "block"  # empty, block, track, locks, blade, smile
+    map: "smile"  # empty, block, track, locks, blade, smile
 
   drone:
     fixed_rotation: true
     diam: 1.0
-    density: 0.5
+    density: 0.1
     friction: 5.0
 
     engine:
       max_force: 10.0
-      density: 0.5
+      density: 0.1
       friction: 5.0
 
-    # kinematics:
-    #   init_position:
-    #     x: -1
-    #     y: -1
-
     init_position: 
-      x: 10.0
-      y: 11.0
+      x: 15.0
+      y: -15.0
     init_linear_velocity: 
       x: 0.0
       y: 0.0
@@ -70,7 +65,7 @@ env:
     neural_network: # model
       num_dim_in: 8       # Distances to the nearest wall.
       num_dim_out: 4      # Actions for four engines.
-      num_dim_hidden: 16
+      num_dim_hidden: 8
       num_hidden_layers: 2
 
     respawn:

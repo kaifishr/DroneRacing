@@ -7,7 +7,7 @@ can interact with each other. Currently, these are
     - Domain walls
 
 The Environment class also wraps the Framework class 
-that calls the pyhsics engine and rendering engines.
+that calls the physics engine and rendering engines.
 """
 import random
 import numpy as np
@@ -56,6 +56,7 @@ class Environment(Framework):
 
     def reset(self) -> None:
         """Resets Drone to initial position and velocity."""
+
         if self.config.env.drone.respawn.is_random:
             # Respawn drones every generation at different
             # predefined location in map.
@@ -81,7 +82,6 @@ class Environment(Framework):
 
             # Reset fitness score for next generation.
             drone.score = 0.0
-            self.path_points = []
 
             # Reactivate drone after collision in last generation.
             drone.body.active = True

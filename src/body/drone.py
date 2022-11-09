@@ -76,9 +76,7 @@ class Drone:
 
         # Engines
         self.engine = Engines(body=self.body, config=config)
-        self.max_force = (
-            config.env.drone.engine.max_force
-        )  # TODO: move this to Engine class?
+        self.max_force = config.env.drone.engine.max_force
 
         # Raycasting
         ray_length = config.env.drone.raycasting.ray_length
@@ -96,10 +94,8 @@ class Drone:
         ]
 
         # Collision threshold
-        self.collision_threshold = (
-            1.1 * (2.0**0.5) * (0.5 * self.diam + self.engine.height)
-        )
-        # self.collision_threshold = 1.1 * ((0.5*self.diam+self.engine.height)**2 + (0.5*self.engine.width_max)**2)**0.5
+        # self.collision_threshold = 1.1 * (2.0**0.5) * (0.5 * self.diam + self.engine.height)
+        self.collision_threshold = 1.1 * ((0.5*self.diam+self.engine.height)**2 + (0.5*self.engine.width_max)**2)**0.5
 
         # Neural Network
         self.model = NetworkLoader(config=config)()
@@ -119,12 +115,6 @@ class Drone:
         # Fitness score
         self.score = 0.0
 
-        self.path_points = []
-        self.path_length = 20
-        self.every_point = 10
-        self.point_counter = 0
-        # self.point_discount = 0.9  # not used yet
-
     def mutate(self, model: nn.Module) -> None:
         """Mutates drone's neural network.
 
@@ -142,18 +132,14 @@ class Drone:
         drone over time divided by the simulation's step size.
         """
         if self.body.active:
-            # Add score just for being alive.
-            # Reward drone for living long.
-            # self.score += 1.0
 
-            # Maximise distance traveled.
-            # vel = self.body.linearVelocity
-            # time_step = 0.0167
-            # score = time_step * (vel.x**2 + vel.y**2) ** 0.5
-            # self.score += score
-            # print("vel score", score)
+            # Reward distance traveled.
+            vel = self.body.linearVelocity
+            time_step = 0.0167
+            score = time_step * (vel.x**2 + vel.y**2) ** 0.5
+            self.score += score
 
-            # Penalize drone when too close to an obstacle.
+            # Reward distance to obstacles.
             # eta = 4.0
             # phi = 0.5
             # score = 1.0
@@ -164,27 +150,9 @@ class Drone:
             #         score = 0.0
             #         break
             # self.score += phi * score
-            # print("dist score", score)
-
-            # Maximize exploration by maximizing distance to past path points.
-            rho = 1.0
-            score = 0.0
-            for path_point in self.path_points:
-                diff = path_point - self.body.position
-                score += (diff.x**2 + diff.y**2) ** 0.5
-            if score:
-                score *= rho / len(self.path_points)
-            self.score += score
-            if self.point_counter % self.every_point == 0:
-                self.path_points.append(copy.copy(self.body.position))
-            if len(self.path_points) > self.path_length:
-                self.path_points.pop(0)
-            self.point_counter += 1
-            # print("exploration score", score)
-            # print()
 
     def ray_casting(self):
-        """Uses ray casting to measure distane to domain walls."""
+        """Uses ray casting to measure distance to domain walls."""
 
         if self.body.active:
 
