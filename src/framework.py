@@ -13,7 +13,7 @@ from src.utils.utils import capture_screen
 
 
 class Framework:
-    """A simple framework for PyBox2D with Pygame backend.
+    """A simple framework for PyBox2D with PyGame backend.
 
     Attributes:
         config:

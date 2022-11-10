@@ -2,8 +2,6 @@
 import copy
 import math
 
-import torch.nn as nn
-
 from Box2D import b2FixtureDef, b2PolygonShape
 from Box2D.Box2D import b2World, b2Vec2, b2Filter
 
@@ -94,7 +92,10 @@ class Drone:
         ]
 
         # Collision threshold
-        self.collision_threshold = 1.1 * ((0.5*self.diam+self.engine.height)**2 + (0.5*self.engine.width_max)**2)**0.5
+        d = self.diam
+        h = self.engine.height
+        w = self.engine_width_max
+        self.collision_threshold = 1.1 * ((0.5 * d + h) ** 2 + (0.5 * w) ** 2) ** 0.5
 
         # Neural Network
         self.model = NetworkLoader(config=config)()
@@ -114,10 +115,10 @@ class Drone:
         # Fitness score
         self.score = 0.0
 
-    def mutate(self, model: nn.Module) -> None:
+    def mutate(self, model: object) -> None:
         """Mutates drone's neural network.
 
-        Attr:
+        Args:
             model: The current best model.
         """
         self.model = copy.deepcopy(model)

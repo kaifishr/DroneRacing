@@ -48,13 +48,13 @@ class Optimizer:
 
         # Reproduce and mutate weights of best agent.
         self.env.mutate()
-                
+
         while is_running:
 
             # Physics and rendering
             self.env.step()
 
-            # Fetch data for neural network. 
+            # Fetch data for neural network.
             self.env.fetch_data()
 
             # Detect collisions with other bodies

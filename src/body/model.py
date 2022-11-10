@@ -129,16 +129,12 @@ class NumpyNeuralNetwork:
         return state
 
     def load_state_dict(self, state_dict: dict) -> None:
-        """Loads state dict holding the network's weights and biases."""
-        self.weights = state_dict["weights"] 
-        self.biases = state_dict["biases"]
+        """Loads state dict holding the network's weights and biases.
 
-        # Assign parameters individually, to avoid overwriting
-        # network architecture.
-        # for i, params in state_dict["weights"]:
-        #     self.weights[i][:] = params
-        # for i, params in state_dict["biases"]:
-        #     self.biases[i][:] = params
+        Note: Ignores parameter dimension. 
+        """
+        self.weights = state_dict["weights"]
+        self.biases = state_dict["biases"]
 
     def __call__(self, x: numpy.ndarray):
         return self.forward(x)
