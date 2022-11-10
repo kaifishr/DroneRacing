@@ -109,7 +109,7 @@ class Drone:
         self.p2 = []
 
         # Input data for neural network
-        self.data = None
+        self.data = []
 
         # Fitness score
         self.score = 0.0
@@ -139,8 +139,8 @@ class Drone:
             self.score += score
 
             # Reward distance to obstacles.
-            # eta = 4.0
-            # phi = 0.5
+            # eta = 2.0
+            # phi = 0.05
             # score = 1.0
             # for cb in self.callbacks:
             #     diff = cb.point - self.body.position
@@ -196,7 +196,7 @@ class Drone:
     def detect_collision(self):
         """Detects collision with objects.
 
-        We use the raycast information here and speak of a collision
+        Here we use ray casting information here and speak of a collision
         when an imaginary circle with the total diameter of the drone
         touches another object.
         """

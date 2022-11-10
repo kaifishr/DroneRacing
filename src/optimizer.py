@@ -91,9 +91,7 @@ class Optimizer:
                 if self.config.checkpoints.save_model:
                     if score > best_score:
                         model = self.env.drones[self.env.idx_best].model
-                        save_checkpoint(
-                            model=model, config=self.config, generation=generation
-                        )
+                        save_checkpoint(model=model, config=self.config)
                         best_score = score
 
                 t0 = time.time()

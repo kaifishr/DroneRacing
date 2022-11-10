@@ -38,20 +38,17 @@ class NetworkLoader:
         """
         lib = self.config.optimizer.lib
 
+        # Instantiate network
         if lib == "numpy":
             model = NumpyNeuralNetwork(self.config, normalizer=self.normalizer)
-            if self.config.checkpoints.load_model:
-                raise NotImplementedError(
-                    f"Loading checkpoints not implemented for NumPy neural networks."
-                )
-
         elif lib == "torch":
             model = TorchNeuralNetwork(self.config, normalizer=self.normalizer)
-            if self.config.checkpoints.load_model:
-                load_checkpoint(model=self.model, config=self.config)
-
         else:
             raise NotImplementedError(f"Network for {lib} not implemented.")
+
+        # Load pre-trained model
+        if self.config.checkpoints.load_model:
+            load_checkpoint(model=model, config=self.config)
 
         model.eval()  # No gradients for genetic optimization required.
 
@@ -60,6 +57,8 @@ class NetworkLoader:
 
 class NumpyNeuralNetwork:
     """Neural network written with Numpy.
+
+    TODO: Use params dict to hold weights and biases lists.
 
     Attributes:
         mutation_prob:
@@ -120,6 +119,19 @@ class NumpyNeuralNetwork:
             )
         std = gain * (2.0 / sum(size)) ** 0.5
         return np.random.normal(loc=0.0, scale=std, size=size)
+
+    def state_dict(self) -> dict:
+        """Returns a dictionary containing the network's weights and biases."""
+        state = {
+            "weights": self.weights,
+            "biases": self.biases,
+        }
+        return state
+
+    def load_state_dict(self, state_dict: dict) -> None:
+        """Loads state dict holding the network's weights and biases."""
+        self.weights = state_dict["weights"] 
+        self.biases = state_dict["biases"]
 
     def __call__(self, x: numpy.ndarray):
         return self.forward(x)
@@ -207,7 +219,6 @@ class TorchNeuralNetwork(nn.Module):
 
     def _init_weights(self, module) -> None:
         if isinstance(module, nn.Linear):
-            # torch.nn.init.normal_(module.weight, mean=0.0, std=0.5)
             gain = 5.0 / 3.0  # Gain for tanh nonlinearity.
             torch.nn.init.xavier_normal_(module.weight, gain=gain)
             if module.bias is not None:
