@@ -6,9 +6,9 @@ from Box2D import b2FixtureDef, b2PolygonShape
 from Box2D.Box2D import b2World, b2Vec2, b2Filter
 
 from src.utils.config import Config
-from src.body.engine import Engines
-from src.body.raycast import RayCastCallback
-from src.body.model import NetworkLoader
+from src.drone.engine import Engines
+from src.drone.raycast import RayCastCallback
+from src.drone.model import NetworkLoader
 
 
 class Drone:
@@ -94,7 +94,7 @@ class Drone:
         # Collision threshold
         d = self.diam
         h = self.engine.height
-        w = self.engine_width_max
+        w = self.engine.width_max
         self.collision_threshold = 1.1 * ((0.5 * d + h) ** 2 + (0.5 * w) ** 2) ** 0.5
 
         # Neural Network

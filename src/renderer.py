@@ -10,7 +10,7 @@ from Box2D.b2 import (
     edgeShape,
 )
 
-from src.body.drone import Drone
+from src.drone.drone import Drone
 from src.utils.config import Config
 
 

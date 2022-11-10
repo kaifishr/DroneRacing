@@ -14,7 +14,8 @@ import numpy as np
 
 from Box2D.Box2D import b2Vec2
 
-from src.body import Domain, Drone
+from src.domain import Domain
+from src.drone import Drone
 from src.utils.config import Config
 from src.framework import Framework
 
