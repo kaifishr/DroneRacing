@@ -2,9 +2,9 @@
 
 *SpaceDrones* provides a simple learning environment for genetic optimization with many possible extensions.
 
-The drones' behavior is controlled by the reward function. With the default settings, the drones' goal is to navigate through an environment, covering as much distance as possible in a certain period of time while avoiding collisions with obstacles.
+Under the hood, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation and *Pygame* for rendering and visualization. Visualization can be turned on and off by clicking on the *Pygame* window or by pressing the space bar. Turning off visualization greatly accelerates the optimization process.
 
-Under the hood, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation and *Pygame* for visualization. The visualization can be turned on and off by clicking on the *Pygame* window or by pressing the space bar. Turning off visualization greatly accelerates the optimization process.
+The drones' behavior is controlled by a reward function. With the default settings, the drones' goal is to navigate through an environment, covering as much distance as possible in a certain period of time while avoiding collisions with obstacles.
 
 <p align="center">
     <img src="docs/map_block.gif" width="420" height="420"/>
@@ -12,9 +12,17 @@ Under the hood, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation an
 
  The example above shows non-interacting drones of one generation during the genetic optimization process. The purple lines are determined by ray casting. They can be used to calculate distances to obstacles. The red lines show the force with which the rocket engines are run.
 
-# Usage
+# Installation
 
-To run *SpaceDrones*, you need to install *PyGame*, *PyBox2D*, *PyTorch*, and *NumPy* via Anaconda or Pip. Then run the optimization process by executing the following command:
+To run *SpaceDrones*, install the latest master directly from GitHub. For a basic install, run:
+
+```bash
+git clone https://github.com/kaifishr/SpaceDrones
+cd SpaceDrones
+pip install -r requirements.txt
+```
+
+Then start the optimization by running:
 
 ```bash
 python main.py

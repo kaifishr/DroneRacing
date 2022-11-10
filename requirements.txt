@@ -1,0 +1,8 @@
+Box2D
+numpy
+pygame
+PyYAML
+scikit-learn 
+scipy 
+tensorboard 
+torch
