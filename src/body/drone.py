@@ -133,22 +133,24 @@ class Drone:
         if self.body.active:
 
             # Reward distance traveled.
-            vel = self.body.linearVelocity
-            time_step = 0.0167
-            score = time_step * (vel.x**2 + vel.y**2) ** 0.5
-            self.score += score
+            if self.config.optimizer.reward.distance:
+                vel = self.body.linearVelocity
+                time_step = 0.0167
+                score = time_step * (vel.x**2 + vel.y**2) ** 0.5
+                self.score += score
 
-            # Reward distance to obstacles.
-            # eta = 2.0
-            # phi = 0.05
-            # score = 1.0
-            # for cb in self.callbacks:
-            #     diff = cb.point - self.body.position
-            #     dist = (diff.x**2 + diff.y**2) ** 0.5
-            #     if dist < eta * self.collision_threshold:
-            #         score = 0.0
-            #         break
-            # self.score += phi * score
+            # Reward not colliding with obstacles.
+            if self.config.optimizer.reward.dodging:
+                eta = 2.0
+                phi = 0.02
+                score = 1.0
+                for cb in self.callbacks:
+                    diff = cb.point - self.body.position
+                    dist = (diff.x**2 + diff.y**2) ** 0.5
+                    if dist < eta * self.collision_threshold:
+                        score = 0.0
+                        break
+                self.score += phi * score
 
     def fetch_data(self):
         """Fetches data from drone for neural network."""

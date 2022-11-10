@@ -15,17 +15,20 @@ dirs:
 # Note: Saving and loading model weights currently only
 # possible for PyTorch models.
 checkpoints:
-  load_model: true
-  save_model: false 
+  load_model: false
+  save_model: false
   model_path: "weights"
-  model_name: "numpy"   # save / load
+  model_name: "numpyx"   # save / load
 
 optimizer:
-  num_agents: 8
+  num_agents: 32
   num_max_steps: 2000
   mutation_probability: 0.02
   mutation_rate: 0.06
   lib: "numpy"    # numpy, torch
+  reward:
+    distance: true
+    dodging: false
 
 env: 
   allow_collision_drones: false   # do not change
