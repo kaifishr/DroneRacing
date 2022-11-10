@@ -16,7 +16,7 @@ The drones' behavior is controlled by a reward function. With the default settin
     <img src="docs/block_score.png" width="640" height=""/>
 </p>
 
-The following graph shows the evolution of the fittest drone over a period of about 5000 generations. At least two interesting things can be seen here. First, it takes the drones many hundreds of generations to actually start learning something. Second, the plot clearly shows how the drones repeatedly break out of local minima and develop better strategies for maximizing profits.
+The following graph shows the evolution of the fittest drone over a period of about 5000 generations. At least two interesting things can be seen here. First, it takes the drones many hundreds of generations to actually start learning something. Second, the plot shows how the drones repeatedly break out of local minima and develop better strategies to maximize their reward.
 
 # Installation
 
