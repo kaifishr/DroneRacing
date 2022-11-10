@@ -45,6 +45,9 @@ class Optimizer:
 
         is_running = True
         t0 = time.time()
+
+        # Reproduce and mutate weights of best agent.
+        self.env.mutate()
                 
         while is_running:
 
