@@ -133,6 +133,13 @@ class NumpyNeuralNetwork:
         self.weights = state_dict["weights"] 
         self.biases = state_dict["biases"]
 
+        # Assign parameters individually, to avoid overwriting
+        # network architecture.
+        # for i, params in state_dict["weights"]:
+        #     self.weights[i][:] = params
+        # for i, params in state_dict["biases"]:
+        #     self.biases[i][:] = params
+
     def __call__(self, x: numpy.ndarray):
         return self.forward(x)
 

@@ -25,7 +25,7 @@ class Optimizer:
         self.config = config
         self.writer = SummaryWriter()
 
-        # Create UUID for Pygame window.
+        # Create UUID for PyGame window.
         self.config.id = self.writer.log_dir.split("/")[-1]
 
         self.env = Environment(config=config)
@@ -45,7 +45,7 @@ class Optimizer:
 
         is_running = True
         t0 = time.time()
-
+                
         while is_running:
 
             # Physics and rendering

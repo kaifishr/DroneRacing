@@ -163,4 +163,5 @@ tags
 [._]*.un~
 
 # SpaceDrones
-*.pth
+/weights/*.pth
+/frames

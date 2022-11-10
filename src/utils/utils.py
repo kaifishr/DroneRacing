@@ -26,7 +26,7 @@ def capture_screen(screen, iteration: int) -> None:
     Returns:
         None
     """
-    filename = Path("frames") / f"screen_{iteration:04d}"
+    filename = Path("frames") / f"screen_{iteration:04d}.png"
     pygame.image.save(screen, filename)
 
 
