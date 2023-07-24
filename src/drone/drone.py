@@ -114,6 +114,7 @@ class Drone:
 
         # Fitness score
         self.score = 0.0
+        self.theta_old = 0.0
 
     def mutate(self, model: object) -> None:
         """Mutates drone's neural network.
@@ -133,11 +134,23 @@ class Drone:
         """
         if self.body.active:
 
+            time_step = 0.0167
+
             # Reward distance traveled.
             if self.config.optimizer.reward.distance:
+                phi = 1.0
                 vel = self.body.linearVelocity
-                time_step = 0.0167
                 score = time_step * (vel.x**2 + vel.y**2) ** 0.5
+                self.score += score
+
+            # Reward high angular velocity.
+            if self.config.optimizer.reward.angular_velocity:
+                phi = 1.0
+                pos = self.body.position
+                radius = (pos.x**2 + pos.y**2) ** 0.5
+                theta = math.acos(pos.x / radius)
+                score = ((theta - theta_old) / time_step) * radius
+                theta_old = theta 
                 self.score += score
 
             # Reward not colliding with obstacles.

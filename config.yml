@@ -27,6 +27,7 @@ optimizer:
   mutation_rate: 0.06
   lib: "numpy"    # numpy, torch
   reward:
+    angular_velocity: true
     distance: true
     dodging: false
 
