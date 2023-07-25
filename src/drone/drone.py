@@ -135,6 +135,7 @@ class Drone:
         if self.body.active:
 
             time_step = 0.0167
+            score = 0
 
             # Reward distance traveled.
             if self.config.optimizer.reward.distance:
