@@ -114,7 +114,7 @@ class Drone:
 
         # Fitness score
         self.score = 0.0
-        self.theta_old = 0.0
+        self.theta_old = None
 
     def mutate(self, model: object) -> None:
         """Mutates drone's neural network.
@@ -149,9 +149,10 @@ class Drone:
                 pos = self.body.position
                 radius = (pos.x**2 + pos.y**2) ** 0.5
                 theta = math.acos(pos.x / radius)
-                score = ((theta - theta_old) / time_step) * radius
-                theta_old = theta 
-                self.score += score
+                if self.theta_old is not None:
+                    score = ((theta - self.theta_old) / time_step) * radius
+                self.theta_old = theta 
+                self.score += phi * score
 
             # Reward not colliding with obstacles.
             if self.config.optimizer.reward.dodging:
