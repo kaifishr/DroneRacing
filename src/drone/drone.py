@@ -17,6 +17,8 @@ class Drone:
     A drone consists of a body with four boosters attached.
     """
 
+    TIME_STEP = 0.0167
+
     vertices = [
         (0.5, 0.5),
         (-0.5, 0.5),
@@ -134,14 +136,13 @@ class Drone:
         """
         if self.body.active:
 
-            time_step = 0.0167
             score = 0
 
             # Reward distance traveled.
             if self.config.optimizer.reward.distance:
                 phi = 1.0
                 vel = self.body.linearVelocity
-                score = time_step * (vel.x**2 + vel.y**2) ** 0.5
+                score = self.TIME_STEP * (vel.x**2 + vel.y**2) ** 0.5
                 self.score += score
 
             # Reward high angular velocity.
@@ -151,7 +152,8 @@ class Drone:
                 radius = (pos.x**2 + pos.y**2) ** 0.5
                 theta = math.acos(pos.x / radius)
                 if self.theta_old is not None:
-                    score = ((theta - self.theta_old) / time_step) * radius
+                    # score = ((theta - self.theta_old) / self.TIME_STEP) # * radius
+                    score = (theta - self.theta_old) # * radius
                 self.theta_old = theta 
                 self.score += phi * score
 

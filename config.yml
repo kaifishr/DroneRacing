@@ -21,10 +21,10 @@ checkpoints:
   model_name: "numpy"   # save / load
 
 optimizer:
-  num_agents: 4
+  num_agents: 8
   num_max_steps: 2000
   mutation_probability: 0.02
-  mutation_rate: 0.06
+  mutation_rate: 0.04
   lib: "numpy"    # numpy, torch
   reward:
     angular_velocity: true
@@ -77,7 +77,7 @@ env:
       ray_length: 60
 
     respawn:
-      is_random: true
+      is_random: false
 
 framework:
   screen:
