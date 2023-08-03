@@ -135,7 +135,6 @@ class Drone:
         drone over time divided by the simulation's step size.
         """
         if self.body.active:
-
             score = 0
 
             # Reward distance traveled.
@@ -153,8 +152,8 @@ class Drone:
                 theta = math.acos(pos.x / radius)
                 if self.theta_old is not None:
                     # score = ((theta - self.theta_old) / self.TIME_STEP) # * radius
-                    score = (theta - self.theta_old) # * radius
-                self.theta_old = theta 
+                    score = abs(theta - self.theta_old) * radius
+                self.theta_old = theta
                 self.score += phi * score
 
             # Reward not colliding with obstacles.
@@ -174,7 +173,6 @@ class Drone:
         """Fetches data from drone for neural network."""
 
         if self.body.active:
-
             # Add distance to obstacles to input data
             # Uses ray casting to measure distance to domain walls.
             self.callbacks = []
@@ -185,7 +183,6 @@ class Drone:
             p1 = self.body.position
 
             for point in self.points:
-
                 # Perform ray casting from drone position p1 to to point p2.
                 p2 = p1 + self.body.GetWorldVector(localVector=point)
                 cb = RayCastCallback()

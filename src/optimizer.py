@@ -50,7 +50,6 @@ class Optimizer:
         self.env.mutate()
 
         while is_running:
-
             # Physics and rendering
             self.env.step()
 
@@ -72,7 +71,6 @@ class Optimizer:
 
             # Method that run at end of simulation.
             if ((step + 1) % num_max_steps == 0) or self.env.is_active():
-
                 # Select fittest agent based on distance traveled.
                 score = self.env.select()
 

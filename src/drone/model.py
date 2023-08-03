@@ -131,7 +131,7 @@ class NumpyNeuralNetwork:
     def load_state_dict(self, state_dict: dict) -> None:
         """Loads state dict holding the network's weights and biases.
 
-        Note: Ignores parameter dimension. 
+        Note: Ignores parameter dimension.
         """
         self.weights = state_dict["weights"]
         self.biases = state_dict["biases"]
@@ -161,7 +161,6 @@ class NumpyNeuralNetwork:
         pass
 
     def forward(self, data: list):
-
         # Normalize data
         x = self.normalizer * np.array(data)
 
@@ -244,7 +243,6 @@ class TorchNeuralNetwork(nn.Module):
         self.apply(self._mutate_weights)
 
     def forward(self, data: list) -> torch.Tensor:
-
         # Normalize data.
         x = self.normalizer * torch.tensor(data)
 

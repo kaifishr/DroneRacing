@@ -75,7 +75,6 @@ class Engines:
             group_index = 0
 
         for mount_point, theta in zip(mount_points, [0.0, 90.0, 180.0, 270.0]):
-
             engine_vertices = self._engine_nozzle(mount_point=mount_point, theta=theta)
             engine_polygon = b2PolygonShape(vertices=engine_vertices)
 

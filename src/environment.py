@@ -71,7 +71,6 @@ class Environment(Framework):
             init_position_rand = random.choice(respawn_points)
 
         for drone in self.drones:
-
             if self.config.env.drone.respawn.is_random:
                 drone.body.position = init_position_rand
             else:
