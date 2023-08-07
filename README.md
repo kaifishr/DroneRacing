@@ -72,6 +72,21 @@ The reward function controls the learning behavior of the drone. As a default, t
 - Allow thrust to have two components
 - Use Python MPI for parallelization.
 
+# Citation
+
+If you find this project useful, please use BibTeX to cite it as:
+
+```bibtex
+@article{fischer2022spacedrones,
+  title   = "SpaceDrones",
+  author  = "Fischer, Kai",
+  journal = "GitHub repository",
+  year    = "2023",
+  month   = "July",
+  url     = "https://github.com/kaifishr/SpaceDrones"
+}
+```
+
 # License
 
 MIT

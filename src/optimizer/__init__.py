@@ -1,2 +1,2 @@
 from .optimizer import GeneticOptimizer
-from .optimizer import EvolutionStrategies
+from .optimizer import EvolutionStrategy
