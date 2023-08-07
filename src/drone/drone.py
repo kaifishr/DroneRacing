@@ -152,7 +152,7 @@ class Drone:
                 theta = math.acos(pos.x / radius)
                 if self.theta_old is not None:
                     # score = ((theta - self.theta_old) / self.TIME_STEP) # * radius
-                    score = abs(theta - self.theta_old) * radius
+                    score = (theta - self.theta_old) * radius
                 self.theta_old = theta
                 self.score += phi * score
 
@@ -175,10 +175,15 @@ class Drone:
         if self.body.active:
             # Add distance to obstacles to input data
             # Uses ray casting to measure distance to domain walls.
-            self.callbacks = []
-            self.p1 = []
-            self.p2 = []
-            self.data = []
+            # self.callbacks = []
+            # self.p1 = []
+            # self.p2 = []
+            # self.data = []
+
+            self.callbacks.clear()
+            self.p1.clear()
+            self.p2.clear()
+            self.data.clear()
 
             p1 = self.body.position
 
@@ -224,9 +229,12 @@ class Drone:
                 if dist < self.collision_threshold:
                     self.body.active = False
                     self.forces = self.num_engines * [0.0]
-                    self.callbacks = []
-                    self.p1 = []
-                    self.p2 = []
+                    # self.callbacks = []
+                    # self.p1 = []
+                    # self.p2 = []
+                    self.callbacks.clear()
+                    self.p1.clear()
+                    self.p2.clear()
                     break
 
     def comp_action(self) -> None:

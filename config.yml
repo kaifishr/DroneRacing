@@ -21,7 +21,7 @@ checkpoints:
   model_name: "numpy"   # save / load
 
 optimizer:
-  num_agents: 8
+  num_agents: 4
   num_max_steps: 4000
   mutation_probability: 0.04
   mutation_rate: 0.04
@@ -72,6 +72,7 @@ env:
       num_dim_out: 4      # Actions for four engines.
       num_dim_hidden: 8
       num_hidden_layers: 2
+      nonlinearity: "relu"  # relu, tanh
 
     raycasting:
       ray_length: 60

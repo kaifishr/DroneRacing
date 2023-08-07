@@ -68,10 +68,9 @@ The reward function controls the learning behavior of the drone. As a default, t
 
 # TODO:
 
-- Add angular velocity as reward.
 - Allow interaction between drones
 - Allow thrust to have two components
-- Add better data normalization
+- Use Python MPI for parallelization.
 
 # License
 
