@@ -71,6 +71,7 @@ The reward function controls the learning behavior of the drone. As a default, t
 - Allow interaction between drones
 - Allow thrust to have two components
 - Use Python MPI for parallelization.
+- Use callbacks for reward, optimizer.
 
 # Citation
 

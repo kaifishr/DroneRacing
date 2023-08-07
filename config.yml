@@ -18,18 +18,19 @@ checkpoints:
   load_model: false
   save_model: false
   model_path: "weights"
-  model_name: "numpy"   # save / load
+  model_name: "numpy"  # save / load
 
 optimizer:
-  num_agents: 4
+  num_agents: 8
   num_max_steps: 4000
   mutation_probability: 0.04
   mutation_rate: 0.04
-  lib: "numpy"    # numpy, torch
+  lib: "numpy"  # numpy, torch
   reward:
-    angular_velocity: true
-    distance: false
+    acceleration: true
+    angular_velocity: false
     dodging: false
+    distance: false
 
 env: 
   allow_collision_drones: false   # do not change
@@ -70,7 +71,7 @@ env:
     neural_network: # model
       num_dim_in: 12       # Distances to the nearest wall, position, velocity
       num_dim_out: 4      # Actions for four engines.
-      num_dim_hidden: 8
+      num_dim_hidden: 16
       num_hidden_layers: 2
       nonlinearity: "relu"  # relu, tanh
 

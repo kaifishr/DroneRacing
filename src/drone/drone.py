@@ -97,7 +97,7 @@ class Drone:
         d = self.diam
         h = self.engine.height
         w = self.engine.width_max
-        self.collision_threshold = 1.1 * ((0.5 * d + h) ** 2 + (0.5 * w) ** 2) ** 0.5
+        self.collision_threshold = 1.2*((0.5*d + h)**2 + (0.5*w)**2)**0.5
 
         # Neural Network
         self.model = NetworkLoader(config=config)()
@@ -117,6 +117,8 @@ class Drone:
         # Fitness score
         self.score = 0.0
         self.theta_old = None
+        self.speed_old_x = None
+        self.speed_old_y = None
 
     def mutate(self, model: object) -> None:
         """Mutates drone's neural network.
@@ -140,9 +142,22 @@ class Drone:
             # Reward distance traveled.
             if self.config.optimizer.reward.distance:
                 phi = 1.0
-                vel = self.body.linearVelocity
-                score = self.TIME_STEP * (vel.x**2 + vel.y**2) ** 0.5
-                self.score += score
+                velocity = self.body.linearVelocity
+                speed = (velocity.x**2 + velocity.y**2) ** 0.5
+                distance = self.TIME_STEP * speed 
+                self.score += distance
+
+            # Reward high acceleration.
+            if self.config.optimizer.reward.acceleration:
+                phi = 1.0
+                velocity = self.body.linearVelocity
+                if self.speed_old_x is not None:
+                    acceleration_x = (velocity.x - self.speed_old_x) / self.TIME_STEP
+                    acceleration_y = (velocity.y - self.speed_old_y) / self.TIME_STEP
+                    score = (acceleration_x**2 + acceleration_y**2)**0.5
+                self.speed_old_x = velocity.x
+                self.speed_old_y = velocity.y
+                self.score += score 
 
             # Reward high angular velocity.
             if self.config.optimizer.reward.angular_velocity:
@@ -175,11 +190,6 @@ class Drone:
         if self.body.active:
             # Add distance to obstacles to input data
             # Uses ray casting to measure distance to domain walls.
-            # self.callbacks = []
-            # self.p1 = []
-            # self.p2 = []
-            # self.data = []
-
             self.callbacks.clear()
             self.p1.clear()
             self.p2.clear()
@@ -229,9 +239,6 @@ class Drone:
                 if dist < self.collision_threshold:
                     self.body.active = False
                     self.forces = self.num_engines * [0.0]
-                    # self.callbacks = []
-                    # self.p1 = []
-                    # self.p2 = []
                     self.callbacks.clear()
                     self.p1.clear()
                     self.p2.clear()
