@@ -27,8 +27,9 @@ class NetworkLoader:
 
         domain_diam_x = x_max - x_min
         domain_diam_y = y_max - y_min
+        diam_max = max(domain_diam_x, domain_diam_y)
 
-        self.normalizer = 1.0 / (domain_diam_x**2 + domain_diam_y**2) ** 0.5
+        self.normalizer = 1.0 / diam_max
 
     def __call__(self):
         """Loads and returns model.
@@ -81,16 +82,17 @@ class NumpyNeuralNetwork:
         out_features = config.num_dim_out
         hidden_features = config.num_dim_hidden
         num_hidden_layers = config.num_hidden_layers
+        nonlinearity = config.nonlinearity
 
         # Input layer weights
         size = (hidden_features, in_features)
-        self.weights = [self._init_weights(size=size, nonlinearity="tanh")]
+        self.weights = [self._init_weights(size=size, nonlinearity=nonlinearity)]
         self.biases = [np.zeros(shape=(hidden_features, 1))]
 
         # Hidden layer weights
         size = (hidden_features, hidden_features)
         for _ in range(num_hidden_layers):
-            self.weights += [self._init_weights(size=size, nonlinearity="tanh")]
+            self.weights += [self._init_weights(size=size, nonlinearity=nonlinearity)]
             self.biases += [np.zeros(shape=(hidden_features, 1))]
 
         # Output layer weights
@@ -113,6 +115,8 @@ class NumpyNeuralNetwork:
             gain = 5.0 / 3.0
         elif nonlinearity == "sigmoid":
             gain = 1.0
+        elif nonlinearity == "relu":
+            gain = 2.0**0.5
         else:
             raise NotImplementedError(
                 f"Initialization for '{nonlinearity}' not implemented."
@@ -156,6 +160,10 @@ class NumpyNeuralNetwork:
     def _sigmoid(x: numpy.ndarray) -> numpy.ndarray:
         # return 1.0 / (1.0 + np.exp(-x))
         return expit(x)  # Numerically stable sigmoid
+
+    @staticmethod
+    def _relu(x: numpy.ndarray) -> numpy.ndarray:
+        return x * (x > 0)
 
     def eval(self):
         pass
