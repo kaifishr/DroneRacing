@@ -10,7 +10,7 @@ The Environment class also wraps the Framework class
 that calls the physics engine and rendering engines.
 """
 import random
-import numpy as np
+import numpy
 
 from Box2D.Box2D import b2Vec2
 
@@ -35,10 +35,11 @@ class Environment(Framework):
         """Initializes environment class."""
         super().__init__(config=config)
 
-        num_agents = config.optimizer.num_agents
-
         self.world.gravity = b2Vec2(config.env.gravity.x, config.env.gravity.y)
         Domain(world=self.world, config=config)
+
+        # Create agents.
+        num_agents = config.optimizer.num_agents
         self.drones = [
             Drone(world=self.world, config=config) for _ in range(num_agents)
         ]
@@ -61,14 +62,18 @@ class Environment(Framework):
         if self.config.env.drone.respawn.is_random:
             # Respawn drones every generation at different
             # predefined location in map.
-            phi = 0.8
-            respawn_points = [
-                b2Vec2(phi * self.x_max, phi * self.y_max),
-                b2Vec2(phi * self.x_min, phi * self.y_max),
-                b2Vec2(phi * self.x_min, phi * self.y_min),
-                b2Vec2(phi * self.x_max, phi * self.y_min),
-            ]
-            init_position_rand = random.choice(respawn_points)
+            phi = 0.9
+            # respawn_points = [
+            #     b2Vec2(phi * self.x_max, phi * self.y_max),
+            #     b2Vec2(phi * self.x_min, phi * self.y_max),
+            #     b2Vec2(phi * self.x_min, phi * self.y_min),
+            #     b2Vec2(phi * self.x_max, phi * self.y_min),
+            # ]
+            # init_position_rand = random.choice(respawn_points)
+            init_position_rand = b2Vec2(
+                numpy.random.uniform(low=phi * self.x_min, high=phi * self.x_max),
+                numpy.random.uniform(low=phi * self.y_min, high=phi * self.y_max),
+            )
 
         for drone in self.drones:
             if self.config.env.drone.respawn.is_random:
@@ -121,7 +126,7 @@ class Environment(Framework):
     def select(self) -> float:
         """Selects best agent for reproduction."""
         scores = [drone.score for drone in self.drones]
-        self.idx_best = np.argmax(scores)
+        self.idx_best = numpy.argmax(scores)
         return scores[self.idx_best]
 
     def mutate(self) -> None:

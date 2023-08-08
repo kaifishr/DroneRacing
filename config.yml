@@ -27,10 +27,11 @@ optimizer:
   mutation_rate: 0.04
   lib: "numpy"  # numpy, torch
   reward:
-    acceleration: true
+    acceleration: false
     angular_velocity: false
     dodging: false
     distance: false
+    distance2: true
 
 env: 
   allow_collision_drones: false   # do not change
@@ -46,7 +47,7 @@ env:
       x_max: 20.0
       y_min: -20.0
       y_max: 20.0
-    map: "block"  # empty, block, track, locks, blade, smile
+    map: "empty"  # empty, block, track, locks, blade, smile
 
   drone:
     fixed_rotation: true
@@ -71,15 +72,15 @@ env:
     neural_network: # model
       num_dim_in: 12       # Distances to the nearest wall, position, velocity
       num_dim_out: 4      # Actions for four engines.
-      num_dim_hidden: 16
+      num_dim_hidden: 32
       num_hidden_layers: 2
-      nonlinearity: "relu"  # relu, tanh
+      nonlinearity: "tanh"  # relu, tanh
 
     raycasting:
       ray_length: 60
 
     respawn:
-      is_random: false
+      is_random: true
 
 framework:
   screen:

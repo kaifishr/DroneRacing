@@ -11,7 +11,12 @@ from src.drone.raycast import RayCastCallback
 from src.drone.model import NetworkLoader
 
 
-class Drone:
+class Agent:
+    def __init__(self) -> None:
+        pass
+
+
+class Drone(Agent):
     """Drone class.
 
     A drone consists of a body with four boosters attached.
@@ -30,6 +35,7 @@ class Drone:
 
     def __init__(self, world: b2World, config: Config) -> None:
         """Initializes the wheel class."""
+        super().__init__()
 
         self.world = world
         self.config = config
@@ -97,7 +103,7 @@ class Drone:
         d = self.diam
         h = self.engine.height
         w = self.engine.width_max
-        self.collision_threshold = 1.2*((0.5*d + h)**2 + (0.5*w)**2)**0.5
+        self.collision_threshold = 1.2 * ((0.5 * d + h) ** 2 + (0.5 * w) ** 2) ** 0.5
 
         # Neural Network
         self.model = NetworkLoader(config=config)()
@@ -119,6 +125,8 @@ class Drone:
         self.theta_old = None
         self.speed_old_x = None
         self.speed_old_y = None
+        self.pos_old_x = None
+        self.pos_old_y = None
 
     def mutate(self, model: object) -> None:
         """Mutates drone's neural network.
@@ -144,8 +152,20 @@ class Drone:
                 phi = 1.0
                 velocity = self.body.linearVelocity
                 speed = (velocity.x**2 + velocity.y**2) ** 0.5
-                distance = self.TIME_STEP * speed 
+                distance = self.TIME_STEP * speed
                 self.score += distance
+
+            # Reward distance traveled 2.
+            if self.config.optimizer.reward.distance2:
+                phi = 1.0
+                position = self.body.position
+                if self.pos_old_x is not None:
+                    dist_x = position.x - self.pos_old_x
+                    dist_y = position.y - self.pos_old_y
+                    score = (dist_x**2 + dist_y**2) ** 0.5
+                self.pos_old_x = position.x
+                self.pos_old_y = position.y
+                self.score += score
 
             # Reward high acceleration.
             if self.config.optimizer.reward.acceleration:
@@ -154,10 +174,10 @@ class Drone:
                 if self.speed_old_x is not None:
                     acceleration_x = (velocity.x - self.speed_old_x) / self.TIME_STEP
                     acceleration_y = (velocity.y - self.speed_old_y) / self.TIME_STEP
-                    score = (acceleration_x**2 + acceleration_y**2)**0.5
+                    score = (acceleration_x**2 + acceleration_y**2) ** 0.5
                 self.speed_old_x = velocity.x
                 self.speed_old_y = velocity.y
-                self.score += score 
+                self.score += score
 
             # Reward high angular velocity.
             if self.config.optimizer.reward.angular_velocity:

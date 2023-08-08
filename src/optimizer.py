@@ -4,12 +4,14 @@ from pathlib import Path
 
 from torch.utils.tensorboard import SummaryWriter
 
+from src.drone import Drone
+from src.environment import Environment
+from src.optimizer_ import EvolutionStrategy
 from src.utils.config import Config
 from src.utils.utils import save_checkpoint
-from src.environment import Environment
 
 
-class Optimizer:
+class Optimizer:  # -> Trainer() with Optimizer() instance.
     """Optimizer class.
 
     Optimizer uses genetic optimization.
@@ -29,6 +31,12 @@ class Optimizer:
         self.config.id = self.writer.log_dir.split("/")[-1]
 
         self.env = Environment(config=config)
+
+        self.optimizer = EvolutionStrategy(
+            agents=self.env.drones,
+            learning_rate=0.01,
+            sigma=0.01,
+        )
 
         # Save config file
         file_path = Path(self.writer.log_dir) / "config.txt"
@@ -71,6 +79,8 @@ class Optimizer:
 
             # Method that run at end of simulation.
             if ((step + 1) % num_max_steps == 0) or self.env.is_active():
+                # self.optimizer.step()
+
                 # Select fittest agent based on distance traveled.
                 score = self.env.select()
 
