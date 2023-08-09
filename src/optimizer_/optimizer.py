@@ -36,11 +36,19 @@ class EvolutionStrategy(Optimizer):
             for agent in self.agents
         ]
 
+        # self.shapes = [
+        #     (w.shape, b.shape) 
+        #     for w, b in 
+        #     zip(self.agents[0].model.weights, self.agents[0].model.biases)
+        # ]
         self.params = [
-            (numpy.zeros_like(w), numpy.zeros_like(b)) 
+            (numpy.random.normal(0, 0.02, w.shape), numpy.random.normal(0, 0.02, b.shape))
             for w, b in 
             zip(self.agents[0].model.weights, self.agents[0].model.biases)
         ]
+        # self.params = [
+        #     *zip(copy.deepcopy(self.agents[0].model.weights), copy.deepcopy(self.agents[0].model.biases))
+        # ]
 
         self.gradients = [
             (numpy.zeros_like(w), numpy.zeros_like(b)) 
@@ -56,12 +64,14 @@ class EvolutionStrategy(Optimizer):
         for weights, biases in self.parameters:
             for weight, bias in zip(weights, biases):
                 noise = numpy.random.normal(loc=0.0, scale=self.sigma, size=weight.shape)
-                weight[:] = weight[:] + noise
-                # weight += mask * mutation
+                numpy.add(weight, noise, out=weight)
+                # noise = numpy.random.normal(loc=0.0, scale=self.sigma, size=bias.shape)
+                # numpy.add(bias, noise, out=bias)
 
-                noise = numpy.random.normal(loc=0.0, scale=self.sigma, size=bias.shape)
-                bias[:] = bias[:] + noise
-                # bias += mask * mutation
+    @staticmethod
+    def softmax(x: numpy.array) -> numpy.array:
+        x = numpy.exp(x - x.max())
+        return x / x.sum()
 
     def step(self) -> None:
         """Performs single optimization step."""
@@ -73,31 +83,54 @@ class EvolutionStrategy(Optimizer):
         rewards -= rewards.mean()
         rewards /= rewards.std() + 1e-5
 
+        # Softmax
+        # temp = 1.0
+        # rewards = rewards / temp
+        # rewards = self.softmax(rewards)
+
+        # Reset gradients.
+        for (grad_weights, grad_biases) in self.gradients:
+            numpy.multiply(grad_weights, 0.0, out=grad_weights)
+            # numpy.multiply(grad_biases, 0.0, out=grad_biases)
+
         # Compute gradients. (Or use first agent's parameters as buffer.)
         for agent, reward in zip(self.agents, rewards):
             for (weight, bias), (grad_weight, grad_bias) in zip(zip(*agent.model.state_dict().values()), self.gradients):
-                grad_weight += reward * weight
-                grad_bias += reward * bias
+                # grad_weight += reward * weight
+                # grad_bias += reward * bias
+                # grad_weight[...] = grad_weight[...] + reward * weight
+                # grad_bias[...] = grad_bias[...] + reward * bias
+                numpy.add(grad_weight, reward * weight, out=grad_weight)
+                # numpy.add(grad_bias, reward * bias, out=grad_bias)
 
         # Perform gradient descent.
+        for (weight, bias), (grad_weight, grad_bias) in zip(self.params, self.gradients):
+            # weight += self.learning_rate * grad_weight 
+            # bias += self.learning_rate * grad_bias 
+            # weight[...] = grad_weight[...]
+            # bias[...] = grad_bias[...]
+            # weight = copy.deepcopy(grad_weight)
+            # bias = copy.deepcopy(grad_bias)
+            print(f"{weight.shape = }")
+            print(f"{grad_weight.shape = }")
+            print(f"{bias.shape = }")
+            print(f"{grad_bias.shape = }")
+            numpy.add(weight, self.learning_rate * grad_weight, out=weight)
+            # numpy.add(bias, self.learning_rate * grad_bias, out=bias)
+
+        # Broadcast new parameters.
         for agent in self.agents:
-            for (weight, bias), (grad_weight, grad_bias) in zip(zip(*agent.model.state_dict().values()), self.gradients):
-                # weight += self.learning_rate * grad_weight 
-                # bias += self.learning_rate * grad_bias 
-                weight[...] = grad_weight
-                bias[...] = grad_bias 
-
-        # Reset gradients.
-        # self.gradients = [
-        #     (dw.fill(0.0), db.fill(0.0)) 
-        #     for dw, db in self.gradients
-        # ]
-        for (dw, db) in self.gradients:
-            dw *= 0.0
-            db *= 0.0
-
-        # Scatter new gradients.
+            for weights, biases in self.params:
+                agent.model.weights = copy.deepcopy(weights)
+                # agent.model.biases = copy.deepcopy(biases)
         # TODO
 
         # Mutate parameters.
         self.mutate_parameters()
+
+        # # # Perform gradient descent.
+        # for i, agent in enumerate(self.agents):
+        #     print(f"{i = }")
+        #     for (weight, bias) in zip(*agent.model.state_dict().values()):
+        #         print(f"{weight.sum() = }")
+        #         print(f"{bias.sum() = }")
