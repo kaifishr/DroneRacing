@@ -42,7 +42,7 @@ class EvolutionStrategy(Optimizer):
         #     zip(self.agents[0].model.weights, self.agents[0].model.biases)
         # ]
         self.params = [
-            (numpy.random.normal(0, 0.02, w.shape), numpy.random.normal(0, 0.02, b.shape))
+            (numpy.random.normal(0, 0.1, w.shape), numpy.random.normal(0, 0.1, b.shape))
             for w, b in 
             zip(self.agents[0].model.weights, self.agents[0].model.biases)
         ]
@@ -65,8 +65,8 @@ class EvolutionStrategy(Optimizer):
             for weight, bias in zip(weights, biases):
                 noise = numpy.random.normal(loc=0.0, scale=self.sigma, size=weight.shape)
                 numpy.add(weight, noise, out=weight)
-                # noise = numpy.random.normal(loc=0.0, scale=self.sigma, size=bias.shape)
-                # numpy.add(bias, noise, out=bias)
+                noise = numpy.random.normal(loc=0.0, scale=self.sigma, size=bias.shape)
+                numpy.add(bias, noise, out=bias)
 
     @staticmethod
     def softmax(x: numpy.array) -> numpy.array:
@@ -86,12 +86,12 @@ class EvolutionStrategy(Optimizer):
         # Softmax
         # temp = 1.0
         # rewards = rewards / temp
-        # rewards = self.softmax(rewards)
+        rewards = self.softmax(rewards)
 
         # Reset gradients.
         for (grad_weights, grad_biases) in self.gradients:
             numpy.multiply(grad_weights, 0.0, out=grad_weights)
-            # numpy.multiply(grad_biases, 0.0, out=grad_biases)
+            numpy.multiply(grad_biases, 0.0, out=grad_biases)
 
         # Compute gradients. (Or use first agent's parameters as buffer.)
         for agent, reward in zip(self.agents, rewards):
@@ -101,7 +101,7 @@ class EvolutionStrategy(Optimizer):
                 # grad_weight[...] = grad_weight[...] + reward * weight
                 # grad_bias[...] = grad_bias[...] + reward * bias
                 numpy.add(grad_weight, reward * weight, out=grad_weight)
-                # numpy.add(grad_bias, reward * bias, out=grad_bias)
+                numpy.add(grad_bias, reward * bias, out=grad_bias)
 
         # Perform gradient descent.
         for (weight, bias), (grad_weight, grad_bias) in zip(self.params, self.gradients):
@@ -111,26 +111,14 @@ class EvolutionStrategy(Optimizer):
             # bias[...] = grad_bias[...]
             # weight = copy.deepcopy(grad_weight)
             # bias = copy.deepcopy(grad_bias)
-            print(f"{weight.shape = }")
-            print(f"{grad_weight.shape = }")
-            print(f"{bias.shape = }")
-            print(f"{grad_bias.shape = }")
             numpy.add(weight, self.learning_rate * grad_weight, out=weight)
-            # numpy.add(bias, self.learning_rate * grad_bias, out=bias)
+            numpy.add(bias, self.learning_rate * grad_bias, out=bias)
 
         # Broadcast new parameters.
         for agent in self.agents:
-            for weights, biases in self.params:
-                agent.model.weights = copy.deepcopy(weights)
-                # agent.model.biases = copy.deepcopy(biases)
-        # TODO
+            weights, biases = zip(*self.params)
+            agent.model.weights = copy.deepcopy(weights)
+            agent.model.biases = copy.deepcopy(biases)
 
         # Mutate parameters.
         self.mutate_parameters()
-
-        # # # Perform gradient descent.
-        # for i, agent in enumerate(self.agents):
-        #     print(f"{i = }")
-        #     for (weight, bias) in zip(*agent.model.state_dict().values()):
-        #         print(f"{weight.sum() = }")
-        #         print(f"{bias.sum() = }")
