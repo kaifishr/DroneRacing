@@ -116,7 +116,7 @@ class Environment(Framework):
         for drone in self.drones:
             drone.apply_action()
 
-    def is_active(self) -> bool:
+    def is_active(self) -> bool:  # TODO: -> is_inactive()
         """Checks if at least one drone is active."""
         for drone in self.drones:
             if drone.body.active:
@@ -128,6 +128,11 @@ class Environment(Framework):
         scores = [drone.score for drone in self.drones]
         self.idx_best = numpy.argmax(scores)
         return scores[self.idx_best]
+
+    def comp_mean_reward(self) -> float:
+        """Computes mean reward over all agents."""
+        rewards = numpy.array([agent.score for agent in self.drones])
+        return numpy.mean(rewards)
 
     def mutate(self) -> None:
         """Mutates network parameters of each drone."""

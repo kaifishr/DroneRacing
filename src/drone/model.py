@@ -84,6 +84,8 @@ class NumpyNeuralNetwork:
         num_hidden_layers = config.num_hidden_layers
         nonlinearity = config.nonlinearity
 
+        # Create layers and initializes weights.
+
         # Input layer weights
         size = (hidden_features, in_features)
         self.weights = [self._init_weights(size=size, nonlinearity=nonlinearity)]

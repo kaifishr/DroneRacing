@@ -46,6 +46,71 @@ class Optimizer:  # -> Trainer() with Optimizer() instance.
     def run(self) -> None:
         """Runs genetic optimization."""
 
+        num_max_steps = self.config.optimizer.num_max_steps  # max_episode_length
+        step = 0
+        generation = 0
+        best_score = 0.0
+
+        is_running = True
+        t0 = time.time()
+
+        while is_running:
+            # Physics and rendering.
+            self.env.step()
+
+            # Fetch data for neural network.
+            self.env.fetch_data()
+
+            # Detect collisions with other bodies
+            if not self.config.env.allow_collision_domain:
+                self.env.collision_detection()
+
+            # Compute current fitness / score of drone
+            self.env.comp_score()
+
+            # Run neural network prediction
+            self.env.comp_action()
+
+            # Apply network predictions to drone
+            self.env.apply_action()
+
+            # Method that run at end of simulation.
+            if ((step + 1) % num_max_steps == 0) or self.env.is_active():
+                self.optimizer.step()
+
+                # Select fittest agent based on distance traveled.
+                mean_reward = self.env.comp_mean_reward()
+
+                # Reproduce and mutate weights of best agent.
+                self.env.mutate()
+
+                # Reset drones to start over again.
+                self.env.reset()
+
+
+                # Write stats to Tensorboard.
+                self.writer.add_scalar("mean_reward", mean_reward, generation)
+                self.writer.add_scalar("seconds", time.time() - t0, generation)
+
+                # Save model
+                # if self.config.checkpoints.save_model:
+                #     if mean_reward > best_score:
+                #         model = self.env.drones[self.env.idx_best].model
+                #         save_checkpoint(model=model, config=self.config)
+                #         best_score = mean_reward
+
+                step = 0
+                generation += 1
+                print(f"{generation = }")
+
+                t0 = time.time()
+
+            step += 1
+
+    ###########################################################################
+    def run_(self) -> None:
+        """Runs genetic optimization."""
+
         num_max_steps = self.config.optimizer.num_max_steps
         step = 0
         generation = 0
@@ -79,7 +144,6 @@ class Optimizer:  # -> Trainer() with Optimizer() instance.
 
             # Method that run at end of simulation.
             if ((step + 1) % num_max_steps == 0) or self.env.is_active():
-                # self.optimizer.step()
 
                 # Select fittest agent based on distance traveled.
                 score = self.env.select()
