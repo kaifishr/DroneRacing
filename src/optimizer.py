@@ -34,7 +34,7 @@ class Optimizer:  # -> Trainer() with Optimizer() instance.
 
         self.optimizer = EvolutionStrategy(
             agents=self.env.drones,
-            learning_rate=0.001,
+            learning_rate=0.01,
             sigma=0.01,
         )
 

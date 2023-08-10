@@ -21,7 +21,7 @@ checkpoints:
   model_name: "numpy"  # save / load
 
 optimizer:
-  num_agents: 8
+  num_agents: 16
   num_max_steps: 4000
   mutation_probability: 0.04  # 0.01, 0.02, >>0.04
   mutation_rate: 0.02  # >>0.02, 0.04

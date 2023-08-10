@@ -1,9 +1,7 @@
 """Evolutionary inspired black-box optimization algorithms.
 """
 import copy
-
 import numpy
-
 from src.drone import Agent
 
 
@@ -74,16 +72,14 @@ class EvolutionStrategy(Optimizer):
         for agent in self.agents:
             # model = agent.model # TODO
             for eps_weights, eps_biases in zip(agent.model.eps_weights, agent.model.eps_biases):
-                noise = numpy.random.normal(loc=0.0, scale=self.sigma, size=eps_weights.shape)
-                numpy.add(eps_weights, noise, out=eps_weights) 
-                noise = numpy.random.normal(loc=0.0, scale=self.sigma, size=eps_biases.shape)
-                numpy.add(eps_biases, noise, out=eps_biases) 
+                numpy.add(eps_weights, numpy.random.normal(loc=0.0, scale=self.sigma, size=eps_weights.shape), out=eps_weights) 
+                numpy.add(eps_biases, numpy.random.normal(loc=0.0, scale=self.sigma, size=eps_biases.shape), out=eps_biases) 
 
     def _mutate_parameters(self) -> None:
         """Mutates models's parameters of each agent by adding Gaussian noise."""
         for agent in self.agents:
-            model = agent.model
-            for (weights, biases), (eps_weights, eps_biases) in zip(zip(model.weights, model.biases), zip(model.eps_weights, model.eps_biases)):
+            # model = agent.model
+            for (weights, biases), (eps_weights, eps_biases) in zip(zip(agent.model.weights, agent.model.biases), zip(agent.model.eps_weights, agent.model.eps_biases)):
                 numpy.add(weights, eps_weights, out=weights)
                 numpy.add(biases, eps_biases, out=biases)
 
@@ -111,8 +107,8 @@ class EvolutionStrategy(Optimizer):
     def _gradient_descent(self) -> None:
         """Performs gradient descent step."""
         for (weights, biases), (grad_weights, grad_biases) in zip(zip(*self.parameters), self.gradients):
-            numpy.subtract(weights, self.learning_rate * grad_weights, out=weights)
-            numpy.subtract(biases, self.learning_rate * grad_biases, out=biases)
+            numpy.add(weights, self.learning_rate * grad_weights, out=weights)
+            numpy.add(biases, self.learning_rate * grad_biases, out=biases)
 
     def _gather_rewards(self) -> None:
         """Gathers rewards from all agents."""
@@ -120,15 +116,16 @@ class EvolutionStrategy(Optimizer):
         rewards = numpy.array([agent.score for agent in self.agents])
 
         # Normalize rewards.
-        rewards -= rewards.mean()
-        rewards /= rewards.std() + 1e-5
-
-        self.rewards = rewards
+        # rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-5)
+        rewards = rewards / rewards.max()  # [0, 1]
+        # Test normalization [0, 1]
 
         # Softmax
         # temp = 1.0
         # rewards = rewards / temp
         # rewards = self._softmax(rewards)
+
+        self.rewards = rewards
 
     @staticmethod
     def _softmax(x: numpy.array) -> numpy.array:
@@ -137,10 +134,10 @@ class EvolutionStrategy(Optimizer):
     
     def step(self) -> None:
         """Performs single optimization step."""
-        self._gather_rewards()
-        self._zero_gradients()
-        self._compute_gradients()
-        self._gradient_descent()
-        self._broadcast_parameters()
-        self._create_noise()
-        self._mutate_parameters()
+        self._gather_rewards()         # global
+        self._zero_gradients()         # local
+        self._compute_gradients()      # local
+        self._gradient_descent()       # local
+        self._broadcast_parameters()   # global
+        self._create_noise()           # global
+        self._mutate_parameters()      # global
