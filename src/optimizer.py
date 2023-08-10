@@ -34,8 +34,8 @@ class Optimizer:  # -> Trainer() with Optimizer() instance.
 
         self.optimizer = EvolutionStrategy(
             agents=self.env.drones,
-            learning_rate=0.5,
-            sigma=0.2,
+            learning_rate=0.001,
+            sigma=0.01,
         )
 
         # Save config file
@@ -81,12 +81,8 @@ class Optimizer:  # -> Trainer() with Optimizer() instance.
                 # Select fittest agent based on distance traveled.
                 mean_reward = self.env.comp_mean_reward()
 
-                # Reproduce and mutate weights of best agent.
-                self.env.mutate()
-
                 # Reset drones to start over again.
                 self.env.reset()
-
 
                 # Write stats to Tensorboard.
                 self.writer.add_scalar("mean_reward", mean_reward, generation)

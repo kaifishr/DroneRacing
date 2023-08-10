@@ -73,7 +73,7 @@ env:
       num_dim_in: 12       # Distances to the nearest wall, position, velocity
       num_dim_out: 4      # Actions for four engines.
       num_dim_hidden: 16
-      num_hidden_layers: 3
+      num_hidden_layers: 2
       nonlinearity: "tanh"  # relu, tanh
 
     raycasting:
