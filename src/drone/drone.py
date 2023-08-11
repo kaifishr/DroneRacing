@@ -128,14 +128,14 @@ class Drone(Agent):
         self.pos_old_x = None
         self.pos_old_y = None
 
-    def mutate(self, model: object) -> None:
-        """Mutates drone's neural network.
+    # def mutate(self, model: object) -> None:
+    #     """Mutates drone's neural network.
 
-        Args:
-            model: The current best model.
-        """
-        self.model = copy.deepcopy(model)
-        self.model.mutate_weights()
+    #     Args:
+    #         model: The current best model.
+    #     """
+    #     self.model = copy.deepcopy(model)
+    #     self.model.mutate_weights()
 
     def comp_score(self) -> None:
         """Computes current fitness score.
@@ -254,15 +254,16 @@ class Drone(Agent):
         """
         if self.body.active:
             for p1, cb in zip(self.p1, self.callbacks):
-                diff = cb.point - p1
-                dist = (diff.x**2 + diff.y**2) ** 0.5
-                if dist < self.collision_threshold:
-                    self.body.active = False
-                    self.forces = self.num_engines * [0.0]
-                    self.callbacks.clear()
-                    self.p1.clear()
-                    self.p2.clear()
-                    break
+                if hasattr(cb, "point"):
+                    diff = cb.point - p1
+                    dist = (diff.x**2 + diff.y**2) ** 0.5
+                    if dist < self.collision_threshold:
+                        self.body.active = False
+                        self.forces = self.num_engines * [0.0]
+                        self.callbacks.clear()
+                        self.p1.clear()
+                        self.p2.clear()
+                        break
 
     def comp_action(self) -> None:
         """Computes next section of actions applied to engines.

@@ -6,14 +6,64 @@ from src.drone import Agent
 
 
 class Optimizer:
-    def __init__(self) -> None:
+
+    def __init__(self, agents: list[Agent]) -> None:
         """Initializes Optimizer base class."""
+
+        assert len(agents) > 1, f"Number of agents must be larger than 1."
+
+        self.agents = agents
 
 
 class GeneticOptimizer(Optimizer):
-    def __init__() -> None:
+
+    def __init__(
+        self, 
+        agents: list[Agent], 
+        mutation_probability: float, 
+        mutation_rate=float
+    ) -> None:
         """ """
-        super().__init__()
+        super().__init__(agents=agents)
+        assert 0.0 <= mutation_probability <= 1.0
+        assert mutation_rate > 0.0
+        self.mutation_probability: float = mutation_probability
+        self.mutation_rate: float = mutation_rate
+        self.mutation_type: str = "random_normal"  # "random_uniform", "random_normal"
+        self.index_best: int = None
+
+    def _select(self) -> None:
+        """Selects best agent."""
+        rewards = numpy.array([agent.score for agent in self.agents])
+        self.index_best = numpy.argmax(rewards)
+
+    def _mutate_parameters(self) -> None:
+        """Mutates models's parameters of each agent by adding Gaussian noise."""
+        for agent in self.agents:
+            # model = agent.model # TODO
+            for weights, biases in zip(agent.model.weights, agent.model.biases):
+                noise = numpy.random.normal(loc=0.0, scale=self.mutation_rate, size=weights.shape)
+                if self.mutation_probability:
+                    noise *= numpy.random.random(size=weights.shape) < self.mutation_probability
+                numpy.add(weights, noise, out=weights) 
+
+                noise = numpy.random.normal(loc=0.0, scale=self.mutation_rate, size=biases.shape)
+                if self.mutation_probability:
+                    noise *= numpy.random.random(size=biases.shape) < self.mutation_probability
+                numpy.add(biases, noise, out=biases) 
+
+    def _broadcast_parameters(self) -> None:
+        """Broadcasts parameters of best agent to all other agents."""
+        model = self.agents[self.index_best].model
+        for i, agent in enumerate(self.agents):
+            if i != self.index_best:
+                agent.model.weights = copy.deepcopy(model.weights)
+                agent.model.biases = copy.deepcopy(model.biases)
+    
+    def step(self) -> None:
+        self._select()
+        self._broadcast_parameters()
+        self._mutate_parameters()
 
 
 class EvolutionStrategy(Optimizer):
@@ -25,11 +75,7 @@ class EvolutionStrategy(Optimizer):
             learning_rate: Gradient descent learning rate.
             sigma: Noise level.
         """
-        super().__init__()
-
-        assert len(agents) > 1, f"Number of agents must be larger than 1."
-
-        self.agents = agents
+        super().__init__(agents=agents)
         self.learning_rate = learning_rate
         self.sigma = sigma
 
@@ -116,8 +162,8 @@ class EvolutionStrategy(Optimizer):
         rewards = numpy.array([agent.score for agent in self.agents])
 
         # Normalize rewards.
-        # rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-5)
-        rewards = rewards / rewards.max()  # [0, 1]
+        rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-5)
+        # rewards = rewards / rewards.max()  # [0, 1]
         # Test normalization [0, 1]
 
         # Softmax

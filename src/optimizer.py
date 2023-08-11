@@ -4,9 +4,9 @@ from pathlib import Path
 
 from torch.utils.tensorboard import SummaryWriter
 
-from src.drone import Drone
 from src.environment import Environment
 from src.optimizer_ import EvolutionStrategy
+from src.optimizer_ import GeneticOptimizer
 from src.utils.config import Config
 from src.utils.utils import save_checkpoint
 
@@ -32,10 +32,16 @@ class Optimizer:  # -> Trainer() with Optimizer() instance.
 
         self.env = Environment(config=config)
 
-        self.optimizer = EvolutionStrategy(
+        # self.optimizer = EvolutionStrategy(
+        #     agents=self.env.drones,
+        #     learning_rate=0.1,
+        #     sigma=0.1,
+        # )
+
+        self.optimizer = GeneticOptimizer(
             agents=self.env.drones,
-            learning_rate=0.01,
-            sigma=0.01,
+            mutation_probability=0.04,
+            mutation_rate=0.04,
         )
 
         # Save config file
@@ -75,18 +81,19 @@ class Optimizer:  # -> Trainer() with Optimizer() instance.
             self.env.apply_action()
 
             # Method that run at end of simulation.
-            if ((step + 1) % num_max_steps == 0) or self.env.is_active():
+            if ((step + 1) % num_max_steps == 0) or self.env.is_done():
                 self.optimizer.step()
 
                 # Select fittest agent based on distance traveled.
-                mean_reward = self.env.comp_mean_reward()
+                results = self.env.comp_mean_reward()
 
                 # Reset drones to start over again.
                 self.env.reset()
 
                 # Write stats to Tensorboard.
-                self.writer.add_scalar("mean_reward", mean_reward, generation)
-                self.writer.add_scalar("seconds", time.time() - t0, generation)
+                for result_name, result_value in results.items():
+                    self.writer.add_scalar(result_name, result_value, generation)
+                self.writer.add_scalar("seconds_episode", time.time() - t0, generation)
 
                 # Save model
                 # if self.config.checkpoints.save_model:
@@ -139,7 +146,7 @@ class Optimizer:  # -> Trainer() with Optimizer() instance.
             self.env.apply_action()
 
             # Method that run at end of simulation.
-            if ((step + 1) % num_max_steps == 0) or self.env.is_active():
+            if ((step + 1) % num_max_steps == 0) or self.env.is_done():
 
                 # Select fittest agent based on distance traveled.
                 score = self.env.select()

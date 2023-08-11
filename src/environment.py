@@ -116,29 +116,35 @@ class Environment(Framework):
         for drone in self.drones:
             drone.apply_action()
 
-    def is_active(self) -> bool:  # TODO: -> is_inactive()
-        """Checks if at least one drone is active."""
+    def is_done(self) -> bool:
+        """Checks if episode is done.
+
+        Simulation is done if there is no active agent.
+        """
         for drone in self.drones:
             if drone.body.active:
                 return False
         return True
 
-    def select(self) -> float:
-        """Selects best agent for reproduction."""
-        scores = [drone.score for drone in self.drones]
-        self.idx_best = numpy.argmax(scores)
-        return scores[self.idx_best]
+    # def select(self) -> float:
+    #     """Selects best agent for reproduction."""
+    #     scores = [drone.score for drone in self.drones]
+    #     self.idx_best = numpy.argmax(scores)
+    #     return scores[self.idx_best]
 
-    def comp_mean_reward(self) -> float:
+    def comp_mean_reward(self) -> dict[str, float]:
         """Computes mean reward over all agents."""
+        results = {}
         rewards = numpy.array([agent.score for agent in self.drones])
-        return numpy.mean(rewards)
+        results["mean_reward"] = rewards.mean()
+        results["min_reward"] = rewards.min()
+        results["max_reward"] = rewards.max()
+        return results 
 
-    def mutate(self) -> None:
-        """Mutates network parameters of each drone."""
-        # Get network of fittest drone to reproduce.
-        model = self.drones[self.idx_best].model
-
-        # Pass best model to other drones and mutate their weights.
-        for drone in self.drones:
-            drone.mutate(model)
+    # def mutate(self) -> None:
+    #     """Mutates network parameters of each drone."""
+    #     # Get network of fittest drone to reproduce.
+    #     model = self.drones[self.idx_best].model
+    #     # Pass best model to other drones and mutate their weights.
+    #     for drone in self.drones:
+    #         drone.mutate(model)
