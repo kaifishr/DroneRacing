@@ -42,15 +42,15 @@ class GeneticOptimizer(Optimizer):
         for agent in self.agents:
             # model = agent.model # TODO
             for weights, biases in zip(agent.model.weights, agent.model.biases):
-                noise = numpy.random.normal(loc=0.0, scale=self.mutation_rate, size=weights.shape)
-                if self.mutation_probability:
-                    noise *= numpy.random.random(size=weights.shape) < self.mutation_probability
-                numpy.add(weights, noise, out=weights) 
+                noise = numpy.random.uniform(low=-self.mutation_rate, high=self.mutation_rate, size=weights.shape)
+                # noise = numpy.random.normal(loc=0.0, scale=self.mutation_rate, size=weights.shape)
+                mask = numpy.random.random(size=weights.shape) < self.mutation_probability
+                numpy.add(weights, mask * noise, out=weights) 
 
-                noise = numpy.random.normal(loc=0.0, scale=self.mutation_rate, size=biases.shape)
-                if self.mutation_probability:
-                    noise *= numpy.random.random(size=biases.shape) < self.mutation_probability
-                numpy.add(biases, noise, out=biases) 
+                noise = numpy.random.uniform(low=-self.mutation_rate, high=self.mutation_rate, size=biases.shape)
+                # noise = numpy.random.normal(loc=0.0, scale=self.mutation_rate, size=biases.shape)
+                mask = numpy.random.random(size=biases.shape) < self.mutation_probability
+                numpy.add(biases, mask * noise, out=biases) 
 
     def _broadcast_parameters(self) -> None:
         """Broadcasts parameters of best agent to all other agents."""

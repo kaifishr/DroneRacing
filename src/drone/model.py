@@ -145,18 +145,17 @@ class NumpyNeuralNetwork:
     def __call__(self, x: numpy.ndarray):
         return self.forward(x)
 
-    def mutate_weights(self) -> None:
-        """Mutates the network's weights."""
-        for weight, bias in zip(self.weights, self.biases):
-            mask = numpy.random.random(size=weight.shape) < self.mutation_prob
-            mutation = self.mutation_rate * numpy.random.normal(size=weight.shape)
-            weight[:] = weight[:] + mask * mutation
-            # weight += mask * mutation
-
-            mask = numpy.random.random(size=bias.shape) < self.mutation_prob
-            mutation = self.mutation_rate * numpy.random.normal(size=bias.shape)
-            bias[:] = bias[:] + mask * mutation
-            # bias += mask * mutation
+    # def mutate_weights(self) -> None:
+    #     """Mutates the network's weights."""
+    #     for weight, bias in zip(self.weights, self.biases):
+    #         mask = numpy.random.random(size=weight.shape) < self.mutation_prob
+    #         mutation = self.mutation_rate * numpy.random.normal(size=weight.shape)
+    #         weight[:] = weight[:] + mask * mutation
+    #         # weight += mask * mutation
+    #         mask = numpy.random.random(size=bias.shape) < self.mutation_prob
+    #         mutation = self.mutation_rate * numpy.random.normal(size=bias.shape)
+    #         bias[:] = bias[:] + mask * mutation
+    #         # bias += mask * mutation
 
     @staticmethod
     def _sigmoid(x: numpy.ndarray) -> numpy.ndarray:
