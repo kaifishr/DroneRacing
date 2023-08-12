@@ -139,7 +139,7 @@ class Environment(Framework):
         results["mean_reward"] = rewards.mean()
         results["min_reward"] = rewards.min()
         results["max_reward"] = rewards.max()
-        return results 
+        return results
 
     # def mutate(self) -> None:
     #     """Mutates network parameters of each drone."""

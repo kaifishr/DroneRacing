@@ -27,6 +27,5 @@ if __name__ == "__main__":
     #     mutation_rate=0.1,
     # )
 
-
     trainer = Trainer(env=env, optimizer=optimizer, config=config)
     trainer.run()
