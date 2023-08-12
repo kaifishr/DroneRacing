@@ -68,10 +68,14 @@ The reward function controls the learning behavior of the drone. As a default, t
 
 # TODO:
 
+- Allow to turn ray casting on and off.
 - Allow interaction between drones
 - Allow thrust to have two components
 - Use Python MPI for parallelization.
 - Use callbacks for reward, optimizer.
+- Remove Pytorch support. Replace with JAX.
+- Refactor: Generalize naming (drone -> agent)
+- Add interactive script for inference (place food, obstacle, etc.).
 
 # Citation
 

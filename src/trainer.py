@@ -5,7 +5,7 @@ from pathlib import Path
 from torch.utils.tensorboard import SummaryWriter
 
 from src.environment import Environment
-from src.optimizer_ import Optimizer
+from src.optimizer import Optimizer
 from src.utils.config import Config
 from src.utils.utils import save_checkpoint
 
@@ -28,9 +28,6 @@ class Trainer:
         self.config = config
 
         self.writer = SummaryWriter()
-
-        # Create UUID for PyGame window.
-        self.config.id = self.writer.log_dir.split("/")[-1]
 
         # Save config file
         file_path = Path(self.writer.log_dir) / "config.txt"
@@ -84,11 +81,11 @@ class Trainer:
                 self.writer.add_scalar("seconds_episode", time.time() - t0, generation)
 
                 # Save model
-                # if self.config.checkpoints.save_model:
-                #     if mean_reward > best_score:
-                #         model = self.env.drones[self.env.idx_best].model
-                #         save_checkpoint(model=model, config=self.config)
-                #         best_score = mean_reward
+                if self.config.checkpoints.save_model:
+                    if results["mean_reward"] > best_score:
+                        model = self.env.drones[self.env.idx_best].model
+                        save_checkpoint(model=model, config=self.config)
+                        best_score = results["mean_reward"]
 
                 step = 0
                 generation += 1

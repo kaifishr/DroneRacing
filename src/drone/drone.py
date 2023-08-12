@@ -128,15 +128,6 @@ class Drone(Agent):
         self.pos_old_x = None
         self.pos_old_y = None
 
-    # def mutate(self, model: object) -> None:
-    #     """Mutates drone's neural network.
-
-    #     Args:
-    #         model: The current best model.
-    #     """
-    #     self.model = copy.deepcopy(model)
-    #     self.model.mutate_weights()
-
     def comp_score(self) -> None:
         """Computes current fitness score.
 

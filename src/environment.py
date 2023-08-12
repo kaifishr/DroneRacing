@@ -53,9 +53,6 @@ class Environment(Framework):
         # Add reference of drones to world class for easier rendering handling.
         self.world.drones = self.drones
 
-        # Index of current fittest agent
-        self.idx_best = 0
-
     def reset(self) -> None:
         """Resets Drone to initial position and velocity."""
 
@@ -126,25 +123,17 @@ class Environment(Framework):
                 return False
         return True
 
-    # def select(self) -> float:
-    #     """Selects best agent for reproduction."""
-    #     scores = [drone.score for drone in self.drones]
-    #     self.idx_best = numpy.argmax(scores)
-    #     return scores[self.idx_best]
-
     def comp_mean_reward(self) -> dict[str, float]:
-        """Computes mean reward over all agents."""
+        """Computes mean reward over all agents.
+
+        TODO: Move to trainer.
+
+        Returns:
+            Dictionary holding reward metrics.
+        """
         results = {}
         rewards = numpy.array([agent.score for agent in self.drones])
         results["mean_reward"] = rewards.mean()
         results["min_reward"] = rewards.min()
         results["max_reward"] = rewards.max()
         return results
-
-    # def mutate(self) -> None:
-    #     """Mutates network parameters of each drone."""
-    #     # Get network of fittest drone to reproduce.
-    #     model = self.drones[self.idx_best].model
-    #     # Pass best model to other drones and mutate their weights.
-    #     for drone in self.drones:
-    #         drone.mutate(model)

@@ -6,6 +6,7 @@
 #   - num_dim_in
 #   - num_dim_out
 #
+name: "SpaceDrones"
 random_seed: 192837465
 
 # Directory to save frames to create video.

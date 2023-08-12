@@ -4,6 +4,7 @@ For more information about frameworks see also:
 https://github.com/pybox2d/pybox2d/tree/master/library/Box2D/examples/backends
 
 """
+import datetime
 import pygame
 from Box2D.b2 import world
 
@@ -28,8 +29,6 @@ class Framework:
         is_rendering:
     """
 
-    name = "SpaceDrones"
-
     def __init__(self, config: Config) -> None:
         """Initializes Framework."""
         self.config = config
@@ -46,7 +45,7 @@ class Framework:
 
         # Pygame initialization.
         pygame.init()
-        pygame.display.set_caption(f"{self.name} {self.config.id}")
+        pygame.display.set_caption(f"{self.config.name} {datetime.datetime.now()}")
         self.clock = pygame.time.Clock()
 
         # Set screen properties.
