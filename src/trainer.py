@@ -66,6 +66,9 @@ class Trainer:
             # Apply network predictions to drone
             self.env.apply_action()
 
+            if (step + 1) % 500 == 0:
+                self.env._move_target()
+
             # Method that run at end of simulation.
             if ((step + 1) % num_max_steps == 0) or self.env.is_done():
                 self.optimizer.step()

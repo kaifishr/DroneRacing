@@ -149,15 +149,15 @@ class Drone(Agent):
                 dist_x = position_agent.x - position_target.x 
                 dist_y = position_agent.y - position_target.y
                 distance = 1.0 / (1.0 + (dist_x**2 + dist_y**2) ** 0.5)
-                self.score += distance
+                self.score += phi * distance
 
             # Reward distance traveled.
             if self.config.optimizer.reward.distance:
-                phi = 1.0
+                phi = 0.1
                 velocity = self.body.linearVelocity
                 speed = (velocity.x**2 + velocity.y**2) ** 0.5
                 distance = self.TIME_STEP * speed
-                self.score += distance
+                self.score -= phi * distance
 
             # Reward distance traveled 2.
             if self.config.optimizer.reward.distance2:

@@ -58,13 +58,21 @@ class Environment(Framework):
         self.world.drones = self.drones
         self.world.target = self.target
 
-    def reset(self) -> None:
-        """Resets Drone to initial position and velocity."""
-
-        # TODO: Set new target
+    def _move_target(self) -> None:
+        """Moves target to random position."""
         x_pos = random.uniform(self.x_min, self.x_max)
         y_pos = random.uniform(self.y_min, self.y_max)
         self.target.body.position = b2Vec2(x_pos, y_pos)
+
+    def reset(self) -> None:
+        """Resets Drone to initial position and velocity."""
+
+        self._move_target()
+
+        # # Set new target
+        # x_pos = random.uniform(self.x_min, self.x_max)
+        # y_pos = random.uniform(self.y_min, self.y_max)
+        # self.target.body.position = b2Vec2(x_pos, y_pos)
         
         if self.config.env.drone.respawn.is_random:
             # Respawn drones every generation at different

@@ -22,8 +22,8 @@ checkpoints:
   model_name: "numpy"  # save / load
 
 optimizer:
-  num_agents: 16
-  num_max_steps: 1000
+  num_agents: 8
+  num_max_steps: 4000
   mutation_probability: 0.04  # 0.01, 0.02, >>0.04
   mutation_rate: 0.02  # >>0.02, 0.04
   lib: "numpy"  # numpy, torch
@@ -72,7 +72,7 @@ env:
     init_angle: 0.0
 
     neural_network: # model
-      num_dim_in: 14       # Distances to the nearest wall, position, velocity
+      num_dim_in: 14       # Distances to the nearest wall, position, velocity, position of target.
       num_dim_out: 4      # Actions for four engines.
       num_dim_hidden: 16
       num_hidden_layers: 2
