@@ -13,17 +13,17 @@ if __name__ == "__main__":
 
     env = Environment(config=config)
 
-    # optimizer = EvolutionStrategy(
-    #     agents=env.drones,
-    #     learning_rate=0.01,
-    #     sigma=0.1,
-    # )
-
-    optimizer = GeneticOptimizer(
+    optimizer = EvolutionStrategy(
         agents=env.drones,
-        mutation_probability=0.05,
-        mutation_rate=0.05,
+        learning_rate=0.01,
+        sigma=0.1,
     )
+
+    # optimizer = GeneticOptimizer(
+    #     agents=env.drones,
+    #     mutation_probability=0.05,
+    #     mutation_rate=0.05,
+    # )
 
     trainer = Trainer(env=env, optimizer=optimizer, config=config)
     trainer.run()

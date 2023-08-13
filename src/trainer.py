@@ -42,8 +42,9 @@ class Trainer:
         generation = 0
         best_score = 0.0
 
-        is_running = True
         t0 = time.time()
+        self.env.reset()
+        is_running = True
 
         while is_running:
             # Physics and rendering.

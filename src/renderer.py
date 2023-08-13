@@ -23,22 +23,26 @@ class Renderer:
 
     """
 
-    # Screen background color
+    # Screen background color.
     color_background = (0, 0, 0, 0)
 
-    # World body colors
+    # World body colors.
     colors = {
         staticBody: (220, 220, 220, 255),
         dynamicBody: (127, 127, 127, 255),
         kinematicBody: (127, 127, 230, 255),
     }
 
-    # Raycast colors
+    # Raycast colors.
     color_raycast_line = (128, 0, 128, 255)
     color_raycast_head = (255, 0, 255, 255)
 
-    # Force vector color
+    # Force vector color.
     color_force_line = (255, 0, 0, 255)
+
+    # Flip axes.
+    flip_x = False
+    flip_y = True
 
     def __init__(self, screen: pygame.Surface, config: Config) -> None:
         """Initializes Renderer."""
@@ -51,9 +55,6 @@ class Renderer:
 
         self.screen_offset = b2Vec2(-0.5 * screen_width, -0.5 * screen_height)
         self.screen_size = b2Vec2(screen_width, screen_height)
-
-        self.flip_x = False
-        self.flip_y = True
 
         self._install()
 
@@ -97,7 +98,7 @@ class Renderer:
         if self.flip_y:
             y = self.screen_size.y - y
 
-        return (int(x), int(y))
+        return int(x), int(y)
 
     def _draw_point(self, point, size, color):
         """Draws point in specified size and color."""

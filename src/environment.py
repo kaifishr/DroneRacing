@@ -15,6 +15,7 @@ import numpy
 from Box2D.Box2D import b2Vec2
 
 from src.domain import Domain
+from src.domain import StaticTarget
 from src.drone import Drone
 from src.utils.config import Config
 from src.framework import Framework
@@ -36,6 +37,7 @@ class Environment(Framework):
         super().__init__(config=config)
 
         self.world.gravity = b2Vec2(config.env.gravity.x, config.env.gravity.y)
+
         Domain(world=self.world, config=config)
 
         # Create agents.
@@ -49,13 +51,21 @@ class Environment(Framework):
         self.x_min = config.env.domain.limit.x_min
         self.y_max = config.env.domain.limit.y_max
         self.y_min = config.env.domain.limit.y_min
+            
+        self.target = StaticTarget(world=self.world, config=config)
 
         # Add reference of drones to world class for easier rendering handling.
         self.world.drones = self.drones
+        self.world.target = self.target
 
     def reset(self) -> None:
         """Resets Drone to initial position and velocity."""
 
+        # TODO: Set new target
+        x_pos = random.uniform(self.x_min, self.x_max)
+        y_pos = random.uniform(self.y_min, self.y_max)
+        self.target.body.position = b2Vec2(x_pos, y_pos)
+        
         if self.config.env.drone.respawn.is_random:
             # Respawn drones every generation at different
             # predefined location in map.
@@ -68,8 +78,8 @@ class Environment(Framework):
             # ]
             # init_position_rand = random.choice(respawn_points)
             init_position_rand = b2Vec2(
-                numpy.random.uniform(low=phi * self.x_min, high=phi * self.x_max),
-                numpy.random.uniform(low=phi * self.y_min, high=phi * self.y_max),
+                random.uniform(a=phi * self.x_min, b=phi * self.x_max),
+                random.uniform(a=phi * self.y_min, b=phi * self.y_max),
             )
 
         for drone in self.drones:

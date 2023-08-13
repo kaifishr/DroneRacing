@@ -2,8 +2,11 @@
 import copy
 import math
 
-from Box2D import b2FixtureDef, b2PolygonShape
-from Box2D.Box2D import b2World, b2Vec2, b2Filter
+from Box2D import b2FixtureDef
+from Box2D import b2PolygonShape
+from Box2D.Box2D import b2World
+from Box2D.Box2D import b2Vec2
+from Box2D.Box2D import b2Filter
 
 from src.utils.config import Config
 from src.drone.engine import Engines
@@ -138,6 +141,16 @@ class Drone(Agent):
         if self.body.active:
             score = 0
 
+            # Reward: Distance to target
+            if self.config.optimizer.reward.distance_to_target:
+                phi = 1.0
+                position_agent = self.body.position
+                position_target = self.world.target.body.position
+                dist_x = position_agent.x - position_target.x 
+                dist_y = position_agent.y - position_target.y
+                distance = 1.0 / (1.0 + (dist_x**2 + dist_y**2) ** 0.5)
+                self.score += distance
+
             # Reward distance traveled.
             if self.config.optimizer.reward.distance:
                 phi = 1.0
@@ -201,9 +214,9 @@ class Drone(Agent):
         if self.body.active:
             # Add distance to obstacles to input data
             # Uses ray casting to measure distance to domain walls.
-            self.callbacks.clear()
             self.p1.clear()
             self.p2.clear()
+            self.callbacks.clear()
             self.data.clear()
 
             p1 = self.body.position
@@ -229,12 +242,16 @@ class Drone(Agent):
                 else:
                     self.data.append(-1.0)
 
-            # Add position and velocity to input data
+            # Add position and velocity of agent to input data
             for pos in self.body.position:
                 self.data.append(pos)
 
             for vel in self.body.linearVelocity:
                 self.data.append(vel)
+
+            # Position to target:
+            for pos in self.world.target.body.position:
+                self.data.append(pos)
 
     def detect_collision(self):
         """Detects collision with objects.
