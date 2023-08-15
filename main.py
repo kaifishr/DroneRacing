@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     optimizer = EvolutionStrategy(
         agents=env.drones,
-        learning_rate=0.01,
+        learning_rate=0.005,
         sigma=0.1,
     )
 
