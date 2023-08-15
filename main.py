@@ -11,19 +11,27 @@ if __name__ == "__main__":
     config = init_config(path="config.yml")
     set_random_seed(seed=config.random_seed)
 
+    config.env.name = "catch"  # collect
+
     env = Environment(config=config)
 
-    optimizer = EvolutionStrategy(
-        agents=env.drones,
-        learning_rate=0.005,
-        sigma=0.1,
-    )
+    if config.optimizer.name == "nes":
+        optimizer = EvolutionStrategy(
+            agents=env.drones,
+            learning_rate=0.01,
+            sigma=0.2,
+        )
 
-    # optimizer = GeneticOptimizer(
-    #     agents=env.drones,
-    #     mutation_probability=0.05,
-    #     mutation_rate=0.05,
-    # )
+    elif config.optimizer.name == "evo":
+        optimizer = GeneticOptimizer(
+            agents=env.drones,
+            mutation_probability=0.05,
+            mutation_rate=0.05,
+        )
+    else:
+        raise NotImplementedError(
+            f"Optimizer '{config.optimizer.name}' not implemented."
+        )
 
     trainer = Trainer(env=env, optimizer=optimizer, config=config)
     trainer.run()

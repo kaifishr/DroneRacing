@@ -79,6 +79,8 @@ class Framework:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self._set_rendering()
+                if event.key == pygame.K_r:
+                    self.renderer.set_render_rays()
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     exit()

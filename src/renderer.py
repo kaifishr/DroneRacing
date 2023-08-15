@@ -58,18 +58,27 @@ class Renderer:
 
         self._install()
 
+        self.render_rays = True
+
     def _install(self):
         """Installs drawing methods for world objects."""
         edgeShape.draw = self._draw_edge
         polygonShape.draw = self._draw_polygon
+
+    def set_render_rays(self) -> None:
+        if self.render_rays:
+            self.render_rays = False
+        else:
+            self.render_rays = True
 
     def render(self, world: b2World) -> None:
         """Renders world."""
         self.screen.fill(self.color_background)  # TODO: move this to renderer?
 
         # Render rays.
-        for drone in world.drones:
-            self._draw_raycast(drone)
+        if self.render_rays:
+            for drone in world.drones:
+                self._draw_raycast(drone)
 
         # Render force vectors.
         for drone in world.drones:

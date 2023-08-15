@@ -16,9 +16,11 @@ from Box2D.Box2D import b2Vec2
 
 from src.domain import Domain
 from src.domain import StaticTarget
+# from src.environment import Target
 from src.drone import Drone
 from src.utils.config import Config
 from src.framework import Framework
+
 
 
 class Environment(Framework):
@@ -51,8 +53,9 @@ class Environment(Framework):
         self.x_min = config.env.domain.limit.x_min
         self.y_max = config.env.domain.limit.y_max
         self.y_min = config.env.domain.limit.y_min
-            
+
         self.target = StaticTarget(world=self.world, config=config)
+        self.target
 
         # Add reference of drones to world class for easier rendering handling.
         self.world.drones = self.drones
@@ -73,7 +76,7 @@ class Environment(Framework):
         # x_pos = random.uniform(self.x_min, self.x_max)
         # y_pos = random.uniform(self.y_min, self.y_max)
         # self.target.body.position = b2Vec2(x_pos, y_pos)
-        
+
         if self.config.env.drone.respawn.is_random:
             # Respawn drones every generation at different
             # predefined location in map.

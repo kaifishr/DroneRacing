@@ -24,9 +24,10 @@ class Target:
 
 class StaticTarget(Target):
     """Static target class.
-    
+
     Static targets remain at position during one episode.
     """
+
     vertices = [
         (0.5, 0.5),
         (-0.5, 0.5),
@@ -65,7 +66,9 @@ class StaticTarget(Target):
             shape=b2PolygonShape(vertices=vertices),
             density=config.env.drone.density,
             friction=config.env.drone.friction,
-            filter=b2Filter(groupIndex=-1),  # group_index: -1, 0 (negative groups never collide)
+            filter=b2Filter(
+                groupIndex=-1
+            ),  # group_index: -1, 0 (negative groups never collide)
         )
         self.body.CreateFixture(fixture_def)
 
@@ -81,7 +84,7 @@ class StaticTarget(Target):
         x_pos = random.uniform(a=self.x_min, b=self.x_max)
         y_pos = random.uniform(a=self.y_min, b=self.y_max)
 
-        x0, y0 = fraction * x_pos, fraction * y_pos 
+        x0, y0 = fraction * x_pos, fraction * y_pos
         x1, y1 = x0 + 1, y0 + 1
 
         shapes = [b2EdgeShape(vertices=[(x0, y0), (x1, y1)])]

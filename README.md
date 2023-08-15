@@ -66,16 +66,15 @@ The reward function controls the learning behavior of the drone. As a default, t
 - PyBox2D [tutorial](https://github.com/pybox2d/cython-box2d/blob/master/docs/source/getting_started.md).
 - PyBox2D C++ [documentation](https://box2d.org/documentation/).
 
-# TODO:
+# Backlog:
 
-- Allow to turn ray casting on and off.
+- Define and add dynamic environments.
 - Allow interaction between drones
-- Allow thrust to have two components
-- Use Python MPI for parallelization.
 - Use callbacks for reward, optimizer.
-- Remove Pytorch support. Replace with JAX.
 - Refactor: Generalize naming (drone -> agent)
+- Allow thrust to have two components
 - Add interactive script for inference (place food, obstacle, etc.).
+- Use Python MPI for parallelization.
 
 # Citation
 

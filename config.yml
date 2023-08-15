@@ -22,11 +22,12 @@ checkpoints:
   model_name: "numpy"  # save / load
 
 optimizer:
+  name: "nes"  # nes, evo
   num_agents: 8
   num_max_steps: 4000
   mutation_probability: 0.04  # 0.01, 0.02, >>0.04
   mutation_rate: 0.02  # >>0.02, 0.04
-  lib: "numpy"  # numpy, torch
+  # lib: "numpy"  # numpy, torch
   reward:
     acceleration: false
     angular_velocity: false
@@ -58,7 +59,7 @@ env:
     friction: 5.0
 
     engine:
-      max_force: 10.0
+      max_force: 5.0
       density: 1.0
       friction: 5.0
 

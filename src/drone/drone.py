@@ -11,7 +11,7 @@ from Box2D.Box2D import b2Filter
 from src.utils.config import Config
 from src.drone.engine import Engines
 from src.drone.raycast import RayCastCallback
-from src.drone.model import NetworkLoader
+from src.drone.model import load_model
 
 
 class Agent:
@@ -109,7 +109,7 @@ class Drone(Agent):
         self.collision_threshold = 1.2 * ((0.5 * d + h) ** 2 + (0.5 * w) ** 2) ** 0.5
 
         # Neural Network
-        self.model = NetworkLoader(config=config)()
+        self.model = load_model(config=config)
 
         # Forces predicted by neural network.
         # Initialized with 0 for each engine.
@@ -145,11 +145,11 @@ class Drone(Agent):
             if self.config.optimizer.reward.distance_to_target:
                 position_agent = self.body.position
                 position_target = self.world.target.body.position
-                dist_x = position_agent.x - position_target.x 
+                dist_x = position_agent.x - position_target.x
                 dist_y = position_agent.y - position_target.y
                 distance = (dist_x**2 + dist_y**2) ** 0.5
-                score = 1.0 / (1.0 + distance)   # 10, 1, 0.1, 0.01
-                self.score += score 
+                score = 1.0 / (1.0 + distance)  # 10, 1, 0.1, 0.01
+                self.score += score
 
             # Reward distance traveled.
             if self.config.optimizer.reward.distance:
@@ -281,7 +281,7 @@ class Drone(Agent):
         a set of actions (forces) to be applied to the drone's engines.
         """
         if self.body.active:
-            force_pred = self.model(self.data)
+            force_pred = self.model.forward(self.data)
             self.forces = self.max_force * force_pred
 
     def apply_action(self) -> None:
