@@ -1,4 +1,4 @@
-"""Runs the genetic optimization."""
+"""Runs selected optimization."""
 from src.environment import Environment
 from src.optimizer import EvolutionStrategy
 from src.optimizer import GeneticOptimizer
@@ -18,8 +18,8 @@ if __name__ == "__main__":
     if config.optimizer.name == "nes":
         optimizer = EvolutionStrategy(
             agents=env.drones,
-            learning_rate=0.01,
-            sigma=0.2,
+            learning_rate=0.05,
+            sigma=0.1,
         )
 
     elif config.optimizer.name == "evo":

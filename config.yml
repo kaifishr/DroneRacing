@@ -16,14 +16,14 @@ dirs:
 # Note: Saving and loading model weights currently only
 # possible for PyTorch models.
 checkpoints:
-  load_model: false
-  save_model: false
+  load_model: true
+  save_model: true
   model_path: "weights"
-  model_name: "numpy"  # save / load
+  model_name: "model"  # save / load
 
 optimizer:
   name: "nes"  # nes, evo
-  num_agents: 8
+  num_agents: 16
   num_max_steps: 4000
   mutation_probability: 0.04  # 0.01, 0.02, >>0.04
   mutation_rate: 0.02  # >>0.02, 0.04
@@ -75,15 +75,16 @@ env:
     neural_network: # model
       num_dim_in: 14       # Distances to the nearest wall, position, velocity, position of target.
       num_dim_out: 4      # Actions for four engines.
-      num_dim_hidden: 16
-      num_hidden_layers: 2
+      num_dim_hidden: 8
+      num_hidden_layers: 3
       nonlinearity: "tanh"  # relu, tanh
 
     raycasting:
       ray_length: 60
 
     respawn:
-      is_random: true
+      is_random: false
+      is_all_random: true
 
 framework:
   screen:

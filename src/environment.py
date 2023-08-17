@@ -16,11 +16,11 @@ from Box2D.Box2D import b2Vec2
 
 from src.domain import Domain
 from src.domain import StaticTarget
+
 # from src.environment import Target
 from src.drone import Drone
 from src.utils.config import Config
 from src.framework import Framework
-
 
 
 class Environment(Framework):
@@ -96,6 +96,13 @@ class Environment(Framework):
         for drone in self.drones:
             if self.config.env.drone.respawn.is_random:
                 drone.body.position = init_position_rand
+            elif self.config.env.drone.respawn.is_all_random:
+                # Respawn each drones at different location in map.
+                phi = 0.95
+                pos_x = random.uniform(a=phi * self.x_min, b=phi * self.x_max)
+                pos_y = random.uniform(a=phi * self.y_min, b=phi * self.y_max)
+                position = b2Vec2(pos_x, pos_y)
+                drone.body.position = position
             else:
                 drone.body.position = drone.init_position
 
@@ -158,3 +165,11 @@ class Environment(Framework):
         results["min_reward"] = rewards.min()
         results["max_reward"] = rewards.max()
         return results
+
+    def index_best_agent(self) -> int:
+        """Computes best agent based on rewards.
+
+        Returns:
+            Index of agent.
+        """
+        return numpy.argmax([agent.score for agent in self.drones])

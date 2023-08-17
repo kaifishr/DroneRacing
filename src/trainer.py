@@ -101,7 +101,6 @@ class Trainer:
             step += 1
 
 
-
 class Eval:
     """Evaluation class.
 
@@ -152,7 +151,6 @@ class Eval:
 
             # Method that run at end of simulation.
             if self.env.is_done():
-
                 # Select fittest agent based on distance traveled.
                 # results = self.env.comp_mean_reward()
 

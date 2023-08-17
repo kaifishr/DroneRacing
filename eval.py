@@ -8,7 +8,6 @@ from src.utils.utils import set_random_seed
 
 
 if __name__ == "__main__":
-
     config = init_config(path="config.yml")
     set_random_seed(seed=config.random_seed)
 
