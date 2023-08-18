@@ -123,6 +123,25 @@ class Drone(Agent):
         # Input data for neural network
         self.data = []
 
+        # Compute scalars for data normalization.
+        x_min = config.env.domain.limit.x_min
+        x_max = config.env.domain.limit.x_max
+        y_min = config.env.domain.limit.y_min
+        y_max = config.env.domain.limit.y_max
+        domain_diam_x = x_max - x_min
+        domain_diam_y = y_max - y_min
+        domain_diagonal = (domain_diam_x**2 + domain_diam_y**2)**0.5
+        domain_diameter = max(domain_diam_x, domain_diam_y)
+        self.normalize_diag = 1.0 / domain_diagonal
+        self.normalize_diam = 1.0 / (0.5 * domain_diameter)
+        max_force = config.env.drone.engine.max_force
+        drone_density = config.env.drone.density
+        drone_diam = config.env.drone.diam
+        engine_density = config.env.drone.engine.density
+        num_max_steps = config.optimizer.num_max_steps
+        max_velocity = 10.0 
+        self.normalize_velocity = 1.0 / max_velocity
+
         # Fitness score
         self.score = 0.0
         self.theta_old = None
@@ -238,20 +257,25 @@ class Drone(Agent):
                     # from drone to obstacle from raw features.
                     diff = cb.point - p1
                     dist = (diff.x**2 + diff.y**2) ** 0.5
-                    self.data.append(dist)
+                    # TODO: Discriminate between diagonal and vertical/horizontal rays when normalizing.
+                    self.data.append(dist * self.normalize_diag)  
+                    # self.data.append(dist)  
                 else:
                     self.data.append(-1.0)
 
             # Add position and velocity of agent to input data
             for pos in self.body.position:
-                self.data.append(pos)
+                self.data.append(pos * self.normalize_diam)
+                # self.data.append(pos)
 
             for vel in self.body.linearVelocity:
-                self.data.append(vel)
+                self.data.append(vel * self.normalize_velocity)
+                # self.data.append(vel)
 
-            # Position to target:
+            # Position to target: TODO: Better add distance to target.
             for pos in self.world.target.body.position:
-                self.data.append(pos)
+                self.data.append(pos * self.normalize_diam)
+                # self.data.append(pos)
 
     def detect_collision(self):
         """Detects collision with objects.

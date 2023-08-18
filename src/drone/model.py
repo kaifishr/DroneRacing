@@ -20,7 +20,7 @@ def load_model(config: Config) -> numpy.ndarray:
 
     domain_diam_x = x_max - x_min
     domain_diam_y = y_max - y_min
-    diam_max = max(domain_diam_x, domain_diam_y)
+    diam_max = (domain_diam_x**2 + domain_diam_y**2)**0.5
 
     normalizer = 1.0 / diam_max
 
@@ -139,7 +139,9 @@ class Model:
     def forward(self, data: list):
         """Forwards observation data through network."""
         # Normalize data
-        out = self.normalizer * numpy.array(data)
+        #  out = self.normalizer * numpy.array(data)
+        out = numpy.array(data)
+        out[:-2] = 2.0 * out[:-2] - 1.0
 
         # Feedforward
         weights, biases = self.weights, self.biases

@@ -16,7 +16,7 @@ dirs:
 # Note: Saving and loading model weights currently only
 # possible for PyTorch models.
 checkpoints:
-  load_model: true
+  load_model: false
   save_model: true
   model_path: "weights"
   model_name: "model"  # save / load
@@ -75,7 +75,7 @@ env:
     neural_network: # model
       num_dim_in: 14       # Distances to the nearest wall, position, velocity, position of target.
       num_dim_out: 4      # Actions for four engines.
-      num_dim_hidden: 8
+      num_dim_hidden: 16
       num_hidden_layers: 3
       nonlinearity: "tanh"  # relu, tanh
 
@@ -83,8 +83,8 @@ env:
       ray_length: 60
 
     respawn:
-      is_random: false
-      is_all_random: true
+      is_random: true
+      is_all_random: false
 
 framework:
   screen:
