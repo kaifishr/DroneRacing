@@ -12,19 +12,8 @@ from src.utils.utils import load_checkpoint
 def load_model(config: Config) -> numpy.ndarray:
     """Loads NumPy neural network."""
 
-    # Compute normalization parameter for input data
-    x_min = config.env.domain.limit.x_min
-    x_max = config.env.domain.limit.x_max
-    y_min = config.env.domain.limit.y_min
-    y_max = config.env.domain.limit.y_max
-
-    domain_diam_x = x_max - x_min
-    domain_diam_y = y_max - y_min
-    diam_max = (domain_diam_x**2 + domain_diam_y**2)**0.5
-
-    normalizer = 1.0 / diam_max
-
-    model = Model(config, normalizer=normalizer)
+    # Create model.
+    model = Model(config)
 
     # Load pre-trained model
     if config.checkpoints.load_model:
@@ -45,10 +34,8 @@ class Model:
         biases:
     """
 
-    def __init__(self, config: Config, normalizer: float) -> None:
+    def __init__(self, config: Config) -> None:
         """Initializes NeuralNetwork."""
-
-        self.normalizer = normalizer
 
         self.mutation_prob = config.optimizer.mutation_probability
         self.mutation_rate = config.optimizer.mutation_rate
@@ -138,15 +125,9 @@ class Model:
 
     def forward(self, data: list):
         """Forwards observation data through network."""
-        # Normalize data
-        #  out = self.normalizer * numpy.array(data)
         out = numpy.array(data)
-        out[:-2] = 2.0 * out[:-2] - 1.0
-
-        # Feedforward
         weights, biases = self.weights, self.biases
         for weight, bias in zip(weights[:-1], biases[:-1]):
             out = numpy.tanh(numpy.matmul(out, weight.T) + bias.T)
         out = expit(numpy.matmul(out, weights[-1].T) + biases[-1].T)[0, :]
-
         return out

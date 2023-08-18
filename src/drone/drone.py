@@ -259,23 +259,26 @@ class Drone(Agent):
                     dist = (diff.x**2 + diff.y**2) ** 0.5
                     # TODO: Discriminate between diagonal and vertical/horizontal rays when normalizing.
                     self.data.append(dist * self.normalize_diag)  
-                    # self.data.append(dist)  
                 else:
                     self.data.append(-1.0)
 
             # Add position and velocity of agent to input data
             for pos in self.body.position:
                 self.data.append(pos * self.normalize_diam)
-                # self.data.append(pos)
 
             for vel in self.body.linearVelocity:
                 self.data.append(vel * self.normalize_velocity)
-                # self.data.append(vel)
 
-            # Position to target: TODO: Better add distance to target.
-            for pos in self.world.target.body.position:
-                self.data.append(pos * self.normalize_diam)
-                # self.data.append(pos)
+            # Position to target:
+            # for pos in self.world.target.body.position:
+            #     self.data.append(pos * self.normalize_diam)
+            #     # self.data.append(pos)
+
+            # Distance to target:
+            pos_target = self.world.target.body.position 
+            pos_agent = self.body.position
+            dist = ((pos_target.x - pos_agent.x)**2 + (pos_target.y - pos_agent.y)**2) ** 0.5
+            self.data.append(dist * self.normalize_diag)  
 
     def detect_collision(self):
         """Detects collision with objects.

@@ -73,7 +73,7 @@ env:
     init_angle: 0.0
 
     neural_network: # model
-      num_dim_in: 14       # Distances to the nearest wall, position, velocity, position of target.
+      num_dim_in: 13       # Distances to the nearest wall, position, velocity, position of target / distance to target
       num_dim_out: 4      # Actions for four engines.
       num_dim_hidden: 16
       num_hidden_layers: 3

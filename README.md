@@ -18,7 +18,7 @@ The drones' behavior is controlled by a reward function. With the default settin
 
 The following graph shows the evolution of the fittest drone over a period of about 5000 generations. At least two interesting things can be seen here. First, it takes the drones many hundreds of generations to actually start learning something. Second, the plot shows how the drones repeatedly break out of local minima and develop better strategies to maximize their reward.
 
-# Installation
+## Installation
 
 To run *SpaceDrones*, install the latest master directly from GitHub. For a basic install, run:
 
@@ -34,7 +34,7 @@ Then start the optimization by running:
 python main.py
 ```
 
-# Method
+## Method
 
 *SpaceDrones* uses *PyBox2D* to create a physical environment the drones can interact with. Drones use raycasting to gather distance information about obstacles in their surroundings. This information is fed into the drone's neural network to predict the next set of actions. These actions are passed on to the engines, which then command the power at which they should run.
 
@@ -59,14 +59,14 @@ The reward function controls the learning behavior of the drone. As a default, t
 |![](docs/map_empty.png)|![](docs/map_block.png)|![](docs/map_locks.png)|
 |![](docs/map_blade.png)|![](docs/map_track.png)|![](docs/map_smile.png)|
 
-# References
+## References
 
 - [PyBox2D](https://github.com/pybox2d/pybox2d) on GitHub.
 - [backends](https://github.com/pybox2d/pybox2d/tree/master/library/Box2D/examples/backends) for PyBox2D.
 - PyBox2D [tutorial](https://github.com/pybox2d/cython-box2d/blob/master/docs/source/getting_started.md).
 - PyBox2D C++ [documentation](https://box2d.org/documentation/).
 
-# Backlog:
+## Backlog:
 
 - Define and add dynamic environments.
 - Allow interaction between drones
@@ -76,7 +76,7 @@ The reward function controls the learning behavior of the drone. As a default, t
 - Add interactive script for inference (place food, obstacle, etc.).
 - Use Python MPI for parallelization.
 
-# Citation
+## Citation
 
 If you find this project useful, please use BibTeX to cite it as:
 
@@ -91,6 +91,6 @@ If you find this project useful, please use BibTeX to cite it as:
 }
 ```
 
-# License
+## License
 
 MIT
