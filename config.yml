@@ -23,7 +23,7 @@ checkpoints:
 
 optimizer:
   name: "nes"  # nes, evo
-  num_agents: 16
+  num_agents: 8
   num_max_steps: 4000
   mutation_probability: 0.04  # 0.01, 0.02, >>0.04
   mutation_rate: 0.02  # >>0.02, 0.04
@@ -73,9 +73,9 @@ env:
     init_angle: 0.0
 
     neural_network: # model
-      num_dim_in: 13       # Distances to the nearest wall, position, velocity, position of target / distance to target
+      num_dim_in: 14       # Distances to the nearest wall, position, velocity, position of target 
       num_dim_out: 4      # Actions for four engines.
-      num_dim_hidden: 16
+      num_dim_hidden: 64
       num_hidden_layers: 3
       nonlinearity: "tanh"  # relu, tanh
 
@@ -83,7 +83,7 @@ env:
       ray_length: 60
 
     respawn:
-      is_random: true
+      is_random: true 
       is_all_random: false
 
 framework:

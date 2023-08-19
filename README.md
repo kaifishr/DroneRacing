@@ -1,8 +1,8 @@
 # SpaceDrones 🚀
 
-*SpaceDrones* provides a simple learning environment for genetic optimization with many possible extensions.
+*SpaceDrones* provides a simple learning environment for evolution-based optimization with many possible extensions.
 
-Under the hood, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation and *Pygame* for rendering and visualization. Visualization can be turned on and off by clicking on the *Pygame* window or by pressing the space bar. Turning off visualization greatly accelerates the optimization process.
+Under the hood, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation and *Pygame* for rendering and visualization. 
 
 The drones' behavior is controlled by a reward function. With the default settings, the drones' goal is to navigate through an environment, covering as much distance as possible in a certain period of time while avoiding collisions with obstacles.
 
@@ -16,7 +16,7 @@ The drones' behavior is controlled by a reward function. With the default settin
     <img src="docs/block_score.png" width="640" height=""/>
 </p>
 
-The following graph shows the evolution of the fittest drone over a period of about 5000 generations. At least two interesting things can be seen here. First, it takes the drones many hundreds of generations to actually start learning something. Second, the plot shows how the drones repeatedly break out of local minima and develop better strategies to maximize their reward.
+The following graph shows the evolution of the fittest drone over a period of about 5000 generations.
 
 ## Installation
 
@@ -34,6 +34,8 @@ Then start the optimization by running:
 python main.py
 ```
 
+Visualization can be turned on and off by clicking on the *Pygame* window or by pressing the space bar. Turning off visualization greatly accelerates the optimization process.
+
 ## Method
 
 *SpaceDrones* uses *PyBox2D* to create a physical environment the drones can interact with. Drones use raycasting to gather distance information about obstacles in their surroundings. This information is fed into the drone's neural network to predict the next set of actions. These actions are passed on to the engines, which then command the power at which they should run.
@@ -42,7 +44,7 @@ The drones' fitness depends on the defined reward function. The neural network w
 
 The implementation allows for deactivating drones of the current generation when they collide with other objects.
 
-The drone's brain is modeled by a multilayer perceptron neural network. Neural networks are implemented in NumPy and PyTorch. For small networks, the network implemented in NumPy is considerably faster due to lower overhead.
+The drone's brain is modeled by a multilayer perceptron neural network implemented in NumPy.
 
 ## Learning
 
@@ -66,15 +68,9 @@ The reward function controls the learning behavior of the drone. As a default, t
 - PyBox2D [tutorial](https://github.com/pybox2d/cython-box2d/blob/master/docs/source/getting_started.md).
 - PyBox2D C++ [documentation](https://box2d.org/documentation/).
 
-## Backlog:
+## TODO:
 
-- Define and add dynamic environments.
-- Allow interaction between drones
-- Use callbacks for reward, optimizer.
-- Refactor: Generalize naming (drone -> agent)
-- Allow thrust to have two components
-- Add interactive script for inference (place food, obstacle, etc.).
-- Use Python MPI for parallelization.
+- Define and add dynamic environment.
 
 ## Citation
 
