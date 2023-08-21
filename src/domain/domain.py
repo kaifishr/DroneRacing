@@ -47,8 +47,6 @@ class StaticTarget(Target):
         self.x_diam = self.x_max - self.x_min
         self.y_diam = self.y_max - self.y_min
 
-        # world.CreateStaticBody(shapes=shapes)
-
         self.body = world.CreateDynamicBody(
             bullet=False,
             allowSleep=False,

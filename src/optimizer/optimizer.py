@@ -183,18 +183,11 @@ class EvolutionStrategy(Optimizer):
 
     def _gather_rewards(self) -> None:
         """Gathers rewards from all agents."""
-        # Get rewards.
+        # Get the rewards.
         rewards = numpy.array([agent.score for agent in self.agents])
 
         # Normalize rewards.
         rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-5)
-        # rewards = rewards / rewards.max()  # [0, 1]
-        # Test normalization [0, 1]
-
-        # Softmax
-        # temp = 1.0
-        # rewards = rewards / temp
-        # rewards = self._softmax(rewards)
 
         self.rewards = rewards
 

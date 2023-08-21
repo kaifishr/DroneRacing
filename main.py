@@ -18,8 +18,8 @@ if __name__ == "__main__":
     if config.optimizer.name == "nes":
         optimizer = EvolutionStrategy(
             agents=env.drones,
-            learning_rate=0.05,
-            sigma=0.1,
+            learning_rate=0.1,
+            sigma=0.8,
         )
 
     elif config.optimizer.name == "evo":

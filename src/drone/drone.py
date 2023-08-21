@@ -130,7 +130,7 @@ class Drone(Agent):
         y_max = config.env.domain.limit.y_max
         domain_diam_x = x_max - x_min
         domain_diam_y = y_max - y_min
-        domain_diagonal = (domain_diam_x**2 + domain_diam_y**2)**0.5
+        domain_diagonal = (domain_diam_x**2 + domain_diam_y**2) ** 0.5
         domain_diameter = max(domain_diam_x, domain_diam_y)
         self.normalize_diag = 1.0 / domain_diagonal
         self.normalize_diam = 1.0 / (0.5 * domain_diameter)
@@ -139,7 +139,7 @@ class Drone(Agent):
         drone_diam = config.env.drone.diam
         engine_density = config.env.drone.engine.density
         num_max_steps = config.optimizer.num_max_steps
-        max_velocity = 10.0 
+        max_velocity = 10.0
         self.normalize_velocity = 1.0 / max_velocity
 
         # Fitness score
@@ -258,7 +258,7 @@ class Drone(Agent):
                     diff = cb.point - p1
                     dist = (diff.x**2 + diff.y**2) ** 0.5
                     # TODO: Discriminate between diagonal and vertical/horizontal rays when normalizing.
-                    self.data.append(dist * self.normalize_diag)  
+                    self.data.append(dist * self.normalize_diag)
                 else:
                     self.data.append(-1.0)
 

@@ -61,6 +61,8 @@ class Environment(Framework):
         self.world.drones = self.drones
         self.world.target = self.target
 
+        self.phi = 0.95
+
     def _move_target(self) -> None:
         """Moves target to random position."""
         x_pos = random.uniform(self.x_min, self.x_max)
@@ -72,25 +74,10 @@ class Environment(Framework):
 
         self._move_target()
 
-        # # Set new target
-        # x_pos = random.uniform(self.x_min, self.x_max)
-        # y_pos = random.uniform(self.y_min, self.y_max)
-        # self.target.body.position = b2Vec2(x_pos, y_pos)
-
         if self.config.env.drone.respawn.is_random:
-            # Respawn drones every generation at different
-            # predefined location in map.
-            phi = 0.9
-            # respawn_points = [
-            #     b2Vec2(phi * self.x_max, phi * self.y_max),
-            #     b2Vec2(phi * self.x_min, phi * self.y_max),
-            #     b2Vec2(phi * self.x_min, phi * self.y_min),
-            #     b2Vec2(phi * self.x_max, phi * self.y_min),
-            # ]
-            # init_position_rand = random.choice(respawn_points)
             init_position_rand = b2Vec2(
-                random.uniform(a=phi * self.x_min, b=phi * self.x_max),
-                random.uniform(a=phi * self.y_min, b=phi * self.y_max),
+                random.uniform(a=self.phi * self.x_min, b=self.phi * self.x_max),
+                random.uniform(a=self.phi * self.y_min, b=self.phi * self.y_max),
             )
 
         for drone in self.drones:
@@ -98,9 +85,8 @@ class Environment(Framework):
                 drone.body.position = init_position_rand
             elif self.config.env.drone.respawn.is_all_random:
                 # Respawn each drones at different location in map.
-                phi = 0.95
-                pos_x = random.uniform(a=phi * self.x_min, b=phi * self.x_max)
-                pos_y = random.uniform(a=phi * self.y_min, b=phi * self.y_max)
+                pos_x = random.uniform(a=self.phi * self.x_min, b=self.phi * self.x_max)
+                pos_y = random.uniform(a=self.phi * self.y_min, b=self.phi * self.y_max)
                 position = b2Vec2(pos_x, pos_y)
                 drone.body.position = position
             else:

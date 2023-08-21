@@ -1,11 +1,4 @@
 # SpaceDrones configuration
-#
-# At the moment, the following parameters can't be changed:
-#
-#   - allow_collision_drones
-#   - num_dim_in
-#   - num_dim_out
-#
 name: "SpaceDrones"
 random_seed: 192837465
 
@@ -13,8 +6,6 @@ random_seed: 192837465
 dirs:
   frames: "frames"
 
-# Note: Saving and loading model weights currently only
-# possible for PyTorch models.
 checkpoints:
   load_model: false
   save_model: true
@@ -23,21 +14,20 @@ checkpoints:
 
 optimizer:
   name: "nes"  # nes, evo
-  num_agents: 8
-  num_max_steps: 4000
-  mutation_probability: 0.04  # 0.01, 0.02, >>0.04
-  mutation_rate: 0.02  # >>0.02, 0.04
-  # lib: "numpy"  # numpy, torch
+  num_agents: 16
+  num_max_steps: 1000
+  mutation_probability: 0.04
+  mutation_rate: 0.02
   reward:
-    acceleration: false
-    angular_velocity: false
     dodging: false
     distance: false
     distance2: false
+    acceleration: false
+    angular_velocity: false
     distance_to_target: true
 
 env: 
-  allow_collision_drones: false   # do not change
+  allow_collision_drones: false   # do not change  # TODO
   allow_collision_domain: false
 
   gravity: 
@@ -50,16 +40,16 @@ env:
       x_max: 20.0
       y_min: -20.0
       y_max: 20.0
-    map: "empty"  # empty, block, track, locks, blade, smile
+    map: "smile"  # empty, block, track, locks, blade, smile
 
   drone:
-    fixed_rotation: true
+    fixed_rotation: true  # TODO
     diam: 1.0
     density: 1.0
     friction: 5.0
 
     engine:
-      max_force: 5.0
+      max_force: 10.0
       density: 1.0
       friction: 5.0
 
@@ -73,11 +63,11 @@ env:
     init_angle: 0.0
 
     neural_network: # model
-      num_dim_in: 14       # Distances to the nearest wall, position, velocity, position of target 
-      num_dim_out: 4      # Actions for four engines.
-      num_dim_hidden: 64
+      num_dim_in: 14       # Distances to the nearest wall, position, velocity, position of target   # TODO
+      num_dim_out: 4      # Actions for four engines.  # TODO
+      num_dim_hidden: 16
       num_hidden_layers: 3
-      nonlinearity: "tanh"  # relu, tanh
+      nonlinearity: "relu"  # relu, tanh
 
     raycasting:
       ray_length: 60

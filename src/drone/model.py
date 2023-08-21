@@ -128,6 +128,7 @@ class Model:
         out = numpy.array(data)
         weights, biases = self.weights, self.biases
         for weight, bias in zip(weights[:-1], biases[:-1]):
-            out = numpy.tanh(numpy.matmul(out, weight.T) + bias.T)
+            # out = numpy.tanh(numpy.matmul(out, weight.T) + bias.T)
+            out = self._nonlinearity(numpy.matmul(out, weight.T) + bias.T)
         out = expit(numpy.matmul(out, weights[-1].T) + biases[-1].T)[0, :]
         return out
