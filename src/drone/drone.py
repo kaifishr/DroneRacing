@@ -69,17 +69,11 @@ class Drone(Agent):
         self.diam = config.env.drone.diam
         vertices = [(self.diam * x, self.diam * y) for (x, y) in self.vertices]
 
-        # Negative groups never collide.
-        if not config.env.allow_collision_drones:
-            group_index = -1
-        else:
-            group_index = 0
-
         fixture_def = b2FixtureDef(
             shape=b2PolygonShape(vertices=vertices),
             density=config.env.drone.density,
             friction=config.env.drone.friction,
-            filter=b2Filter(groupIndex=group_index),
+            filter=b2Filter(groupIndex=-1),
         )
         self.body.CreateFixture(fixture_def)
 
@@ -167,7 +161,8 @@ class Drone(Agent):
                 dist_x = position_agent.x - position_target.x
                 dist_y = position_agent.y - position_target.y
                 distance = (dist_x**2 + dist_y**2) ** 0.5
-                score = 1.0 / (1.0 + distance)  # 10, 1, 0.1, 0.01
+                # score = 1.0 / (1.0 + distance)  # 10, 1, 0.1, 0.01
+                score = -math.log(distance + 1e-4)  # 10, 1, 0.1, 0.01
                 self.score += score
 
             # Reward distance traveled.
@@ -177,55 +172,6 @@ class Drone(Agent):
                 speed = (velocity.x**2 + velocity.y**2) ** 0.5
                 distance = self.TIME_STEP * speed
                 self.score += phi * distance
-
-            # Reward distance traveled 2.
-            if self.config.optimizer.reward.distance2:
-                phi = 1.0
-                position = self.body.position
-                if self.pos_old_x is not None:
-                    dist_x = position.x - self.pos_old_x
-                    dist_y = position.y - self.pos_old_y
-                    score = (dist_x**2 + dist_y**2) ** 0.5
-                self.pos_old_x = position.x
-                self.pos_old_y = position.y
-                self.score += score
-
-            # Reward high acceleration.
-            if self.config.optimizer.reward.acceleration:
-                phi = 1.0
-                velocity = self.body.linearVelocity
-                if self.speed_old_x is not None:
-                    acceleration_x = (velocity.x - self.speed_old_x) / self.TIME_STEP
-                    acceleration_y = (velocity.y - self.speed_old_y) / self.TIME_STEP
-                    score = (acceleration_x**2 + acceleration_y**2) ** 0.5
-                self.speed_old_x = velocity.x
-                self.speed_old_y = velocity.y
-                self.score += score
-
-            # Reward high angular velocity.
-            if self.config.optimizer.reward.angular_velocity:
-                phi = 1.0
-                pos = self.body.position
-                radius = (pos.x**2 + pos.y**2) ** 0.5
-                theta = math.acos(pos.x / radius)
-                if self.theta_old is not None:
-                    # score = ((theta - self.theta_old) / self.TIME_STEP) # * radius
-                    score = (theta - self.theta_old) * radius
-                self.theta_old = theta
-                self.score += phi * score
-
-            # Reward not colliding with obstacles.
-            if self.config.optimizer.reward.dodging:
-                eta = 2.0
-                phi = 0.02
-                score = 1.0
-                for cb in self.callbacks:
-                    diff = cb.point - self.body.position
-                    dist = (diff.x**2 + diff.y**2) ** 0.5
-                    if dist < eta * self.collision_threshold:
-                        score = 0.0
-                        break
-                self.score += phi * score
 
     def fetch_data(self):
         """Fetches data from drone for neural network."""
@@ -257,7 +203,6 @@ class Drone(Agent):
                     # from drone to obstacle from raw features.
                     diff = cb.point - p1
                     dist = (diff.x**2 + diff.y**2) ** 0.5
-                    # TODO: Discriminate between diagonal and vertical/horizontal rays when normalizing.
                     self.data.append(dist * self.normalize_diag)
                 else:
                     self.data.append(-1.0)
@@ -309,25 +254,27 @@ class Drone(Agent):
 
         Each engine is controlled individually.
         """
-        if self.body.active:
+        body = self.body
+
+        if body.active:
             f_left, f_right, f_up, f_down = self.forces
 
             # Left
-            f = self.body.GetWorldVector(localVector=b2Vec2(f_left, 0.0))
-            p = self.body.GetWorldPoint(localPoint=b2Vec2(-0.5 * self.diam, 0.0))
-            self.body.ApplyForce(f, p, True)
+            f = body.GetWorldVector(localVector=b2Vec2(f_left, 0.0))
+            p = body.GetWorldPoint(localPoint=b2Vec2(-0.5 * self.diam, 0.0))
+            body.ApplyForce(f, p, True)
 
             # Right
-            f = self.body.GetWorldVector(localVector=b2Vec2(-f_right, 0.0))
-            p = self.body.GetWorldPoint(localPoint=b2Vec2(0.5 * self.diam, 0.0))
-            self.body.ApplyForce(f, p, True)
+            f = body.GetWorldVector(localVector=b2Vec2(-f_right, 0.0))
+            p = body.GetWorldPoint(localPoint=b2Vec2(0.5 * self.diam, 0.0))
+            body.ApplyForce(f, p, True)
 
             # Up
-            f = self.body.GetWorldVector(localVector=b2Vec2(0.0, -f_up))
-            p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))
-            self.body.ApplyForce(f, p, True)
+            f = body.GetWorldVector(localVector=b2Vec2(0.0, -f_up))
+            p = body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))
+            body.ApplyForce(f, p, True)
 
             # Down
-            f = self.body.GetWorldVector(localVector=b2Vec2(0.0, f_down))
-            p = self.body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))
-            self.body.ApplyForce(f, p, True)
+            f = body.GetWorldVector(localVector=b2Vec2(0.0, f_down))
+            p = body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))
+            body.ApplyForce(f, p, True)

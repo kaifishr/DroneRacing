@@ -14,20 +14,19 @@ checkpoints:
 
 optimizer:
   name: "nes"  # nes, evo
+  evo:
+    mutation_probability: 0.04
+    mutation_rate: 0.02
+  nes:
+    learning_rate: 0.001
+    sigma: 0.1
   num_agents: 16
-  num_max_steps: 1000
-  mutation_probability: 0.04
-  mutation_rate: 0.02
+  num_max_steps: 2000
   reward:
-    dodging: false
     distance: false
-    distance2: false
-    acceleration: false
-    angular_velocity: false
     distance_to_target: true
 
 env: 
-  allow_collision_drones: false   # do not change  # TODO
   allow_collision_domain: false
 
   gravity: 
@@ -40,7 +39,10 @@ env:
       x_max: 20.0
       y_min: -20.0
       y_max: 20.0
-    map: "smile"  # empty, block, track, locks, blade, smile
+    map: "empty"  # empty, block, track, locks, blade, smile
+
+  snitch:
+    move_every_n_steps: 250
 
   drone:
     fixed_rotation: true  # TODO
@@ -66,8 +68,8 @@ env:
       num_dim_in: 14       # Distances to the nearest wall, position, velocity, position of target   # TODO
       num_dim_out: 4      # Actions for four engines.  # TODO
       num_dim_hidden: 16
-      num_hidden_layers: 3
-      nonlinearity: "relu"  # relu, tanh
+      num_hidden_layers: 2
+      nonlinearity: "tanh"  # relu, tanh
 
     raycasting:
       ray_length: 60

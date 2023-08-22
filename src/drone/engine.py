@@ -68,12 +68,6 @@ class Engines:
             b2Vec2(0.5 * diam, 0.0),  # right
         ]
 
-        # Negative groups never collide.
-        if not self.config.env.allow_collision_drones:
-            group_index = -1
-        else:
-            group_index = 0
-
         for mount_point, theta in zip(mount_points, [0.0, 90.0, 180.0, 270.0]):
             engine_vertices = self._engine_nozzle(mount_point=mount_point, theta=theta)
             engine_polygon = b2PolygonShape(vertices=engine_vertices)
@@ -82,7 +76,7 @@ class Engines:
                 shape=engine_polygon,
                 density=density,
                 friction=friction,
-                filter=b2Filter(groupIndex=group_index),
+                filter=b2Filter(groupIndex=-1),
             )
 
             self.body.CreateFixture(engine_fixture_def)

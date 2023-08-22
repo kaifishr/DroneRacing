@@ -1,24 +1,19 @@
 """Environment class.
 
 The Environment class holds the worlds objects that 
-can interact with each other. Currently, these are
-
-    - Drones
-    - Domain walls
+can interact with each other.
 
 The Environment class also wraps the Framework class 
 that calls the physics engine and rendering engines.
 """
-import random
 import numpy
+import random
 
 from Box2D.Box2D import b2Vec2
 
 from src.domain import Domain
-from src.domain import StaticTarget
-
-# from src.environment import Target
 from src.drone import Drone
+from src.snitch import Snitch
 from src.utils.config import Config
 from src.framework import Framework
 
@@ -48,18 +43,18 @@ class Environment(Framework):
             Drone(world=self.world, config=config) for _ in range(num_agents)
         ]
 
+        # Create moving target.
+        self.target = Snitch(world=self.world, config=config)
+
+        # Add reference of drones to world class for easier rendering handling.
+        self.world.drones = self.drones
+        self.world.target = self.target
+
         # Domain
         self.x_max = config.env.domain.limit.x_max
         self.x_min = config.env.domain.limit.x_min
         self.y_max = config.env.domain.limit.y_max
         self.y_min = config.env.domain.limit.y_min
-
-        self.target = StaticTarget(world=self.world, config=config)
-        self.target
-
-        # Add reference of drones to world class for easier rendering handling.
-        self.world.drones = self.drones
-        self.world.target = self.target
 
         self.phi = 0.95
 

@@ -37,8 +37,8 @@ class Model:
     def __init__(self, config: Config) -> None:
         """Initializes NeuralNetwork."""
 
-        self.mutation_prob = config.optimizer.mutation_probability
-        self.mutation_rate = config.optimizer.mutation_rate
+        self.mutation_prob = config.optimizer.evo.mutation_probability
+        self.mutation_rate = config.optimizer.evo.mutation_rate
 
         config = config.env.drone.neural_network
 
@@ -86,7 +86,6 @@ class Model:
         by Glorot and Bengio (2010).
 
             std = gain * (2 / (fan_in + fan_out)) ** 0.5
-
         """
         if nonlinearity == "tanh":
             gain = 5.0 / 3.0
@@ -103,8 +102,16 @@ class Model:
         parameters = numpy.clip(parameters, a_min=-3.0, a_max=3.0)
         return parameters
 
+    @staticmethod
+    def _relu(array: numpy.ndarray) -> numpy.ndarray:
+        return array * (array > 0)
+
     def state_dict(self) -> dict:
-        """Returns a dictionary containing the network's weights and biases."""
+        """Returns a dictionary containing the network's weights and biases.
+
+        Return:
+            state: State holding weights and biases of network.
+        """
         state = {
             "weights": self.weights,
             "biases": self.biases,
@@ -119,16 +126,11 @@ class Model:
         self.weights = state_dict["weights"]
         self.biases = state_dict["biases"]
 
-    @staticmethod
-    def _relu(array: numpy.ndarray) -> numpy.ndarray:
-        return array * (array > 0)
-
     def forward(self, data: list):
         """Forwards observation data through network."""
         out = numpy.array(data)
         weights, biases = self.weights, self.biases
         for weight, bias in zip(weights[:-1], biases[:-1]):
-            # out = numpy.tanh(numpy.matmul(out, weight.T) + bias.T)
             out = self._nonlinearity(numpy.matmul(out, weight.T) + bias.T)
         out = expit(numpy.matmul(out, weights[-1].T) + biases[-1].T)[0, :]
         return out

@@ -37,7 +37,9 @@ class Trainer:
     def run(self) -> None:
         """Runs genetic optimization."""
 
-        num_max_steps = self.config.optimizer.num_max_steps  # max_episode_length
+        cfg = self.config
+
+        num_max_steps = cfg.optimizer.num_max_steps  # max_episode_length
         step = 0
         generation = 0
         best_score = 0.0
@@ -50,14 +52,14 @@ class Trainer:
             # Physics and rendering.
             self.env.step()
 
-            if (step + 1) % 300 == 0:
-                self.env._move_target()  # TODO: Make _move_target() part of a callback.
+            if (step + 1) % cfg.env.snitch.move_every_n_steps == 0:
+                self.env._move_target()
 
             # Fetch data for neural network.
             self.env.fetch_data()
 
             # Detect collisions with other bodies
-            if not self.config.env.allow_collision_domain:
+            if not cfg.env.allow_collision_domain:
                 self.env.collision_detection()
 
             # Compute current fitness / score of drone
@@ -85,11 +87,11 @@ class Trainer:
                 self.writer.add_scalar("seconds_episode", time.time() - t0, generation)
 
                 # Save model
-                if self.config.checkpoints.save_model:
+                if cfg.checkpoints.save_model:
                     if results["mean_reward"] > best_score:
                         index = self.env.index_best_agent()
                         model = self.env.drones[index].model
-                        save_checkpoint(model=model, config=self.config)
+                        save_checkpoint(model=model, config=cfg)
                         best_score = results["mean_reward"]
 
                 step = 0
@@ -97,68 +99,5 @@ class Trainer:
                 print(f"{generation = }")
 
                 t0 = time.time()
-
-            step += 1
-
-
-class Eval:
-    """Evaluation class.
-
-    Attributes:
-        config:
-        env:
-        writer:
-    """
-
-    def __init__(self, env: Environment, config: Config) -> None:
-        """Initializes Optimizer"""
-        self.env = env
-        self.config = config
-
-        # TODO: Load model.
-
-    def run(self) -> None:
-        """Runs genetic optimization."""
-
-        step = 0
-        generation = 0
-
-        self.env.reset()
-        is_running = True
-
-        while is_running:
-            # Physics and rendering.
-            self.env.step()
-
-            if (step + 1) % 300 == 0:
-                self.env._move_target()  # TODO: Make _move_target() part of a callback.
-
-            # Fetch data for neural network.
-            self.env.fetch_data()
-
-            # Detect collisions with other bodies
-            if not self.config.env.allow_collision_domain:
-                self.env.collision_detection()
-
-            # Compute current fitness / score of drone
-            self.env.comp_score()
-
-            # Run neural network prediction
-            self.env.comp_action()
-
-            # Apply network predictions to drone
-            self.env.apply_action()
-
-            # Method that run at end of simulation.
-            if self.env.is_done():
-                # Select fittest agent based on distance traveled.
-                # results = self.env.comp_mean_reward()
-
-                # Reset drones to start over again.
-                self.env.reset()
-
-                step = 0
-                generation += 1
-                print(f"{generation = }")
 
             step += 1

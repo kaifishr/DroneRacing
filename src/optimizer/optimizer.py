@@ -6,6 +6,9 @@ from src.drone import Agent
 
 
 class Optimizer:
+    # Value added to the denominator for numerical stability.
+    eps: float = 1e-5
+
     def __init__(self, agents: list[Agent]) -> None:
         """Initializes Optimizer base class."""
 
@@ -20,8 +23,10 @@ class GeneticOptimizer(Optimizer):
     ) -> None:
         """ """
         super().__init__(agents=agents)
+
         assert 0.0 <= mutation_probability <= 1.0
         assert mutation_rate > 0.0
+
         self.mutation_probability: float = mutation_probability
         self.mutation_rate: float = mutation_rate
         self.mutation_type: str = "random_normal"  # "random_uniform", "random_normal"
@@ -34,25 +39,22 @@ class GeneticOptimizer(Optimizer):
 
     def _mutate_parameters(self) -> None:
         """Mutates models's parameters of each agent by adding Gaussian noise."""
+
+        mutation_rate = self.mutation_rate
+        mutation_prob = self.mutation_probability
+
         for agent in self.agents:
-            # model = agent.model # TODO
             for weights, biases in zip(agent.model.weights, agent.model.biases):
                 noise = numpy.random.uniform(
-                    low=-self.mutation_rate, high=self.mutation_rate, size=weights.shape
+                    low=-mutation_rate, high=mutation_rate, size=weights.shape
                 )
-                # noise = numpy.random.normal(loc=0.0, scale=self.mutation_rate, size=weights.shape)
-                mask = (
-                    numpy.random.random(size=weights.shape) < self.mutation_probability
-                )
+                mask = numpy.random.random(size=weights.shape) < mutation_prob
                 numpy.add(weights, mask * noise, out=weights)
 
                 noise = numpy.random.uniform(
-                    low=-self.mutation_rate, high=self.mutation_rate, size=biases.shape
+                    low=-mutation_rate, high=mutation_rate, size=biases.shape
                 )
-                # noise = numpy.random.normal(loc=0.0, scale=self.mutation_rate, size=biases.shape)
-                mask = (
-                    numpy.random.random(size=biases.shape) < self.mutation_probability
-                )
+                mask = numpy.random.random(size=biases.shape) < mutation_prob
                 numpy.add(biases, mask * noise, out=biases)
 
     def _broadcast_parameters(self) -> None:
@@ -121,7 +123,6 @@ class EvolutionStrategy(Optimizer):
                 eps_biases.fill(0.0)
 
         for agent in self.agents:
-            # model = agent.model # TODO
             for eps_weights, eps_biases in zip(
                 agent.model.eps_weights, agent.model.eps_biases
             ):
@@ -187,21 +188,16 @@ class EvolutionStrategy(Optimizer):
         rewards = numpy.array([agent.score for agent in self.agents])
 
         # Normalize rewards.
-        rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-5)
+        rewards = (rewards - rewards.mean()) / (rewards.std() + self.eps)
 
         self.rewards = rewards
 
-    @staticmethod
-    def _softmax(x: numpy.array) -> numpy.array:
-        x = numpy.exp(x - x.max())
-        return x / x.sum()
-
     def step(self) -> None:
         """Performs single optimization step."""
-        self._gather_rewards()  # global
-        self._zero_gradients()  # local
-        self._compute_gradients()  # local
-        self._gradient_descent()  # local
-        self._broadcast_parameters()  # global
-        self._create_noise()  # global
-        self._mutate_parameters()  # global
+        self._gather_rewards()
+        self._zero_gradients()
+        self._compute_gradients()
+        self._gradient_descent()
+        self._broadcast_parameters()
+        self._create_noise()
+        self._mutate_parameters()
