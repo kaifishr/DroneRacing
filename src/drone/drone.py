@@ -15,8 +15,12 @@ from src.drone.model import load_model
 
 
 class Agent:
+    """Agent base class."""
+
+    TIME_STEP = 0.0167
+
     def __init__(self) -> None:
-        pass
+        """Initializes class."""
 
 
 class Drone(Agent):
@@ -24,9 +28,6 @@ class Drone(Agent):
 
     A drone consists of a body with four boosters attached.
     """
-
-    TIME_STEP = 0.0167
-
     vertices = [
         (0.5, 0.5),
         (-0.5, 0.5),
@@ -128,13 +129,7 @@ class Drone(Agent):
         domain_diameter = max(domain_diam_x, domain_diam_y)
         self.normalize_diag = 1.0 / domain_diagonal
         self.normalize_diam = 1.0 / (0.5 * domain_diameter)
-        max_force = config.env.drone.engine.max_force
-        drone_density = config.env.drone.density
-        drone_diam = config.env.drone.diam
-        engine_density = config.env.drone.engine.density
-        num_max_steps = config.optimizer.num_max_steps
-        max_velocity = 10.0
-        self.normalize_velocity = 1.0 / max_velocity
+        self.normalize_velocity = 0.1
 
         # Fitness score
         self.score = 0.0
@@ -161,8 +156,7 @@ class Drone(Agent):
                 dist_x = position_agent.x - position_target.x
                 dist_y = position_agent.y - position_target.y
                 distance = (dist_x**2 + dist_y**2) ** 0.5
-                # score = 1.0 / (1.0 + distance)  # 10, 1, 0.1, 0.01
-                score = -math.log(distance + 1e-4)  # 10, 1, 0.1, 0.01
+                score = 1.0 / (1.0 + distance)
                 self.score += score
 
             # Reward distance traveled.
