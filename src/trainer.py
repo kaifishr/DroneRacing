@@ -69,7 +69,7 @@ class Trainer:
             self.env.comp_action()
 
             # Apply network predictions to drone
-            self.env.apply_action(noise=10)
+            self.env.apply_action()
 
             # Method that run at end of simulation.
             if ((step + 1) % num_max_steps == 0) or self.env.is_done():
@@ -84,7 +84,9 @@ class Trainer:
                 # Write stats to Tensorboard.
                 for result_name, result_value in results.items():
                     self.writer.add_scalar(result_name, result_value, generation)
-                self.writer.add_scalar("seconds_episode", time.time() - time_start, generation)
+                self.writer.add_scalar(
+                    "seconds_episode", time.time() - time_start, generation
+                )
 
                 # Save model
                 if cfg.checkpoints.save_model:

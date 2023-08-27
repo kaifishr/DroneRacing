@@ -29,6 +29,7 @@ class Drone(Agent):
 
     A drone consists of a body with four boosters attached.
     """
+
     vertices = [
         (0.5, 0.5),
         (-0.5, 0.5),
@@ -245,6 +246,9 @@ class Drone(Agent):
 
     def apply_action(self, noise: float = None) -> None:
         """Applies force to Drone coming from neural network.
+
+        Args:
+            noise: Amount of noise added to action. Default: None
 
         Each engine is controlled individually.
         """

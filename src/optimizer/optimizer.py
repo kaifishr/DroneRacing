@@ -6,8 +6,7 @@ from src.drone import Agent
 
 
 class Optimizer:
-    """Optimizer base class.
-    """
+    """Optimizer base class."""
 
     # Value added to the denominator for numerical stability.
     eps: float = 1e-5
@@ -22,6 +21,7 @@ class Optimizer:
 
 class GeneticOptimizer(Optimizer):
     """Genetic optimizer class."""
+
     def __init__(
         self, agents: list[Agent], mutation_probability: float, mutation_rate=float
     ) -> None:

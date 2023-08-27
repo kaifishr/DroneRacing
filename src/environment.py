@@ -118,7 +118,11 @@ class Environment(Framework):
             drone.comp_action()
 
     def apply_action(self, noise: float = None) -> None:
-        """Applies action coming from neural network to all drones."""
+        """Applies action coming from neural network to all drones.
+
+        Args:
+            noise: Amount of noise added to action of each drone. Default: None
+        """
         for drone in self.drones:
             drone.apply_action(noise=noise)
 

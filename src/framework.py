@@ -16,6 +16,7 @@ from src.utils.utils import capture_screen
 
 class Framework:
     """A simple framework for PyBox2D with PyGame backend."""
+
     target_fps: int = 60
     velocity_iterations: int = 10  # Iterations to compute next velocity.
     position_iterations: int = 10  # Iterations to compute next position.
@@ -75,9 +76,7 @@ class Framework:
 
         # Step the world.
         self.world.Step(
-            self.time_step,
-            self.velocity_iterations,
-            self.position_iterations
+            self.time_step, self.velocity_iterations, self.position_iterations
         )
         self.world.ClearForces()
 
