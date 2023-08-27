@@ -10,6 +10,7 @@ if __name__ == "__main__":
     set_random_seed(seed=config.random_seed)
 
     config.optimizer.num_agents = 16
+    config.env.snitch.move_every_n_steps = 200
     config.env.drone.respawn.is_random = False
     config.env.drone.respawn.is_all_random = True
 

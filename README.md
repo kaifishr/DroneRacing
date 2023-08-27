@@ -13,10 +13,10 @@ The drones' behavior is controlled by a reward function. With the default settin
  The example above shows non-interacting drones trying to follow a target. The red lines show the force with which the rocket engines are run.
 
 <p align="center">
-    <img src="docs/mean_reward.png" width="640" height=""/>
+    <img src="docs/mean_reward.png" width="420" height=""/>
 </p>
 
-The following graph shows the average reward over a period of about 2000 generations.
+The following graph shows the average reward over a period of about 3000 generations.
 
 ## Installation
 
