@@ -83,7 +83,7 @@ If you find this project useful, please use BibTeX to cite it as:
   title   = "SpaceDrones",
   author  = "Fischer, Kai",
   journal = "GitHub repository",
-  year    = "2023",
+  year    = "2022",
   month   = "July",
   url     = "https://github.com/kaifishr/SpaceDrones"
 }
