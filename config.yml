@@ -10,7 +10,7 @@ checkpoints:
   load_model: false
   save_model: true
   model_path: "weights"
-  model_name: "test"  # save / load
+  model_name: "2"  # save / load
 
 optimizer:
   name: "nes"  # nes, evo
@@ -18,7 +18,7 @@ optimizer:
     mutation_probability: 0.04
     mutation_rate: 0.02
   nes:
-    learning_rate: 0.001
+    learning_rate: 0.05
     sigma: 0.1
   num_agents: 16
   num_max_steps: 2000
@@ -64,8 +64,8 @@ env:
     init_angle: 0.0
 
     neural_network: # model
-      num_dim_in: 14       # Distances to the nearest wall, position, velocity, position of target   # TODO
-      num_dim_out: 4      # Actions for four engines.  # TODO
+      num_dim_in: 14  # Distances to the nearest wall, position, velocity, position of target.
+      num_dim_out: 4  # Actions for four engines.
       num_dim_hidden: 16
       num_hidden_layers: 2
       nonlinearity: "tanh"  # relu, tanh
@@ -81,9 +81,6 @@ framework:
   screen:
     width: 640
     height: 640
-  # target_fps: 60
-  # velocity_iterations: 10   # Number of iterations to compute next velocity.
-  # position_iterations: 10   # Number of iterations to compute next position.
 
 renderer:
   scale_force: 0.5

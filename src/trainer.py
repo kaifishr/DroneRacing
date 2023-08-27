@@ -69,7 +69,7 @@ class Trainer:
             self.env.comp_action()
 
             # Apply network predictions to drone
-            self.env.apply_action()
+            self.env.apply_action(noise=10)
 
             # Method that run at end of simulation.
             if ((step + 1) % num_max_steps == 0) or self.env.is_done():

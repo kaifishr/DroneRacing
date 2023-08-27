@@ -7,6 +7,7 @@ from Box2D import b2PolygonShape
 from Box2D.Box2D import b2World
 from Box2D.Box2D import b2Vec2
 from Box2D.Box2D import b2Filter
+import numpy
 
 from src.utils.config import Config
 from src.drone.engine import Engines
@@ -155,9 +156,7 @@ class Drone(Agent):
                 dist_x = position_agent.x - position_target.x
                 dist_y = position_agent.y - position_target.y
                 distance = (dist_x**2 + dist_y**2) ** 0.5
-                # score += 1.0 / (1.0 + distance**2)
-                if distance < 2.0:
-                    score += 1.0 / (1.0 + distance**2)
+                score += 1.0 / (1.0 + distance**2)
                 self.score += score
 
             # Reward distance traveled.
@@ -244,15 +243,21 @@ class Drone(Agent):
             force_pred = self.model.forward(self.data)
             self.forces = self.max_force * force_pred
 
-    def apply_action(self) -> None:
+    def apply_action(self, noise: float = None) -> None:
         """Applies force to Drone coming from neural network.
 
         Each engine is controlled individually.
         """
         body = self.body
 
+        forces = numpy.array(self.forces)
+
+        if noise:
+            noise = numpy.random.normal(loc=0.0, scale=noise, size=forces.shape)
+            forces += noise
+
         if body.active:
-            f_left, f_right, f_up, f_down = self.forces
+            f_left, f_right, f_up, f_down = forces
 
             # Left
             f = body.GetWorldVector(localVector=b2Vec2(f_left, 0.0))

@@ -117,10 +117,10 @@ class Environment(Framework):
         for drone in self.drones:
             drone.comp_action()
 
-    def apply_action(self) -> None:
+    def apply_action(self, noise: float = None) -> None:
         """Applies action coming from neural network to all drones."""
         for drone in self.drones:
-            drone.apply_action()
+            drone.apply_action(noise=noise)
 
     def is_done(self) -> bool:
         """Checks if episode is done.
