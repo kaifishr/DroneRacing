@@ -4,13 +4,11 @@
 
 Under the hood, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation and *Pygame* for rendering and visualization. 
 
-The drones' behavior is controlled by a reward function. With the default settings, the drones' goal is to navigate through an environment, covering as much distance as possible in a certain period of time while avoiding collisions with obstacles.
+The drones' behavior is controlled by a reward function. The example below shows non-interacting drones trying to follow a target. The red lines show the force with which the rocket engines are run.
 
 <p align="center">
-    <img src="docs/space_drones.gif" width="420" height="420"/>
+    <img src="docs/drones.gif" width="420" height="420"/>
 </p>
-
- The example above shows non-interacting drones trying to follow a target. The red lines show the force with which the rocket engines are run.
 
 <p align="center">
     <img src="docs/mean_reward.png" width="420" height=""/>
