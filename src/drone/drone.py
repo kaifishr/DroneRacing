@@ -55,7 +55,6 @@ class Drone(Agent):
 
         self.init_angular_velocity = config.env.drone.init_angular_velocity
         self.init_angle = (config.env.drone.init_angle * math.pi) / 180.0
-        fixed_rotation = config.env.drone.fixed_rotation
 
         self.body = world.CreateDynamicBody(
             bullet=False,
@@ -64,7 +63,7 @@ class Drone(Agent):
             linearVelocity=self.init_linear_velocity,
             angularVelocity=self.init_angular_velocity,
             angle=self.init_angle,
-            fixedRotation=fixed_rotation,
+            fixedRotation=True,
         )
 
         self.diam = config.env.drone.diam
@@ -156,7 +155,9 @@ class Drone(Agent):
                 dist_x = position_agent.x - position_target.x
                 dist_y = position_agent.y - position_target.y
                 distance = (dist_x**2 + dist_y**2) ** 0.5
-                score = 1.0 / (1.0 + distance)
+                # score += 1.0 / (1.0 + distance**2)
+                if distance < 2.0:
+                    score += 1.0 / (1.0 + distance**2)
                 self.score += score
 
             # Reward distance traveled.

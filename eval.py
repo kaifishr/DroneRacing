@@ -14,5 +14,5 @@ if __name__ == "__main__":
     config.env.drone.respawn.is_all_random = True
 
     env = Environment(config=config)
-    eval = Eval(env=env, config=config)
-    eval.run()
+    evaluator = Eval(env=env, config=config)
+    evaluator.run()

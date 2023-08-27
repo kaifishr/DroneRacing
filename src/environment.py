@@ -1,14 +1,14 @@
 """Environment class.
 
-The Environment class holds the worlds objects that 
-can interact with each other.
+The Environment class holds the worlds objects that can interact with each
+other.
 
-The Environment class also wraps the Framework class 
-that calls the physics engine and rendering engines.
+The Environment class also wraps the Framework class that calls the physics
+engine and rendering engines.
 """
-import numpy
 import random
 
+import numpy
 from Box2D.Box2D import b2Vec2
 
 from src.domain import Domain
@@ -58,7 +58,7 @@ class Environment(Framework):
 
         self.phi = 0.95
 
-    def _move_target(self) -> None:
+    def move_target(self) -> None:
         """Moves target to random position."""
         x_pos = random.uniform(self.x_min, self.x_max)
         y_pos = random.uniform(self.y_min, self.y_max)
@@ -67,7 +67,7 @@ class Environment(Framework):
     def reset(self) -> None:
         """Resets Drone to initial position and velocity."""
 
-        self._move_target()
+        self.move_target()
 
         if self.config.env.drone.respawn.is_random:
             init_position_rand = b2Vec2(

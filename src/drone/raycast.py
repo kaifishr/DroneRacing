@@ -16,8 +16,10 @@ class RayCastCallback(b2RayCastCallback):
 
     def __init__(self, **kwargs) -> None:
         b2RayCastCallback.__init__(self, **kwargs)
-        self.fixture = None
         self.hit = False
+        self.fixture = None
+        self.point = None
+        self.normal = None
 
     def ReportFixture(self, fixture, point, normal, fraction) -> float:
         """Reports hit fixture.
@@ -29,7 +31,7 @@ class RayCastCallback(b2RayCastCallback):
             fraction:
         """
         # Ignore other drones.
-        # TODO: Change this to allow interaction between drones.
+        # NOTE: Change this to allow interaction between drones.
         if fixture.filterData.groupIndex == -1:
             return -1
 

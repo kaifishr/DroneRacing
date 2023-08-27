@@ -4,6 +4,7 @@ For more information about frameworks see also:
 https://github.com/pybox2d/pybox2d/tree/master/library/Box2D/examples/backends
 
 """
+import sys
 import datetime
 import pygame
 from Box2D.b2 import world
@@ -14,29 +15,16 @@ from src.utils.utils import capture_screen
 
 
 class Framework:
-    """A simple framework for PyBox2D with PyGame backend.
-
-    Attributes:
-        config:
-        target_fps:
-        velocity_iters:
-        position_iters:
-        time_step:
-        world:
-        clock:
-        screen:
-        renderer:
-        is_rendering:
-    """
+    """A simple framework for PyBox2D with PyGame backend."""
+    target_fps: int = 60
+    velocity_iterations: int = 10  # Iterations to compute next velocity.
+    position_iterations: int = 10  # Iterations to compute next position.
 
     def __init__(self, config: Config) -> None:
         """Initializes Framework."""
         self.config = config
 
         # Physics simulation parameters.
-        self.target_fps = self.config.framework.target_fps
-        self.velocity_iters = self.config.framework.velocity_iterations
-        self.position_iters = self.config.framework.position_iterations
         self.time_step = 1.0 / self.target_fps
 
         # Instantiating world.
@@ -75,7 +63,7 @@ class Framework:
                 self._set_rendering()
             elif event.type == pygame.QUIT:
                 pygame.quit()
-                exit()
+                sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self._set_rendering()
@@ -83,10 +71,14 @@ class Framework:
                     self.renderer.set_render_rays()
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
-                    exit()
+                    sys.exit()
 
         # Step the world.
-        self.world.Step(self.time_step, self.velocity_iters, self.position_iters)
+        self.world.Step(
+            self.time_step,
+            self.velocity_iterations,
+            self.position_iterations
+        )
         self.world.ClearForces()
 
         # Render world if true.

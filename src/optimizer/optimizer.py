@@ -6,6 +6,9 @@ from src.drone import Agent
 
 
 class Optimizer:
+    """Optimizer base class.
+    """
+
     # Value added to the denominator for numerical stability.
     eps: float = 1e-5
 
@@ -18,6 +21,7 @@ class Optimizer:
 
 
 class GeneticOptimizer(Optimizer):
+    """Genetic optimizer class."""
     def __init__(
         self, agents: list[Agent], mutation_probability: float, mutation_rate=float
     ) -> None:
@@ -46,13 +50,13 @@ class GeneticOptimizer(Optimizer):
         for agent in self.agents:
             for weights, biases in zip(agent.model.weights, agent.model.biases):
                 noise = numpy.random.uniform(
-                    low=-mutation_rate, high=mutation_rate, size=weights.shape
+                    low=-1.0 * mutation_rate, high=mutation_rate, size=weights.shape
                 )
                 mask = numpy.random.random(size=weights.shape) < mutation_prob
                 numpy.add(weights, mask * noise, out=weights)
 
                 noise = numpy.random.uniform(
-                    low=-mutation_rate, high=mutation_rate, size=biases.shape
+                    low=-1.0 * mutation_rate, high=mutation_rate, size=biases.shape
                 )
                 mask = numpy.random.random(size=biases.shape) < mutation_prob
                 numpy.add(biases, mask * noise, out=biases)
@@ -72,6 +76,8 @@ class GeneticOptimizer(Optimizer):
 
 
 class EvolutionStrategy(Optimizer):
+    """Natural evolution strategies class."""
+
     def __init__(self, agents: list[Agent], learning_rate: float, sigma: float) -> None:
         """Initializes Evolution Strategies optimizer.
 
@@ -161,9 +167,9 @@ class EvolutionStrategy(Optimizer):
 
     def _zero_gradients(self) -> None:
         """Sets all gradients to zero."""
-        for dw, db in self.gradients:
-            dw.fill(0.0)
-            db.fill(0.0)
+        for d_w, d_b in self.gradients:
+            d_w.fill(0.0)
+            d_b.fill(0.0)
 
     def _compute_gradients(self) -> None:
         """Computes approxiamte gradients."""

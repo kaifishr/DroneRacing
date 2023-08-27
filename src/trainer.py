@@ -31,7 +31,7 @@ class Trainer:
 
         # Save config file
         file_path = Path(self.writer.log_dir) / "config.txt"
-        with open(file_path, "w") as file:
+        with open(file_path, "w", encoding="utf-8") as file:
             file.write(self.config.__str__())
 
     def run(self) -> None:
@@ -44,7 +44,7 @@ class Trainer:
         generation = 0
         best_score = 0.0
 
-        t0 = time.time()
+        time_start = time.time()
         self.env.reset()
         is_running = True
 
@@ -53,7 +53,7 @@ class Trainer:
             self.env.step()
 
             if (step + 1) % cfg.env.snitch.move_every_n_steps == 0:
-                self.env._move_target()
+                self.env.move_target()
 
             # Fetch data for neural network.
             self.env.fetch_data()
@@ -84,7 +84,7 @@ class Trainer:
                 # Write stats to Tensorboard.
                 for result_name, result_value in results.items():
                     self.writer.add_scalar(result_name, result_value, generation)
-                self.writer.add_scalar("seconds_episode", time.time() - t0, generation)
+                self.writer.add_scalar("seconds_episode", time.time() - time_start, generation)
 
                 # Save model
                 if cfg.checkpoints.save_model:
@@ -98,6 +98,6 @@ class Trainer:
                 generation += 1
                 print(f"{generation = }")
 
-                t0 = time.time()
+                time_start = time.time()
 
             step += 1

@@ -20,6 +20,8 @@ class Eval:
     def run(self) -> None:
         """Runs genetic optimization."""
 
+        cfg = self.config
+
         step = 0
         generation = 0
 
@@ -30,8 +32,8 @@ class Eval:
             # Physics and rendering.
             self.env.step()
 
-            if (step + 1) % 300 == 0:
-                self.env._move_target()  # TODO: Make _move_target() part of a callback.
+            if (step + 1) % cfg.env.snitch.move_every_n_steps == 0:
+                self.env.move_target()
 
             # Fetch data for neural network.
             self.env.fetch_data()
