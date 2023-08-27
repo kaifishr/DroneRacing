@@ -10,11 +10,11 @@ The drones' behavior is controlled by a reward function. The example below shows
     <img src="docs/drones.gif" width="420" height="420"/>
 </p>
 
+The following graph shows the average reward over a period of about 3000 generations.
+
 <p align="center">
     <img src="docs/mean_reward.png" width="420" height=""/>
 </p>
-
-The following graph shows the average reward over a period of about 3000 generations.
 
 ## Installation
 
