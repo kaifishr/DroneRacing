@@ -11,7 +11,7 @@ from Box2D.b2 import world
 
 from src.renderer import Renderer
 from src.utils.config import Config
-from src.utils.utils import capture_screen
+# from src.utils.utils import capture_screen
 
 
 class Framework:

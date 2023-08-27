@@ -46,7 +46,7 @@ class Eval:
             self.env.comp_action()
 
             # Apply network predictions to drone
-            self.env.apply_action(noise=10.0)
+            self.env.apply_action(noise=5.0)
 
             # Method that run at end of simulation.
             if self.env.is_done():

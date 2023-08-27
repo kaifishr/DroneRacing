@@ -7,16 +7,16 @@ Under the hood, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation an
 The drones' behavior is controlled by a reward function. With the default settings, the drones' goal is to navigate through an environment, covering as much distance as possible in a certain period of time while avoiding collisions with obstacles.
 
 <p align="center">
-    <img src="docs/eval.gif" width="420" height="420"/>
+    <img src="docs/space_drones.gif" width="420" height="420"/>
 </p>
 
- The example above shows non-interacting drones of one generation during the genetic optimization process. The purple lines are determined by ray casting. They can be used to calculate distances to obstacles. The red lines show the force with which the rocket engines are run.
+ The example above shows non-interacting drones trying to follow a target. The red lines show the force with which the rocket engines are run.
 
 <p align="center">
-    <img src="docs/eval.png" width="640" height=""/>
+    <img src="docs/mean_reward.png" width="640" height=""/>
 </p>
 
-The following graph shows the evolution of the fittest drone over a period of about 5000 generations.
+The following graph shows the average reward over a period of about 2000 generations.
 
 ## Installation
 

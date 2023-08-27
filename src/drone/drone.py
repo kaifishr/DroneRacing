@@ -222,7 +222,7 @@ class Drone(Agent):
         """
         if self.body.active:
             for p1, cb in zip(self.p1, self.callbacks):
-                if hasattr(cb, "point"):
+                if cb.hit:
                     diff = cb.point - p1
                     dist = (diff.x**2 + diff.y**2) ** 0.5
                     if dist < self.collision_threshold:
