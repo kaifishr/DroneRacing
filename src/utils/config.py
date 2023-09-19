@@ -41,9 +41,7 @@ class Config:
             indent_ = 4 * indent * " "
             if isinstance(value, Config):
                 cfg.append(f"{indent_}{key}\n")
-                self._build_str(
-                    self=self.__getattribute__(key), cfg=cfg, indent=indent + 1
-                )
+                self._build_str(self=self.__getattribute__(key), cfg=cfg, indent=indent + 1)
             else:
                 cfg.append(f"{indent_}{key}: {value}\n")
 

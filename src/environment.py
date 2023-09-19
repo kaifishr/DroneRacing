@@ -39,9 +39,7 @@ class Environment(Framework):
 
         # Create agents.
         num_agents = config.optimizer.num_agents
-        self.drones = [
-            Drone(world=self.world, config=config) for _ in range(num_agents)
-        ]
+        self.drones = [Drone(world=self.world, config=config) for _ in range(num_agents)]
 
         # Create moving target.
         self.target = Snitch(world=self.world, config=config)

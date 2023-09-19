@@ -73,9 +73,7 @@ class Model:
         elif nonlinearity == "relu":
             self._nonlinearity = self._relu
         else:
-            raise NotImplementedError(
-                f"Activation function '{nonlinearity}' not implemented."
-            )
+            raise NotImplementedError(f"Activation function '{nonlinearity}' not implemented.")
 
     @staticmethod
     def _init_weights(size: tuple[int, int], nonlinearity: str) -> None:
@@ -94,9 +92,7 @@ class Model:
         elif nonlinearity == "relu":
             gain = 2.0**0.5
         else:
-            raise NotImplementedError(
-                f"Initialization for '{nonlinearity}' not implemented."
-            )
+            raise NotImplementedError(f"Initialization for '{nonlinearity}' not implemented.")
         std = gain * (2.0 / sum(size)) ** 0.5
         parameters = numpy.random.normal(loc=0.0, scale=std, size=size)
         parameters = numpy.clip(parameters, a_min=-3.0, a_max=3.0)

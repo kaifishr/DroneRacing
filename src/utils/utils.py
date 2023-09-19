@@ -62,7 +62,4 @@ def load_checkpoint(model: object, config: Config) -> None:
         state_dict = torch.load(f=model_path)
         model.load_state_dict(state_dict=state_dict)
     else:
-        print(
-            f"Model checkpoint '{checkpoint_name}' not found. "
-            "Continuing with random weights."
-        )
+        print(f"Model checkpoint '{checkpoint_name}' not found. " "Continuing with random weights.")

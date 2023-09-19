@@ -29,9 +29,7 @@ if __name__ == "__main__":
             mutation_rate=cfg.mutation_rate,
         )
     else:
-        raise NotImplementedError(
-            f"Optimizer '{config.optimizer.name}' not implemented."
-        )
+        raise NotImplementedError(f"Optimizer '{config.optimizer.name}' not implemented.")
 
     trainer = Trainer(env=env, optimizer=optimizer, config=config)
     trainer.run()

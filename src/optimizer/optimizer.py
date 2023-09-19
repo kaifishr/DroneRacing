@@ -22,9 +22,7 @@ class Optimizer:
 class GeneticOptimizer(Optimizer):
     """Genetic optimizer class."""
 
-    def __init__(
-        self, agents: list[Agent], mutation_probability: float, mutation_rate=float
-    ) -> None:
+    def __init__(self, agents: list[Agent], mutation_probability: float, mutation_rate=float) -> None:
         """ """
         super().__init__(agents=agents)
 
@@ -49,15 +47,11 @@ class GeneticOptimizer(Optimizer):
 
         for agent in self.agents:
             for weights, biases in zip(agent.model.weights, agent.model.biases):
-                noise = numpy.random.uniform(
-                    low=-1.0 * mutation_rate, high=mutation_rate, size=weights.shape
-                )
+                noise = numpy.random.uniform(low=-1.0 * mutation_rate, high=mutation_rate, size=weights.shape)
                 mask = numpy.random.random(size=weights.shape) < mutation_prob
                 numpy.add(weights, mask * noise, out=weights)
 
-                noise = numpy.random.uniform(
-                    low=-1.0 * mutation_rate, high=mutation_rate, size=biases.shape
-                )
+                noise = numpy.random.uniform(low=-1.0 * mutation_rate, high=mutation_rate, size=biases.shape)
                 mask = numpy.random.random(size=biases.shape) < mutation_prob
                 numpy.add(biases, mask * noise, out=biases)
 
@@ -122,28 +116,20 @@ class EvolutionStrategy(Optimizer):
         """Creates noise for each parameter."""
         # Zero noise.
         for agent in self.agents:
-            for eps_weights, eps_biases in zip(
-                agent.model.eps_weights, agent.model.eps_biases
-            ):
+            for eps_weights, eps_biases in zip(agent.model.eps_weights, agent.model.eps_biases):
                 eps_weights.fill(0.0)
                 eps_biases.fill(0.0)
 
         for agent in self.agents:
-            for eps_weights, eps_biases in zip(
-                agent.model.eps_weights, agent.model.eps_biases
-            ):
+            for eps_weights, eps_biases in zip(agent.model.eps_weights, agent.model.eps_biases):
                 numpy.add(
                     eps_weights,
-                    numpy.random.normal(
-                        loc=0.0, scale=self.sigma, size=eps_weights.shape
-                    ),
+                    numpy.random.normal(loc=0.0, scale=self.sigma, size=eps_weights.shape),
                     out=eps_weights,
                 )
                 numpy.add(
                     eps_biases,
-                    numpy.random.normal(
-                        loc=0.0, scale=self.sigma, size=eps_biases.shape
-                    ),
+                    numpy.random.normal(loc=0.0, scale=self.sigma, size=eps_biases.shape),
                     out=eps_biases,
                 )
 
@@ -161,9 +147,7 @@ class EvolutionStrategy(Optimizer):
     def _initialize_gradients(self) -> None:
         """Initializes gradients."""
         weights, biases = self.parameters
-        self.gradients = [
-            (numpy.zeros_like(w), numpy.zeros_like(b)) for w, b in zip(weights, biases)
-        ]
+        self.gradients = [(numpy.zeros_like(w), numpy.zeros_like(b)) for w, b in zip(weights, biases)]
 
     def _zero_gradients(self) -> None:
         """Sets all gradients to zero."""
@@ -182,9 +166,7 @@ class EvolutionStrategy(Optimizer):
 
     def _gradient_descent(self) -> None:
         """Performs gradient descent step."""
-        for (weights, biases), (grad_weights, grad_biases) in zip(
-            zip(*self.parameters), self.gradients
-        ):
+        for (weights, biases), (grad_weights, grad_biases) in zip(zip(*self.parameters), self.gradients):
             numpy.add(weights, self.learning_rate * grad_weights, out=weights)
             numpy.add(biases, self.learning_rate * grad_biases, out=biases)
 

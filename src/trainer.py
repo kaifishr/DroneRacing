@@ -84,9 +84,7 @@ class Trainer:
                 # Write stats to Tensorboard.
                 for result_name, result_value in results.items():
                     self.writer.add_scalar(result_name, result_value, generation)
-                self.writer.add_scalar(
-                    "seconds_episode", time.time() - time_start, generation
-                )
+                self.writer.add_scalar("seconds_episode", time.time() - time_start, generation)
 
                 # Save model
                 if cfg.checkpoints.save_model:

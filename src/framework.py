@@ -11,6 +11,7 @@ from Box2D.b2 import world
 
 from src.renderer import Renderer
 from src.utils.config import Config
+
 # from src.utils.utils import capture_screen
 
 
@@ -75,9 +76,7 @@ class Framework:
                     sys.exit()
 
         # Step the world.
-        self.world.Step(
-            self.time_step, self.velocity_iterations, self.position_iterations
-        )
+        self.world.Step(self.time_step, self.velocity_iterations, self.position_iterations)
         self.world.ClearForces()
 
         # Render world if true.
