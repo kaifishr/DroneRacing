@@ -14,7 +14,7 @@ class Optimizer:
     def __init__(self, agents: list[Agent]) -> None:
         """Initializes Optimizer base class."""
 
-        assert len(agents) > 1, f"Number of agents must be larger than 1."
+        # assert len(agents) > 1, f"Number of agents must be larger than 1."
 
         self.agents = agents
 
@@ -184,6 +184,107 @@ class EvolutionStrategy(Optimizer):
         """Performs single optimization step."""
         self._gather_rewards()
         self._zero_gradients()
+        self._compute_gradients()
+        self._gradient_descent()
+        self._broadcast_parameters()
+        self._create_noise()
+        self._mutate_parameters()
+
+
+
+class ContinuousEvolutionStrategy(Optimizer):
+    """Single agent natural evolution strategies class:.
+
+    Population-free natural evolution strategies optimizer.
+    Uses momentum to approximate a population for gradient computation.
+    """
+
+    def __init__(
+            self, 
+            agents: list[Agent], 
+            learning_rate: float, 
+            sigma: float, 
+            momentum: float
+        ) -> None:
+        """Initializes Evolution Strategies optimizer.
+
+        Args:
+            agents: Agents.
+            learning_rate: Gradient descent learning rate.
+            sigma: Noise level.
+        """
+        super().__init__(agents=agents)
+        self.learning_rate = learning_rate
+        self.sigma = sigma
+        self.momentum = momentum
+
+        self.model = agents[0].model
+        self.parameters = (copy.deepcopy(self.model.weights), copy.deepcopy(self.model.biases))
+        self._initialize()
+
+    def _initialize(self) -> None:
+        """Initializes agents by broadcasting same parameters and adding noise."""
+        self._register_noise()
+        self._create_noise()
+        self._mutate_parameters()
+        self._initialize_gradients()
+
+    def _register_noise(self) -> None:
+        """Registers noise in model of each agent."""
+        weights, biases = self.model.weights, self.model.biases
+        self.model.noise = [(numpy.zeros_like(w), numpy.zeros_like(b)) for w, b in zip(weights, biases)]
+
+    def _create_noise(self) -> None:
+        """Creates noise for each parameter."""
+        # Zero noise.
+        for eps_w, eps_b in self.model.noise:
+            eps_w.fill(0.0)
+            eps_b.fill(0.0)
+
+        for eps_w, eps_b in self.model.noise:
+            noise_w = numpy.random.normal(loc=0.0, scale=self.sigma, size=eps_w.shape) 
+            numpy.add(eps_w, noise_w, out=eps_w)
+            noise_b = numpy.random.normal(loc=0.0, scale=self.sigma, size=eps_b.shape) 
+            numpy.add(eps_b, noise_b, out=eps_b)
+
+    def _mutate_parameters(self) -> None:
+        """Mutates models's parameters of each agent by adding Gaussian noise."""
+        for (w, b), (eps_w, eps_b) in zip(zip(self.model.weights, self.model.biases), self.model.noise):
+            numpy.add(w, eps_w, out=w)
+            numpy.add(b, eps_b, out=b)
+
+    def _initialize_gradients(self) -> None:
+        """Initializes gradients."""
+        weights, biases = self.parameters
+        self.grad = [(numpy.zeros_like(w), numpy.zeros_like(b)) for w, b in zip(weights, biases)]
+
+    def _compute_gradients(self) -> None:
+        """Computes approxiamte gradients."""
+        for (grad_w, grad_b), (eps_w, eps_b) in zip(self.grad, self.model.noise):
+            numpy.multiply(grad_w, (1 - self.momentum), out=grad_w)
+            numpy.multiply(grad_b, (1 - self.momentum), out=grad_b)
+            numpy.add(grad_w, self.momentum * (self.reward * eps_w) / self.sigma, out=grad_w)
+            numpy.add(grad_b, self.momentum * (self.reward * eps_b) / self.sigma, out=grad_b)
+
+    def _gradient_descent(self) -> None:
+        """Performs gradient descent step."""
+        for (w, b), (grad_w, grad_b) in zip(zip(*self.parameters), self.grad):
+            numpy.add(w, self.learning_rate * grad_w, out=w)
+            numpy.add(b, self.learning_rate * grad_b, out=b)
+
+    def _gather_rewards(self) -> None:
+        """Gathers reward from agent."""
+        self.reward = self.agents[0].score
+
+    def _broadcast_parameters(self) -> None:
+        """Broadcasts parameters to agent."""
+        weights, biases = self.parameters
+        self.model.weights = copy.deepcopy(weights)
+        self.model.biases = copy.deepcopy(biases)
+
+    def step(self) -> None:
+        """Performs single optimization step."""
+        self._gather_rewards()
         self._compute_gradients()
         self._gradient_descent()
         self._broadcast_parameters()

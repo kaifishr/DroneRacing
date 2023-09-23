@@ -1,26 +1,30 @@
 # SpaceDrones configuration
 name: "SpaceDrones"
-random_seed: 41712509
+random_seed: 4171250
 
 # Directory to save frames to create video.
 dirs:
   frames: "frames"
 
 checkpoints:
-  load_model: true
+  load_model: false
   save_model: false 
   model_path: "weights"
   model_name: "1"  # save / load
 
 optimizer:
-  name: "nes"  # nes, evo
+  name: "ces"  # ces, nes, evo
   evo:
     mutation_probability: 0.04
     mutation_rate: 0.02
   nes:
     learning_rate: 0.04
     sigma: 0.1
-  num_agents: 16
+  ces:
+    learning_rate: 0.0001
+    sigma: 0.1
+    momentum: 0.01
+  num_agents: 1
   num_max_steps: 2000
   reward:
     distance: false
