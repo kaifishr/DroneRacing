@@ -193,7 +193,7 @@ class EvolutionStrategy(Optimizer):
 
 
 class ContinuousEvolutionStrategy(Optimizer):
-    """Single agent natural evolution strategies class:.
+    """Single agent natural evolution strategies class
 
     Population-free natural evolution strategies optimizer.
     Uses momentum to approximate a population for gradient computation.
@@ -263,8 +263,10 @@ class ContinuousEvolutionStrategy(Optimizer):
         for (grad_w, grad_b), (eps_w, eps_b) in zip(self.grad, self.model.noise):
             numpy.multiply(grad_w, (1 - self.momentum), out=grad_w)
             numpy.multiply(grad_b, (1 - self.momentum), out=grad_b)
-            numpy.add(grad_w, self.momentum * (self.reward * eps_w) / self.sigma, out=grad_w)
-            numpy.add(grad_b, self.momentum * (self.reward * eps_b) / self.sigma, out=grad_b)
+            numpy.add(grad_w, self.momentum * (eps_w * (self.reward / self.sigma)), out=grad_w)
+            numpy.add(grad_b, self.momentum * (eps_b * (self.reward / self.sigma)), out=grad_b)
+            # numpy.add(grad_w, self.momentum * (self.reward * eps_w) / self.sigma, out=grad_w)
+            # numpy.add(grad_b, self.momentum * (self.reward * eps_b) / self.sigma, out=grad_b)
 
     def _gradient_descent(self) -> None:
         """Performs gradient descent step."""
