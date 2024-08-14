@@ -13,7 +13,7 @@ checkpoints:
   model_name: "1"  # save / load
 
 optimizer:
-  name: "ces"  # ces, nes, evo
+  name: "nes"  # ces, nes, evo
   evo:
     mutation_probability: 0.04
     mutation_rate: 0.02
@@ -24,7 +24,7 @@ optimizer:
     learning_rate: 0.00006
     sigma: 0.1
     momentum: 0.16
-  num_agents: 1
+  num_agents: 4
   num_max_steps: 2000
   reward:
     distance: false
@@ -39,14 +39,14 @@ env:
 
   domain:
     limit:
-      x_min: -20.0
-      x_max: 20.0
+      x_min: -40.0
+      x_max: 40.0
       y_min: -20.0
       y_max: 20.0
     map: "empty"  # empty, block, track, locks, blade, smile
 
   snitch:
-    move_every_n_steps: 400
+    distance_threshold: 5
 
   drone:
     diam: 1.0
@@ -83,7 +83,7 @@ env:
 
 framework:
   screen:
-    width: 640
+    width: 1280
     height: 640
 
 renderer:

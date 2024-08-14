@@ -56,16 +56,10 @@ class Environment(Framework):
 
         self.phi = 0.95
 
-    def move_target(self) -> None:
-        """Moves target to random position."""
-        x_pos = random.uniform(self.x_min, self.x_max)
-        y_pos = random.uniform(self.y_min, self.y_max)
-        self.target.body.position = b2Vec2(x_pos, y_pos)
-
     def reset(self) -> None:
         """Resets Drone to initial position and velocity."""
 
-        self.move_target()
+        self.target.step()
 
         if self.config.env.drone.respawn.is_random:
             init_position_rand = b2Vec2(
@@ -144,9 +138,13 @@ class Environment(Framework):
         """
         results = {}
         rewards = numpy.array([agent.score for agent in self.drones])
-        results["mean_reward"] = rewards.mean()
         results["min_reward"] = rewards.min()
         results["max_reward"] = rewards.max()
+        results["mean_reward"] = rewards.mean()
+        distances = numpy.array([agent.distance_to_target for agent in self.drones])
+        results["min_distance"] = distances.min()
+        results["max_distance"] = distances.max()
+        results["mean_distance"] = distances.mean()
         return results
 
     def index_best_agent(self) -> int:

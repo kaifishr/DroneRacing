@@ -25,6 +25,7 @@ class Snitch:
 
     def __init__(self, world: b2World, config: Config) -> None:
         self.world = world
+        self.config = config
 
         cfg = config.env.domain
         self.x_min = cfg.limit.x_min
@@ -74,3 +75,15 @@ class Snitch:
         shapes = [b2EdgeShape(vertices=[(x0, y0), (x1, y1)])]
 
         return shapes
+
+    def step(self) -> None:
+        """Moves target to next random position if one drone comes close enough.
+        Allows for incremental learning. 
+        """
+        for drone in self.world.drones:
+            dist = (self.body.position - drone.body.position).length
+            if dist < self.config.env.snitch.distance_threshold:
+                x_pos = random.uniform(self.x_min, self.x_max)
+                y_pos = random.uniform(self.y_min, self.y_max)
+                self.body.position = b2Vec2(x_pos, y_pos)
+                break

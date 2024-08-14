@@ -139,6 +139,7 @@ class Drone(Agent):
         self.speed_old_y = None
         self.pos_old_x = None
         self.pos_old_y = None
+        self.distance_to_target = None
 
     def comp_score(self) -> None:
         """Computes current fitness score.
@@ -156,9 +157,14 @@ class Drone(Agent):
                 position_target = self.world.target.body.position
                 dist_x = position_agent.x - position_target.x
                 dist_y = position_agent.y - position_target.y
-                distance = (dist_x**2 + dist_y**2) ** 0.5
-                score += 1.0 / (1.0 + distance**2)
+                # Score
+                dist = abs(dist_x) + abs(dist_y)  # L1
+                # dist = (dist_x**2 + dist_y**2) ** 0.5  # L2
+                # dist = max(abs(dist_x), abs(dist_y))  # Linf
+                score += 1.0 / (1.0 + dist)**2
                 self.score += score
+                # Distance
+                self.distance_to_target = (dist_x**2 + dist_y**2) ** 0.5
 
             # Reward distance traveled.
             if self.config.optimizer.reward.distance:
@@ -216,7 +222,7 @@ class Drone(Agent):
     def detect_collision(self):
         """Detects collision with objects.
 
-        Here we use ray casting information here and speak of a collision
+        Here we use ray casting and speak of a collision
         when an imaginary circle with the total diameter of the drone
         touches another object.
         """
@@ -227,6 +233,7 @@ class Drone(Agent):
                     dist = (diff.x**2 + diff.y**2) ** 0.5
                     if dist < self.collision_threshold:
                         self.body.active = False
+                        self.score -= 10.0
                         self.forces = self.num_engines * [0.0]
                         self.callbacks.clear()
                         self.p1.clear()

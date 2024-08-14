@@ -1,5 +1,6 @@
 """Optimizer class for genetic optimization."""
 import time
+import psutil
 from pathlib import Path
 
 from torch.utils.tensorboard import SummaryWriter
@@ -8,6 +9,11 @@ from src.environment import Environment
 from src.optimizer import Optimizer
 from src.utils.config import Config
 from src.utils.utils import save_checkpoint
+
+
+def get_cpu_temperature():
+    sensors = psutil.sensors_temperatures()
+    return sensors['coretemp'][0].current
 
 
 class Trainer:
@@ -52,8 +58,8 @@ class Trainer:
             # Physics and rendering.
             self.env.step()
 
-            if (step + 1) % cfg.env.snitch.move_every_n_steps == 0:
-                self.env.move_target()
+            # Move the target.
+            self.env.target.step()
 
             # Fetch data for neural network.
             self.env.fetch_data()
@@ -85,6 +91,7 @@ class Trainer:
                 for result_name, result_value in results.items():
                     self.writer.add_scalar(result_name, result_value, generation)
                 self.writer.add_scalar("seconds_episode", time.time() - time_start, generation)
+                self.writer.add_scalar("temperature_cpu", get_cpu_temperature(), generation)
 
                 # Save model
                 if cfg.checkpoints.save_model:
