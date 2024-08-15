@@ -40,14 +40,12 @@ class Environment(Framework):
         # Create agents.
         num_agents = config.optimizer.num_agents
         self.drones = [Drone(world=self.world, config=config) for _ in range(num_agents)]
+        self.world.drones = self.drones
 
         # Create moving target.
-        self.target = Snitch(world=self.world, config=config)
-
-        # Add reference of drones to world class for easier rendering handling.
-        self.world.drones = self.drones
-        self.world.target = self.target
-
+        # self.target = Snitch(world=self.world, config=config)
+        # self.world.target = self.target
+        
         # Domain
         self.x_max = config.env.domain.limit.x_max
         self.x_min = config.env.domain.limit.x_min
@@ -56,10 +54,17 @@ class Environment(Framework):
 
         self.phi = 0.95
 
+    def next_target(self) -> None:
+        for drone in self.world.drones:
+            distance = (drone.target - drone.body.position).length
+            if distance < self.config.env.target.distance_threshold:
+                # drone.idx_target = (drone.idx_target + 1) % len(drone.targets)
+                drone.idx_target = drone.idx_target + 1
+                drone.idx_target = drone.idx_target % len(drone.targets)
+                drone.target = drone.targets[drone.idx_target]
+
     def reset(self) -> None:
         """Resets Drone to initial position and velocity."""
-
-        self.target.step()
 
         if self.config.env.drone.respawn.is_random:
             init_position_rand = b2Vec2(
@@ -86,8 +91,13 @@ class Environment(Framework):
             # Reset fitness score for next generation.
             drone.score = 0.0
 
+            # Reset to first target.
+            drone.idx_target = 0
+            drone.target = drone.targets[drone.idx_target]
+
             # Reactivate drone after collision in last generation.
             drone.body.active = True
+
 
     def fetch_data(self) -> None:
         """Fetches data for each drone"""

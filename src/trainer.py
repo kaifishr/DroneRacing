@@ -59,7 +59,7 @@ class Trainer:
             self.env.step()
 
             # Move the target.
-            self.env.target.step()
+            self.env.next_target()
 
             # Fetch data for neural network.
             self.env.fetch_data()

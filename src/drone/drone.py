@@ -87,7 +87,7 @@ class Drone(Agent):
         ray_length = config.env.drone.raycasting.ray_length
 
         # Define direction for raycasting in which we look for obstacles.
-        self.points = [
+        self.points = (
             b2Vec2(ray_length, 0.0),
             b2Vec2(0.0, ray_length),
             b2Vec2(-ray_length, 0.0),
@@ -96,7 +96,7 @@ class Drone(Agent):
             b2Vec2(-ray_length, ray_length),
             b2Vec2(-ray_length, -ray_length),
             b2Vec2(ray_length, -ray_length),
-        ]
+        )
 
         # Collision threshold
         d = self.diam
@@ -139,6 +139,15 @@ class Drone(Agent):
         self.speed_old_y = None
         self.pos_old_x = None
         self.pos_old_y = None
+
+        # Tracking
+        self.targets = [
+            b2Vec2(-35.0, -15.0),
+            b2Vec2(0.0, 15.0),
+            b2Vec2(35.0, -15.0),
+        ]
+        self.idx_target = 0
+        self.target = self.targets[self.idx_target]
         self.distance_to_target = None
 
     def comp_score(self) -> None:
@@ -149,30 +158,25 @@ class Drone(Agent):
         drone over time divided by the simulation's step size.
         """
         if self.body.active:
-            score = 0
+            score = 0.0
 
             # Reward: Distance to target
             if self.config.optimizer.reward.distance_to_target:
-                position_agent = self.body.position
-                position_target = self.world.target.body.position
-                dist_x = position_agent.x - position_target.x
-                dist_y = position_agent.y - position_target.y
+                distance_vector = self.target - self.body.position
                 # Score
-                dist = abs(dist_x) + abs(dist_y)  # L1
-                # dist = (dist_x**2 + dist_y**2) ** 0.5  # L2
-                # dist = max(abs(dist_x), abs(dist_y))  # Linf
-                score += 1.0 / (1.0 + dist)**2
-                self.score += score
-                # Distance
-                self.distance_to_target = (dist_x**2 + dist_y**2) ** 0.5
+                distance = abs(distance_vector.x) + abs(distance_vector.y)  # L1
+                # distance = distance_vector.length  # L2
+                # distance = max(abs(distance_vector.x), abs(distance_vector.y))  # Linf
+                score += 1.0 / (1.0 + distance)**2
+                self.distance_to_target = distance_vector.length
 
-            # Reward distance traveled.
-            if self.config.optimizer.reward.distance:
-                phi = 0.1
-                velocity = self.body.linearVelocity
-                speed = (velocity.x**2 + velocity.y**2) ** 0.5
-                distance = self.TIME_STEP * speed
-                self.score += phi * distance
+            # Reward high velocity  # TODO: Maybe later
+            # if self.config.optimizer.reward.high_velocity:
+            #     speed = self.body.linearVelocity.length
+            #     if speed < 0.1:
+            #         score -= 0.1
+
+            self.score = score
 
     def fetch_data(self):
         """Fetches data from drone for neural network."""
@@ -203,8 +207,7 @@ class Drone(Agent):
                     # When the ray has hit something compute distance
                     # from drone to obstacle from raw features.
                     diff = cb.point - p1
-                    dist = (diff.x**2 + diff.y**2) ** 0.5
-                    self.data.append(dist * self.normalize_diag)
+                    self.data.append(diff.length * self.normalize_diag)
                 else:
                     self.data.append(-1.0)
 
@@ -216,8 +219,8 @@ class Drone(Agent):
                 self.data.append(vel * self.normalize_velocity)
 
             # Position to target:
-            for pos in self.world.target.body.position:
-                self.data.append(pos * self.normalize_diam)
+            for coord in self.target:
+                self.data.append(coord * self.normalize_diam)
 
     def detect_collision(self):
         """Detects collision with objects.
@@ -230,10 +233,9 @@ class Drone(Agent):
             for p1, cb in zip(self.p1, self.callbacks):
                 if cb.hit:
                     diff = cb.point - p1
-                    dist = (diff.x**2 + diff.y**2) ** 0.5
-                    if dist < self.collision_threshold:
+                    if diff.length < self.collision_threshold:
                         self.body.active = False
-                        self.score -= 10.0
+                        self.score -= 0.1
                         self.forces = self.num_engines * [0.0]
                         self.callbacks.clear()
                         self.p1.clear()
