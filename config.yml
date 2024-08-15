@@ -18,14 +18,14 @@ optimizer:
     mutation_probability: 0.04
     mutation_rate: 0.02
   nes:
-    learning_rate: 0.04
+    learning_rate: 0.02
     sigma: 0.1
   ces:
     learning_rate: 0.00006
     sigma: 0.1
     momentum: 0.16
-  num_agents: 16
-  num_max_steps: 3000
+  num_agents: 4
+  num_max_steps: 1000
   reward:
     distance_traveled: false
     distance_to_target: true
@@ -46,11 +46,14 @@ env:
       y_max: 20.0
     map: "empty"  # empty, block, track, locks, blade, smile
 
+  track:
+    gates: [[1, 1], [2, 2]]
+
   snitch:  # TODO: Remove this.
     distance_threshold: 5  # TODO: Remove this
 
   target:
-    distance_threshold: 5
+    distance_threshold: 4
 
   drone:
     diam: 1.0
@@ -64,7 +67,7 @@ env:
 
     init_position: 
       x: 0.0
-      y: -15.0
+      y: 0.0
     init_linear_velocity: 
       x: 0.0
       y: 0.0
@@ -74,7 +77,7 @@ env:
     neural_network: # model
       num_dim_in: 14  # Distances to the nearest wall, position, velocity, position of target.
       num_dim_out: 4  # Actions for four engines.
-      num_dim_hidden: 32
+      num_dim_hidden: 16
       num_hidden_layers: 2
       nonlinearity: "tanh"  # relu, tanh
 
@@ -82,7 +85,7 @@ env:
       ray_length: 60
 
     respawn:
-      is_random: false
+      is_random: true
       is_all_random: false
 
 framework:

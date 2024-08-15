@@ -142,9 +142,11 @@ class Drone(Agent):
 
         # Tracking
         self.targets = [
-            b2Vec2(-35.0, -15.0),
-            b2Vec2(0.0, 15.0),
-            b2Vec2(35.0, -15.0),
+            # b2Vec2(-35.0, -15.0),
+            # b2Vec2(0.0, 15.0),
+            # b2Vec2(35.0, -15.0),
+            b2Vec2(-35.0, 0.0),
+            b2Vec2(35.0, 0.0),
         ]
         self.idx_target = 0
         self.target = self.targets[self.idx_target]
@@ -164,17 +166,19 @@ class Drone(Agent):
             if self.config.optimizer.reward.distance_to_target:
                 distance_vector = self.target - self.body.position
                 # Score
-                distance = abs(distance_vector.x) + abs(distance_vector.y)  # L1
-                # distance = distance_vector.length  # L2
+                # distance = abs(distance_vector.x) + abs(distance_vector.y)  # L1
+                distance = distance_vector.length  # L2
                 # distance = max(abs(distance_vector.x), abs(distance_vector.y))  # Linf
-                score += 1.0 / (1.0 + distance)**2
+                if distance < 5.0:
+                    score += 1.0
+                # score += 1.0 / (1.0 + distance)**2
                 self.distance_to_target = distance_vector.length
 
             # Reward high velocity  # TODO: Maybe later
-            # if self.config.optimizer.reward.high_velocity:
-            #     speed = self.body.linearVelocity.length
-            #     if speed < 0.1:
-            #         score -= 0.1
+            if self.config.optimizer.reward.high_velocity:
+                speed = self.body.linearVelocity.length
+                if speed < 1.0:
+                    score += -0.1
 
             self.score = score
 

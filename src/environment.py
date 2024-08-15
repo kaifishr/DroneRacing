@@ -11,7 +11,8 @@ import random
 import numpy
 from Box2D.Box2D import b2Vec2
 
-from src.domain import Domain
+# from src.domain import Domain
+from src.domain.track import Track 
 from src.drone import Drone
 from src.snitch import Snitch
 from src.utils.config import Config
@@ -35,7 +36,8 @@ class Environment(Framework):
 
         self.world.gravity = b2Vec2(config.env.gravity.x, config.env.gravity.y)
 
-        Domain(world=self.world, config=config)
+        # Domain(world=self.world, config=config)
+        Track(world=self.world, config=config)
 
         # Create agents.
         num_agents = config.optimizer.num_agents
@@ -67,9 +69,13 @@ class Environment(Framework):
         """Resets Drone to initial position and velocity."""
 
         if self.config.env.drone.respawn.is_random:
+            # init_position_rand = b2Vec2(
+            #     random.uniform(a=self.phi * self.x_min, b=self.phi * self.x_max),
+            #     random.uniform(a=self.phi * self.y_min, b=self.phi * self.y_max),
+            # )
             init_position_rand = b2Vec2(
                 random.uniform(a=self.phi * self.x_min, b=self.phi * self.x_max),
-                random.uniform(a=self.phi * self.y_min, b=self.phi * self.y_max),
+                random.uniform(a=0.0, b=0.0),
             )
 
         for drone in self.drones:
