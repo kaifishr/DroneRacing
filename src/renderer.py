@@ -6,6 +6,7 @@ from Box2D.b2 import staticBody
 from Box2D.b2 import dynamicBody
 from Box2D.b2 import kinematicBody
 from Box2D.b2 import polygonShape
+from Box2D.b2 import circleShape
 from Box2D.b2 import edgeShape
 
 from src.drone.drone import Drone
@@ -35,8 +36,8 @@ class Renderer:
     color_raycast_line = (128, 0, 128, 255)
     color_raycast_head = (255, 0, 255, 255)
 
-    # Force vector color.
-    color_force_line = (255, 0, 0, 255)
+    color_force_vector = (255, 0, 0, 255)
+    color_gate = (0, 255, 0, 255)
 
     # Flip axes.
     flip_x = False
@@ -62,6 +63,7 @@ class Renderer:
         """Installs drawing methods for world objects."""
         edgeShape.draw = self._draw_edge
         polygonShape.draw = self._draw_polygon
+        circleShape.draw = self._draw_circle2
 
     def set_render_rays(self) -> None:
         """Turns rendering of ray casting lines on or off."""
@@ -92,7 +94,7 @@ class Renderer:
         """Transforms points of vertices to pixel coordinates."""
         return [self._to_screen(vertex) for vertex in vertices]
 
-    def _to_screen(self, point: b2Vec2) -> tuple:
+    def _to_screen(self, point: b2Vec2) -> tuple[int, int]:
         """Transforms point from simulation to screen coordinates.
 
         Args:
@@ -110,7 +112,7 @@ class Renderer:
 
     def _draw_point(self, point, size, color):
         """Draws point in specified size and color."""
-        self._draw_circle(point, size / self.ppm, color, width=0)
+        self._draw_circle(center=point, radius=size / self.ppm, color=color, width=0)
 
     def _draw_circle(self, center, radius, color, width=1):
         """Draws circle in specified size and color."""
@@ -118,7 +120,12 @@ class Renderer:
         radius = 1 if radius < 1 else int(radius)
         pygame.draw.circle(self.screen, color, center, radius, width)
 
-    def _draw_segment(self, p_1, p_2, color):
+    def _draw_circle2(self, body, fixture, color=None, width: int = 1) -> None:
+        position = self._to_screen(body.position)
+        radius = self.ppm * fixture.shape.radius
+        pygame.draw.circle(self.screen, color or self.color_gate, position, radius, width=width)
+
+    def _draw_segment(self, p_1, p_2, color: tuple[int]):
         """Draws line from points p_1 to p_2 in specified color."""
         pygame.draw.aaline(self.screen, color, p_1, p_2)
 
@@ -143,7 +150,7 @@ class Renderer:
         Arrows point towards direction the force is coming from.
         """
         scale_force = self.config.renderer.scale_force
-        color = self.color_force_line
+        color = self.color_force_vector
 
         f_left, f_right, f_up, f_down = drone.forces
 
