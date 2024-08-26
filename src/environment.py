@@ -54,10 +54,8 @@ class Environment(Framework):
         for drone in self.world.drones:
             if drone.body.active:
                 distance = (drone.target.position - drone.body.position).length
-                if distance < self.config.env.track.distance_threshold:
-                    # drone.idx_target = (drone.idx_target + 1) % len(drone.targets)
-                    drone.idx_target = drone.idx_target + 1
-                    drone.idx_target = drone.idx_target % len(drone.targets)
+                if distance < drone.target.gate_size:
+                    drone.idx_target = (drone.idx_target + 1) % len(drone.targets)
                     drone.target = drone.targets[drone.idx_target]
 
     def reset(self) -> None:
@@ -106,7 +104,7 @@ class Environment(Framework):
             drone.score = 0.0
 
             # Reset to first target.
-            drone.idx_target = 0
+            drone.idx_target = idx_gate_2
             drone.target = drone.targets[drone.idx_target]
 
             # Reactivate drone after collision in last generation.
@@ -160,7 +158,7 @@ class Environment(Framework):
             Dictionary holding reward metrics.
         """
         results = {}
-        rewards = numpy.array([agent.score for agent in self.drones])
+        rewards = numpy.array([agent.reward for agent in self.drones])
         results["min_reward"] = rewards.min()
         results["max_reward"] = rewards.max()
         results["mean_reward"] = rewards.mean()
@@ -176,4 +174,4 @@ class Environment(Framework):
         Returns:
             Index of agent.
         """
-        return numpy.argmax([agent.score for agent in self.drones])
+        return numpy.argmax([agent.reward for agent in self.drones])

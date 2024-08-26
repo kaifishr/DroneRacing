@@ -130,19 +130,13 @@ class Drone(Agent):
         self.normalize_diam = 1.0 / (0.5 * domain_diameter)
         self.normalize_velocity = 0.1
 
-        # Fitness score
-        self.score = 0.0
-        self.theta_old = None
-        self.speed_old_x = None
-        self.speed_old_y = None
-        self.pos_old_x = None
-        self.pos_old_y = None
+        self.reward = 0.0
 
         # Every drone keeps track of their current target.
         self.targets = world.track.gates
         self.idx_next_target = 0
         self.next_target = self.targets[self.idx_next_target]
-        self.distance_to_target = -1
+        self.distance_to_target = None
 
     def comp_reward(self) -> None:
         """Computes current fitness score.
@@ -152,7 +146,7 @@ class Drone(Agent):
         drone over time divided by the simulation's step size.
         """
         if self.body.active:
-            score = 0.0
+            reward = 0.0
 
             distance_vector = self.next_target.position - self.body.position
             # distance = abs(distance_vector.x) + abs(distance_vector.y)  # L1
@@ -160,13 +154,13 @@ class Drone(Agent):
             # distance = max(abs(distance_vector.x), abs(distance_vector.y))  # Linf
 
             # Sparse rewards.
-            if distance < self.config.env.track.distance_threshold:
-                score += 1.0
+            # if distance < self.next_target.gate_size:
+            #     reward += 1.0
             # Continuous rewards.
-            # score += 1.0 / (1.0 + distance)**2
+            reward += 1.0 / (1.0 + distance)**2
 
             self.distance_to_target = distance_vector.length
-            self.score = score
+            self.reward = reward
 
     def fetch_data(self):
         """Fetches data from drone for neural network."""
@@ -225,7 +219,6 @@ class Drone(Agent):
                     diff = cb.point - p1
                     if diff.length < self.collision_threshold:
                         self.body.active = False
-                        self.score -= 0.1
                         self.forces = self._NUM_ENGINES * [0.0]
                         self.callbacks.clear()
                         self.p1.clear()

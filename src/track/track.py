@@ -55,6 +55,8 @@ class Mark:
         ) -> None:
 
         self.position = b2Vec2(x_pos, y_pos)
+        self.gate_size = gate_size
+
         gate = world.CreateStaticBody(position=(x_pos, y_pos))
         gate.CreateFixture(
             shape=b2CircleShape(radius=gate_size),
@@ -71,7 +73,7 @@ class Track:
         gates = (
             (-20.0, -10.0, 0.25 * math.pi), 
             (20.0, 10.0, 1.75 * math.pi), 
-            # (0.0, -10.0, 0.5 * math.pi)
+            (20.0, -10.0, 0.5 * math.pi)
         )
 
         self.gates = self._get_gates(world=world, gates=gates)
