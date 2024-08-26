@@ -53,10 +53,10 @@ class Environment(Framework):
     def next_target(self) -> None:
         for drone in self.world.drones:
             if drone.body.active:
-                distance = (drone.target.position - drone.body.position).length
-                if distance < drone.target.gate_size:
-                    drone.idx_target = (drone.idx_target + 1) % len(drone.targets)
-                    drone.target = drone.targets[drone.idx_target]
+                distance = (drone.next_target.position - drone.body.position).length
+                if distance < drone.next_target.gate_size:
+                    drone.idx_next_target = (drone.idx_next_target + 1) % len(drone.targets)
+                    drone.next_target = drone.targets[drone.idx_next_target]
 
     def reset(self) -> None:
         """Resets Drone to initial position and velocity."""
@@ -104,8 +104,8 @@ class Environment(Framework):
             drone.score = 0.0
 
             # Reset to first target.
-            drone.idx_target = idx_gate_2
-            drone.target = drone.targets[drone.idx_target]
+            drone.idx_next_target = idx_gate_2
+            drone.next_target = drone.targets[drone.idx_next_target]
 
             # Reactivate drone after collision in last generation.
             drone.body.active = True

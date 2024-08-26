@@ -136,7 +136,7 @@ class Drone(Agent):
         self.targets = world.track.gates
         self.idx_next_target = 0
         self.next_target = self.targets[self.idx_next_target]
-        self.distance_to_target = None
+        self.distance_to_target = -1
 
     def comp_reward(self) -> None:
         """Computes current fitness score.

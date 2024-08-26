@@ -17,14 +17,14 @@ optimizer:
     mutation_probability: 0.04
     mutation_rate: 0.02
   nes:
-    learning_rate: 0.02
+    learning_rate: 0.04
     sigma: 0.1
   ces:
     learning_rate: 0.00006
     sigma: 0.1
     momentum: 0.16
   num_agents: 4
-  num_max_steps: 100
+  num_max_steps: 1000
 
 env: 
   allow_collision_domain: false
@@ -35,11 +35,8 @@ env:
       x_max: 40.0
       y_min: -20.0
       y_max: 20.0
-    map: "empty"  # empty, block, track, locks, blade, smile
 
-  track:
-    gates: [[30, 0], [-30, 0], [0, -10]]
-    distance_threshold: 2.0
+  track: "map1"  # map1, map2, map3
 
   drone:
     diam: 1.0
@@ -63,7 +60,7 @@ env:
     neural_network: # model
       num_dim_in: 14  # Distances to the nearest wall, position, velocity, position of target.
       num_dim_out: 4  # Actions for four engines.
-      num_dim_hidden: 16
+      num_dim_hidden: 8
       num_hidden_layers: 2
       nonlinearity: "tanh"  # relu, tanh
 

@@ -72,8 +72,10 @@ class Track:
 
         gates = (
             (-20.0, -10.0, 0.25 * math.pi), 
-            (20.0, 10.0, 1.75 * math.pi), 
-            (20.0, -10.0, 0.5 * math.pi)
+            (-20.0, 10.0, 1.75 * math.pi), 
+            (20.0, 10.0, 0.5 * math.pi),
+            (20.0, -10.0, 0.5 * math.pi),
+            (0.0, 0.0, 0.5 * math.pi),
         )
 
         self.gates = self._get_gates(world=world, gates=gates)
