@@ -1,8 +1,8 @@
-# SpaceDrones 🚀
+# DroneRacer
 
-*SpaceDrones* provides a simple learning environment for evolution-based optimization with many possible extensions.
+*DroneRacer* provides a simple learning environment for evolution-based optimization with many possible extensions for the GPU poor.
 
-Under the hood, *SpaceDrones* uses *PyBox2D* for the rigid physics simulation and *Pygame* for rendering and visualization. 
+Under the hood, *DroneRacer* uses *PyBox2D* for the rigid physics simulation and *Pygame* for rendering and visualization. 
 
 The drones' behavior is controlled by a reward function. The example below shows non-interacting drones trying to follow a target. The red lines show the force with which the rocket engines are run.
 
@@ -18,11 +18,11 @@ The following graph shows the average reward over a period of about 3000 generat
 
 ## Installation
 
-To run *SpaceDrones*, install the latest master directly from GitHub. For a basic install, run:
+To run *DroneRacer*, install the latest master directly from GitHub. For a basic install, run:
 
 ```bash
-git clone https://github.com/kaifishr/SpaceDrones
-cd SpaceDrones
+git clone https://github.com/kaifishr/DroneRacer
+cd DroneRacer 
 pip install -r requirements.txt
 ```
 
@@ -42,7 +42,7 @@ Visualization can be turned on and off by clicking on the *Pygame* window or by 
 
 ## Method
 
-*SpaceDrones* uses *PyBox2D* to create a physical environment the drones can interact with. Drones use raycasting to gather distance information about obstacles in their surroundings. This information is fed into the drone's neural network to predict the next set of actions. These actions are passed on to the engines, which then command the power at which they should run.
+*DroneRacer* uses *PyBox2D* to create a physical environment the drones can interact with. Drones use raycasting to gather distance information about obstacles in their surroundings. This information is fed into the drone's neural network to predict the next set of actions. These actions are passed on to the engines, which then command the power at which they should run.
 
 The drones' fitness depends on the defined reward function. The neural network weights of the fittest drone are mutated and passed on to the next generation of drones.
 
@@ -54,16 +54,15 @@ The drone's brain is modeled by a multilayer perceptron neural network implement
 
 The reward function controls the learning behavior of the drone. As a default, the fitness score depends on how much distance has been covered by the drone and how close it flies to obstacles. The reward function can be modified as desired.
 
-*SpaceDrones* lets you modify many hyperparameters that affect how fast and what the drones learn. Most of the hyperparameters can be found in the *config.yml* file.
+*DroneRacer* lets you modify many hyperparameters that affect how fast and what the drones learn. Most of the hyperparameters can be found in the *config.yml* file.
 
-## Maps
+## Tracks
 
-*SpaceDrones* has different maps that vary in difficulty. Depending on the map, the drones learn different flight behaviors. Maps can be easily added or modified.
+*DroneRacer* has different tracks that vary in difficulty. Depending on the track, the drones learn different flight behaviors. Tracks can be easily added or modified.
 
 ||||
 |:--:|:--:|:--:|
 |![](docs/map_empty.png)|![](docs/map_block.png)|![](docs/map_locks.png)|
-|![](docs/map_blade.png)|![](docs/map_track.png)|![](docs/map_smile.png)|
 
 ## References
 
@@ -77,16 +76,16 @@ The reward function controls the learning behavior of the drone. As a default, t
 If you find this project useful, please use BibTeX to cite it as:
 
 ```bibtex
-@article{fischer2022spacedrones,
-  title   = "SpaceDrones",
+@article{fischer2024droneracer,
+  title   = "DroneRacer",
   author  = "Fischer, Kai",
   journal = "GitHub repository",
-  year    = "2022",
-  month   = "July",
-  url     = "https://github.com/kaifishr/SpaceDrones"
+  year    = "2024",
+  month   = "August",
+  url     = "https://github.com/kaifishr/DroneRacer"
 }
 ```
 
 ## License
 
-MIT
+Apache License 2.0

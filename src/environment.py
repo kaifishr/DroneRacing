@@ -11,10 +11,8 @@ import random
 import numpy
 from Box2D.Box2D import b2Vec2
 
-# from src.domain import Domain
-from src.domain.track import Track 
+from src.track.track import Track 
 from src.drone import Drone
-from src.snitch import Snitch
 from src.utils.config import Config
 from src.framework import Framework
 
@@ -34,20 +32,16 @@ class Environment(Framework):
         """Initializes environment class."""
         super().__init__(config=config)
 
-        self.world.gravity = b2Vec2(config.env.gravity.x, config.env.gravity.y)
+        self.world.gravity = b2Vec2(0.0, 0.0)
 
-        # Domain(world=self.world, config=config)
-        Track(world=self.world, config=config)
+        # Race track
+        self.world.track = Track(world=self.world, config=config)
 
         # Create agents.
         num_agents = config.optimizer.num_agents
         self.drones = [Drone(world=self.world, config=config) for _ in range(num_agents)]
         self.world.drones = self.drones
 
-        # Create moving target.
-        # self.target = Snitch(world=self.world, config=config)
-        # self.world.target = self.target
-        
         # Domain
         self.x_max = config.env.domain.limit.x_max
         self.x_min = config.env.domain.limit.x_min
@@ -58,25 +52,39 @@ class Environment(Framework):
 
     def next_target(self) -> None:
         for drone in self.world.drones:
-            distance = (drone.target - drone.body.position).length
-            if distance < self.config.env.target.distance_threshold:
-                # drone.idx_target = (drone.idx_target + 1) % len(drone.targets)
-                drone.idx_target = drone.idx_target + 1
-                drone.idx_target = drone.idx_target % len(drone.targets)
-                drone.target = drone.targets[drone.idx_target]
+            if drone.body.active:
+                distance = (drone.target.position - drone.body.position).length
+                if distance < self.config.env.track.distance_threshold:
+                    # drone.idx_target = (drone.idx_target + 1) % len(drone.targets)
+                    drone.idx_target = drone.idx_target + 1
+                    drone.idx_target = drone.idx_target % len(drone.targets)
+                    drone.target = drone.targets[drone.idx_target]
 
     def reset(self) -> None:
         """Resets Drone to initial position and velocity."""
 
         if self.config.env.drone.respawn.is_random:
-            # init_position_rand = b2Vec2(
-            #     random.uniform(a=self.phi * self.x_min, b=self.phi * self.x_max),
-            #     random.uniform(a=self.phi * self.y_min, b=self.phi * self.y_max),
-            # )
-            init_position_rand = b2Vec2(
-                random.uniform(a=self.phi * self.x_min, b=self.phi * self.x_max),
-                random.uniform(a=0.0, b=0.0),
-            )
+            # Respawn drone at random location between two gates on track.
+            num_gates = len(self.world.track.gates)
+            idx_gate_1 = random.randint(0, num_gates - 1)
+            idx_gate_2 = (idx_gate_1 + 1) % num_gates
+            gate_1 = self.world.track.gates[idx_gate_1]
+            gate_2 = self.world.track.gates[idx_gate_2]
+
+            x_1 = gate_1.position.x
+            y_1 = gate_1.position.y
+            x_2 = gate_2.position.x
+            y_2 = gate_2.position.y
+
+            if x_1 == x_2:
+                x_random = x_1
+                y_random = random.uniform(a=y_1, b=y_2)
+            else:
+                x_random = random.uniform(a=x_1, b=x_2)
+                slope = (y_2 - y_1) / (x_2 - x_1)
+                y_random = slope * (x_random - x_1) + y_1
+
+            init_position_rand = b2Vec2(x_random, y_random)
 
         for drone in self.drones:
             if self.config.env.drone.respawn.is_random:
@@ -115,10 +123,9 @@ class Environment(Framework):
         for drone in self.drones:
             drone.detect_collision()
 
-    def comp_score(self) -> None:
-        """Computes fitness score of each drones."""
+    def comp_reward(self) -> None:
         for drone in self.drones:
-            drone.comp_score()
+            drone.comp_reward()
 
     def comp_action(self) -> None:
         """Computes next set of actions."""

@@ -9,32 +9,10 @@ from Box2D.Box2D import b2World
 
 from src.utils.config import Config
 
-class Track:
-    """Track with static targets / gates"""
 
-    def __init__(self, config: Config) -> None:
-
-        self.num_gates = 10
-
-        # TODO: Make this a class Gate
-        self.diam_gate = 1
-        self.positions = (b2Vec2(random.randint(-10, 10), random.randint(-10, 10)) for _ in range(self.num_gates))
-        self.orientation = (random.random(0, 2*3.1415) for _ in range(self.num_gates))
-
-        # self.targets = (
-        #     b2Vec2(-35.0, -15.0),
-        #     b2Vec2(0.0, 15.0),
-        #     b2Vec2(35.0, -15.0),
-        # )
-        self.idx_target = 0
-        self.target = self.targets[self.idx_target]
-        self.distance_to_target = None
-
-
-class Snitch: # TODO: Snitch --> Track
-    """Snitch class.
-
-    The Snitch acts as a target.
+class Snitch:
+    """
+    The Snitch acts as a moving target.
     """
 
     vertices = [

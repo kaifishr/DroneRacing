@@ -25,19 +25,17 @@ class Agent:
 
 
 class Drone(Agent):
-    """Drone class.
-
-    A drone consists of a body with four boosters attached.
+    """A drone consists of a body with four engines attached.
     """
 
-    vertices = [
+    _VERTICES = [
         (0.5, 0.5),
         (-0.5, 0.5),
         (-0.5, -0.5),
         (0.5, -0.5),
     ]
 
-    num_engines = 4
+    _NUM_ENGINES: int = 4
 
     def __init__(self, world: b2World, config: Config) -> None:
         """Initializes the wheel class."""
@@ -69,7 +67,7 @@ class Drone(Agent):
         )
 
         self.diam = config.env.drone.diam
-        vertices = [(self.diam * x, self.diam * y) for (x, y) in self.vertices]
+        vertices = [(self.diam * x, self.diam * y) for (x, y) in self._VERTICES]
 
         fixture_def = b2FixtureDef(
             shape=b2PolygonShape(vertices=vertices),
@@ -109,7 +107,7 @@ class Drone(Agent):
 
         # Forces predicted by neural network.
         # Initialized with 0 for each engine.
-        self.forces = [0.0 for _ in range(self.num_engines)]
+        self.forces = [0.0 for _ in range(self._NUM_ENGINES)]
 
         # Ray casting rendering
         self.callbacks = []
@@ -140,19 +138,13 @@ class Drone(Agent):
         self.pos_old_x = None
         self.pos_old_y = None
 
-        # Tracking
-        self.targets = [
-            # b2Vec2(-35.0, -15.0),
-            # b2Vec2(0.0, 15.0),
-            # b2Vec2(35.0, -15.0),
-            b2Vec2(-35.0, 0.0),
-            b2Vec2(35.0, 0.0),
-        ]
-        self.idx_target = 0
-        self.target = self.targets[self.idx_target]
-        self.distance_to_target = None
+        # Every drone keeps track of their current target.
+        self.targets = world.track.gates
+        self.idx_next_target = 0
+        self.next_target = self.targets[self.idx_next_target]
+        self.distance_to_target = -1
 
-    def comp_score(self) -> None:
+    def comp_reward(self) -> None:
         """Computes current fitness score.
 
         Accumulates drone's linear velocity over one generation.
@@ -162,24 +154,18 @@ class Drone(Agent):
         if self.body.active:
             score = 0.0
 
-            # Reward: Distance to target
-            if self.config.optimizer.reward.distance_to_target:
-                distance_vector = self.target - self.body.position
-                # Score
-                # distance = abs(distance_vector.x) + abs(distance_vector.y)  # L1
-                distance = distance_vector.length  # L2
-                # distance = max(abs(distance_vector.x), abs(distance_vector.y))  # Linf
-                if distance < 5.0:
-                    score += 1.0
-                # score += 1.0 / (1.0 + distance)**2
-                self.distance_to_target = distance_vector.length
+            distance_vector = self.next_target.position - self.body.position
+            # distance = abs(distance_vector.x) + abs(distance_vector.y)  # L1
+            distance = distance_vector.length  # L2
+            # distance = max(abs(distance_vector.x), abs(distance_vector.y))  # Linf
 
-            # Reward high velocity  # TODO: Maybe later
-            if self.config.optimizer.reward.high_velocity:
-                speed = self.body.linearVelocity.length
-                if speed < 1.0:
-                    score += -0.1
+            # Sparse rewards.
+            if distance < self.config.env.track.distance_threshold:
+                score += 1.0
+            # Continuous rewards.
+            # score += 1.0 / (1.0 + distance)**2
 
+            self.distance_to_target = distance_vector.length
             self.score = score
 
     def fetch_data(self):
@@ -222,8 +208,8 @@ class Drone(Agent):
             for vel in self.body.linearVelocity:
                 self.data.append(vel * self.normalize_velocity)
 
-            # Position to target:
-            for coord in self.target:
+            # Position of next target:
+            for coord in self.next_target.position:
                 self.data.append(coord * self.normalize_diam)
 
     def detect_collision(self):
@@ -240,7 +226,7 @@ class Drone(Agent):
                     if diff.length < self.collision_threshold:
                         self.body.active = False
                         self.score -= 0.1
-                        self.forces = self.num_engines * [0.0]
+                        self.forces = self._NUM_ENGINES * [0.0]
                         self.callbacks.clear()
                         self.p1.clear()
                         self.p2.clear()

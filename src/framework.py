@@ -75,11 +75,9 @@ class Framework:
                     pygame.quit()
                     sys.exit()
 
-        # Step the world.
         self.world.Step(self.time_step, self.velocity_iterations, self.position_iterations)
         self.world.ClearForces()
 
-        # Render world if true.
         if self.is_rendering:
             self.renderer.render(self.world)
             pygame.display.flip()

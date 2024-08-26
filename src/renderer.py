@@ -118,12 +118,24 @@ class Renderer:
         """Draws circle in specified size and color."""
         radius *= self.ppm
         radius = 1 if radius < 1 else int(radius)
-        pygame.draw.circle(self.screen, color, center, radius, width)
+        pygame.draw.circle(
+            surface=self.screen, 
+            color=color, 
+            center=center, 
+            radius=radius, 
+            width=width
+        )
 
-    def _draw_circle2(self, body, fixture, color=None, width: int = 1) -> None:
+    def _draw_circle2(self, body, fixture, color=None, width: int = 2) -> None:
         position = self._to_screen(body.position)
         radius = self.ppm * fixture.shape.radius
-        pygame.draw.circle(self.screen, color or self.color_gate, position, radius, width=width)
+        pygame.draw.circle(
+            surface=self.screen, 
+            color=color or self.color_gate, 
+            center=position, 
+            radius=radius, 
+            width=width
+        )
 
     def _draw_segment(self, p_1, p_2, color: tuple[int]):
         """Draws line from points p_1 to p_2 in specified color."""

@@ -1,5 +1,4 @@
-# SpaceDrones configuration
-name: "SpaceDrones"
+name: "DroneRacer"
 random_seed: 417125
 
 # Directory to save frames to create video.
@@ -25,18 +24,10 @@ optimizer:
     sigma: 0.1
     momentum: 0.16
   num_agents: 4
-  num_max_steps: 1000
-  reward:
-    distance_traveled: false
-    distance_to_target: true
-    high_velocity: true
+  num_max_steps: 100
 
 env: 
   allow_collision_domain: false
-
-  gravity: 
-    x: 0.0
-    y: 0.0
 
   domain:
     limit:
@@ -47,13 +38,8 @@ env:
     map: "empty"  # empty, block, track, locks, blade, smile
 
   track:
-    gates: [[1, 1], [2, 2]]
-
-  snitch:  # TODO: Remove this.
-    distance_threshold: 5  # TODO: Remove this
-
-  target:
-    distance_threshold: 4
+    gates: [[30, 0], [-30, 0], [0, -10]]
+    distance_threshold: 2.0
 
   drone:
     diam: 1.0
