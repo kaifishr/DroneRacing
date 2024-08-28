@@ -1,4 +1,5 @@
 """Script with helper functions."""
+
 import random
 from pathlib import Path
 

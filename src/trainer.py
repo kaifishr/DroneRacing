@@ -1,4 +1,5 @@
 """Optimizer class for genetic optimization."""
+
 import time
 import psutil
 from pathlib import Path
@@ -13,7 +14,7 @@ from src.utils.utils import save_checkpoint
 
 def get_cpu_temperature():
     sensors = psutil.sensors_temperatures()
-    return sensors['coretemp'][0].current
+    return sensors["coretemp"][0].current
 
 
 class Trainer:

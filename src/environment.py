@@ -6,12 +6,13 @@ other.
 The Environment class also wraps the Framework class that calls the physics
 engine and rendering engines.
 """
+
 import random
 
 import numpy
 from Box2D.Box2D import b2Vec2
 
-from src.track.track import Track 
+from src.track.track import Track
 from src.drone import Drone
 from src.utils.config import Config
 from src.framework import Framework
@@ -112,7 +113,6 @@ class Environment(Framework):
 
             # Reactivate drone after collision in last generation.
             drone.body.active = True
-
 
     def fetch_data(self) -> None:
         """Fetches data for each drone"""

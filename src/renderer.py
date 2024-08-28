@@ -1,4 +1,5 @@
 """Renderer for pygame-based framework."""
+
 import pygame
 
 from Box2D import b2Vec2, b2World
@@ -119,22 +120,18 @@ class Renderer:
         radius *= self.ppm
         radius = 1 if radius < 1 else int(radius)
         pygame.draw.circle(
-            surface=self.screen, 
-            color=color, 
-            center=center, 
-            radius=radius, 
-            width=width
+            surface=self.screen, color=color, center=center, radius=radius, width=width
         )
 
     def _draw_circle2(self, body, fixture, color=None, width: int = 2) -> None:
         position = self._to_screen(body.position)
         radius = self.ppm * fixture.shape.radius
         pygame.draw.circle(
-            surface=self.screen, 
-            color=color or self.color_gate, 
-            center=position, 
-            radius=radius, 
-            width=width
+            surface=self.screen,
+            color=color or self.color_gate,
+            center=position,
+            radius=radius,
+            width=width,
         )
 
     def _draw_segment(self, p_1, p_2, color: tuple[int]):

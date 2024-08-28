@@ -1,4 +1,5 @@
 """Contains drone definition."""
+
 import copy
 import math
 
@@ -25,8 +26,7 @@ class Agent:
 
 
 class Drone(Agent):
-    """A drone consists of a body with four engines attached.
-    """
+    """A drone consists of a body with four engines attached."""
 
     _VERTICES = [
         (0.5, 0.5),

@@ -1,4 +1,5 @@
 """Raycasting for drones. The drone's eyes."""
+
 from Box2D import b2RayCastCallback
 from Box2D.Box2D import b2Vec2
 

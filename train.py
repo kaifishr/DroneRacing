@@ -1,4 +1,5 @@
 """Runs optimizer with selected parameters."""
+
 from src.environment import Environment
 from src.optimizer import EvolutionStrategy
 from src.optimizer import GeneticOptimizer
@@ -17,9 +18,7 @@ if __name__ == "__main__":
     if config.optimizer.name == "nes":
         cfg = config.optimizer.nes
         optimizer = EvolutionStrategy(
-            agents=env.drones,
-            learning_rate=cfg.learning_rate,
-            sigma=cfg.sigma
+            agents=env.drones, learning_rate=cfg.learning_rate, sigma=cfg.sigma
         )
 
     elif config.optimizer.name == "ces":
@@ -28,7 +27,7 @@ if __name__ == "__main__":
             agents=env.drones,
             learning_rate=cfg.learning_rate,
             sigma=cfg.sigma,
-            momentum=cfg.momentum
+            momentum=cfg.momentum,
         )
 
     elif config.optimizer.name == "evo":
@@ -36,13 +35,11 @@ if __name__ == "__main__":
         optimizer = GeneticOptimizer(
             agents=env.drones,
             mutation_probability=cfg.mutation_probability,
-            mutation_rate=cfg.mutation_rate
+            mutation_rate=cfg.mutation_rate,
         )
 
     else:
-        raise NotImplementedError(
-            f"Optimizer '{config.optimizer.name}' not implemented."
-        )
+        raise NotImplementedError(f"Optimizer '{config.optimizer.name}' not implemented.")
 
     trainer = Trainer(env=env, optimizer=optimizer, config=config)
     trainer.run()

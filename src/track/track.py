@@ -4,7 +4,7 @@ from typing import Union
 from Box2D import b2EdgeShape
 from Box2D.Box2D import b2World
 from Box2D.Box2D import b2CircleShape
-from Box2D.Box2D import b2Filter 
+from Box2D.Box2D import b2Filter
 from Box2D.Box2D import b2Vec2
 
 from src.utils.config import Config
@@ -13,15 +13,15 @@ from src.utils.config import Config
 class Gate:
 
     def __init__(
-            self, 
-            world: b2World,
-            x_pos: float, 
-            y_pos: float, 
-            theta: float,
-            gate_size: float = 8.0,
-            post_size: float = 0.5,
-            is_interactive: bool = False,
-        ) -> None:
+        self,
+        world: b2World,
+        x_pos: float,
+        y_pos: float,
+        theta: float,
+        gate_size: float = 8.0,
+        post_size: float = 0.5,
+        is_interactive: bool = False,
+    ) -> None:
 
         self.position = b2Vec2(x_pos, y_pos)
 
@@ -47,12 +47,12 @@ class Gate:
 class Mark:
 
     def __init__(
-            self, 
-            world: b2World,
-            x_pos: float, 
-            y_pos: float, 
-            gate_size: float = 3.0,
-        ) -> None:
+        self,
+        world: b2World,
+        x_pos: float,
+        y_pos: float,
+        gate_size: float = 3.0,
+    ) -> None:
 
         self.position = b2Vec2(x_pos, y_pos)
         self.gate_size = gate_size
@@ -75,13 +75,11 @@ class Track:
             (-10.0, -10.0, 0.5 * math.pi),
             (10.0, 10.0, 0.5 * math.pi),
             (10.0, -10.0, 0.5 * math.pi),
-
             # Line
-            # (-20.0, 0.0, 0.25 * math.pi), 
-            # (0.0, 0.0, 0.25 * math.pi), 
-            # (20.0, 0.0, 0.25 * math.pi), 
-
-            # (-20.0, 10.0, 1.75 * math.pi), 
+            # (-20.0, 0.0, 0.25 * math.pi),
+            # (0.0, 0.0, 0.25 * math.pi),
+            # (20.0, 0.0, 0.25 * math.pi),
+            # (-20.0, 10.0, 1.75 * math.pi),
             # (20.0, 10.0, 0.5 * math.pi),
         )
 
@@ -115,4 +113,3 @@ class Track:
             )
 
         return gates_
-

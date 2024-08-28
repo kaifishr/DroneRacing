@@ -1,4 +1,5 @@
 """Optimizer class for genetic optimization."""
+
 from src.environment import Environment
 from src.utils.config import Config
 

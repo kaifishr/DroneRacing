@@ -1,5 +1,6 @@
 """Evolutionary inspired black-box optimization algorithms.
 """
+
 import copy
 import numpy
 from src.drone import Agent
@@ -22,7 +23,9 @@ class Optimizer:
 class GeneticOptimizer(Optimizer):
     """Genetic optimizer class."""
 
-    def __init__(self, agents: list[Agent], mutation_probability: float, mutation_rate=float) -> None:
+    def __init__(
+        self, agents: list[Agent], mutation_probability: float, mutation_rate=float
+    ) -> None:
         """ """
         super().__init__(agents=agents)
 
@@ -47,11 +50,15 @@ class GeneticOptimizer(Optimizer):
 
         for agent in self.agents:
             for weights, biases in zip(agent.model.weights, agent.model.biases):
-                noise = numpy.random.uniform(low=-1.0 * mutation_rate, high=mutation_rate, size=weights.shape)
+                noise = numpy.random.uniform(
+                    low=-1.0 * mutation_rate, high=mutation_rate, size=weights.shape
+                )
                 mask = numpy.random.random(size=weights.shape) < mutation_prob
                 numpy.add(weights, mask * noise, out=weights)
 
-                noise = numpy.random.uniform(low=-1.0 * mutation_rate, high=mutation_rate, size=biases.shape)
+                noise = numpy.random.uniform(
+                    low=-1.0 * mutation_rate, high=mutation_rate, size=biases.shape
+                )
                 mask = numpy.random.random(size=biases.shape) < mutation_prob
                 numpy.add(biases, mask * noise, out=biases)
 
@@ -147,7 +154,9 @@ class EvolutionStrategy(Optimizer):
     def _initialize_gradients(self) -> None:
         """Initializes gradients."""
         weights, biases = self.parameters
-        self.gradients = [(numpy.zeros_like(w), numpy.zeros_like(b)) for w, b in zip(weights, biases)]
+        self.gradients = [
+            (numpy.zeros_like(w), numpy.zeros_like(b)) for w, b in zip(weights, biases)
+        ]
 
     def _zero_gradients(self) -> None:
         """Sets all gradients to zero."""
@@ -166,7 +175,9 @@ class EvolutionStrategy(Optimizer):
 
     def _gradient_descent(self) -> None:
         """Performs gradient descent step."""
-        for (weights, biases), (grad_weights, grad_biases) in zip(zip(*self.parameters), self.gradients):
+        for (weights, biases), (grad_weights, grad_biases) in zip(
+            zip(*self.parameters), self.gradients
+        ):
             numpy.add(weights, self.learning_rate * grad_weights, out=weights)
             numpy.add(biases, self.learning_rate * grad_biases, out=biases)
 
@@ -191,7 +202,6 @@ class EvolutionStrategy(Optimizer):
         self._mutate_parameters()
 
 
-
 class ContinuousEvolutionStrategy(Optimizer):
     """Single agent natural evolution strategies class
 
@@ -200,12 +210,8 @@ class ContinuousEvolutionStrategy(Optimizer):
     """
 
     def __init__(
-            self, 
-            agents: list[Agent], 
-            learning_rate: float, 
-            sigma: float, 
-            momentum: float
-        ) -> None:
+        self, agents: list[Agent], learning_rate: float, sigma: float, momentum: float
+    ) -> None:
         """Initializes Evolution Strategies optimizer.
 
         Args:
@@ -232,7 +238,9 @@ class ContinuousEvolutionStrategy(Optimizer):
     def _register_noise(self) -> None:
         """Registers noise in model of each agent."""
         weights, biases = self.model.weights, self.model.biases
-        self.model.noise = [(numpy.zeros_like(w), numpy.zeros_like(b)) for w, b in zip(weights, biases)]
+        self.model.noise = [
+            (numpy.zeros_like(w), numpy.zeros_like(b)) for w, b in zip(weights, biases)
+        ]
 
     def _create_noise(self) -> None:
         """Creates noise for each parameter."""
@@ -242,14 +250,16 @@ class ContinuousEvolutionStrategy(Optimizer):
             eps_b.fill(0.0)
 
         for eps_w, eps_b in self.model.noise:
-            noise_w = numpy.random.normal(loc=0.0, scale=self.sigma, size=eps_w.shape) 
+            noise_w = numpy.random.normal(loc=0.0, scale=self.sigma, size=eps_w.shape)
             numpy.add(eps_w, noise_w, out=eps_w)
-            noise_b = numpy.random.normal(loc=0.0, scale=self.sigma, size=eps_b.shape) 
+            noise_b = numpy.random.normal(loc=0.0, scale=self.sigma, size=eps_b.shape)
             numpy.add(eps_b, noise_b, out=eps_b)
 
     def _mutate_parameters(self) -> None:
         """Mutates models's parameters of each agent by adding Gaussian noise."""
-        for (w, b), (eps_w, eps_b) in zip(zip(self.model.weights, self.model.biases), self.model.noise):
+        for (w, b), (eps_w, eps_b) in zip(
+            zip(self.model.weights, self.model.biases), self.model.noise
+        ):
             numpy.add(w, eps_w, out=w)
             numpy.add(b, eps_b, out=b)
 

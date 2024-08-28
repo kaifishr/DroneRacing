@@ -2,6 +2,7 @@
 
 The drone's brain represented by a feedforward neural network.
 """
+
 import numpy
 from scipy.special import expit
 
@@ -130,4 +131,3 @@ class Model:
             out = self._nonlinearity(numpy.matmul(out, weight.T) + bias.T)
         out = expit(numpy.matmul(out, weights[-1].T) + biases[-1].T)[0, :]
         return out
-    

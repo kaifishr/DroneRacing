@@ -1,4 +1,5 @@
 """Class to hold configuration."""
+
 from pathlib import Path
 
 import yaml

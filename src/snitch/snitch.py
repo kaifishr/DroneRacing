@@ -77,7 +77,7 @@ class Snitch:
 
     def step(self) -> None:
         """Moves target to next random position if one drone comes close enough.
-        Allows for incremental learning. 
+        Allows for incremental learning.
         """
         for drone in self.world.drones:
             dist = (self.body.position - drone.body.position).length

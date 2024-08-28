@@ -2,6 +2,7 @@
 
 TODO: Move apply_action / force here.
 """
+
 import math
 
 from Box2D import b2FixtureDef, b2PolygonShape
