@@ -155,7 +155,7 @@ class Drone(Agent):
             # reward += 1.0 / (1.0 + distance)**2
 
             self.distance_to_target = distance_vector.length
-            self.reward = reward
+            self.reward += reward
 
     def fetch_data(self):
         """Fetches data from drone for neural network."""

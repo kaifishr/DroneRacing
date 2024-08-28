@@ -65,14 +65,14 @@ class Trainer:
             if not cfg.env.allow_collision_domain:
                 self.env.collision_detection()
 
-            # Compute current fitness of each drone
-            self.env.comp_reward()
-
             # Run neural network prediction
             self.env.comp_action()
 
             # Apply network predictions to drone
             self.env.apply_action()
+
+            # Compute current fitness of each drone
+            self.env.comp_reward()
 
             # Select next target.
             self.env.next_target()
