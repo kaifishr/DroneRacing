@@ -130,3 +130,4 @@ class Model:
             out = self._nonlinearity(numpy.matmul(out, weight.T) + bias.T)
         out = expit(numpy.matmul(out, weights[-1].T) + biases[-1].T)[0, :]
         return out
+    

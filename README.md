@@ -52,9 +52,7 @@ The drone's brain is modeled by a multilayer perceptron neural network implement
 
 ## Learning
 
-The reward function controls the learning behavior of the drone. As a default, the fitness score depends on how much distance has been covered by the drone and how close it flies to obstacles. The reward function can be modified as desired.
-
-*DroneRacer* lets you modify many hyperparameters that affect how fast and what the drones learn. Most of the hyperparameters can be found in the *config.yml* file.
+The reward function controls the learning behavior of the drone. The reward is a function of gates passed by the drone. The reward function can be modified as desired. *DroneRacer* lets you modify many hyperparameters that affect how fast and what the drones learn. Most of the hyperparameters can be found in the *config.yml* file.
 
 ## Tracks
 

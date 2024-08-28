@@ -48,7 +48,7 @@ class Trainer:
         num_max_steps = cfg.optimizer.num_max_steps  # max_episode_length
         step = 0
         generation = 0
-        best_score = 0.0
+        best_reward = 0.0
 
         time_start = time.time()
         self.env.reset()
@@ -57,9 +57,6 @@ class Trainer:
         while is_running:
             # Physics and rendering.
             self.env.step()
-
-            # Move the target.
-            self.env.next_target()
 
             # Fetch data for neural network.
             self.env.fetch_data()
@@ -76,6 +73,9 @@ class Trainer:
 
             # Apply network predictions to drone
             self.env.apply_action()
+
+            # Select next target.
+            self.env.next_target()
 
             # Method that run at end of simulation.
             if ((step + 1) % num_max_steps == 0) or self.env.is_done():
@@ -95,11 +95,11 @@ class Trainer:
 
                 # Save model
                 if cfg.checkpoints.save_model:
-                    if results["mean_reward"] > best_score:
+                    if results["mean_reward"] > best_reward:
                         index = self.env.index_best_agent()
                         model = self.env.drones[index].model
                         save_checkpoint(model=model, config=cfg)
-                        best_score = results["mean_reward"]
+                        best_reward = results["mean_reward"]
 
                 step = 0
                 generation += 1

@@ -71,11 +71,18 @@ class Track:
         self._get_boundary(world=world, config=config.env.domain)
 
         gates = (
-            (-20.0, -10.0, 0.25 * math.pi), 
-            (-20.0, 10.0, 1.75 * math.pi), 
-            (20.0, 10.0, 0.5 * math.pi),
-            (20.0, -10.0, 0.5 * math.pi),
-            (0.0, 0.0, 0.5 * math.pi),
+            # Triangle
+            (-10.0, -10.0, 0.5 * math.pi),
+            (10.0, 10.0, 0.5 * math.pi),
+            (10.0, -10.0, 0.5 * math.pi),
+
+            # Line
+            # (-20.0, 0.0, 0.25 * math.pi), 
+            # (0.0, 0.0, 0.25 * math.pi), 
+            # (20.0, 0.0, 0.25 * math.pi), 
+
+            # (-20.0, 10.0, 1.75 * math.pi), 
+            # (20.0, 10.0, 0.5 * math.pi),
         )
 
         self.gates = self._get_gates(world=world, gates=gates)

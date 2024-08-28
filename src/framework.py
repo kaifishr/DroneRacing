@@ -35,7 +35,7 @@ class Framework:
 
         # Pygame initialization.
         pygame.init()
-        pygame.display.set_caption(f"{self.config.name} {datetime.datetime.now()}")
+        pygame.display.set_caption(f"DroneRacer {datetime.datetime.now()}")
         self.clock = pygame.time.Clock()
 
         # Set screen properties.

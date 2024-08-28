@@ -36,7 +36,7 @@ class GeneticOptimizer(Optimizer):
 
     def _select(self) -> None:
         """Selects best agent."""
-        rewards = numpy.array([agent.score for agent in self.agents])
+        rewards = numpy.array([agent.reward for agent in self.agents])
         self.index_best = numpy.argmax(rewards)
 
     def _mutate_parameters(self) -> None:
@@ -173,7 +173,7 @@ class EvolutionStrategy(Optimizer):
     def _gather_rewards(self) -> None:
         """Gathers rewards from all agents."""
         # Get the rewards.
-        rewards = numpy.array([agent.score for agent in self.agents])
+        rewards = numpy.array([agent.reward for agent in self.agents])
 
         # Normalize rewards.
         rewards = (rewards - rewards.mean()) / (rewards.std() + self.eps)
@@ -276,7 +276,7 @@ class ContinuousEvolutionStrategy(Optimizer):
 
     def _gather_rewards(self) -> None:
         """Gathers reward from agent."""
-        self.reward = self.agents[0].score
+        self.reward = self.agents[0].reward
 
     def _broadcast_parameters(self) -> None:
         """Broadcasts parameters to agent."""

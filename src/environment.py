@@ -61,6 +61,8 @@ class Environment(Framework):
     def reset(self) -> None:
         """Resets Drone to initial position and velocity."""
 
+        idx_next_target = 0
+
         if self.config.env.drone.respawn.is_random:
             # Respawn drone at random location between two gates on track.
             num_gates = len(self.world.track.gates)
@@ -83,6 +85,7 @@ class Environment(Framework):
                 y_random = slope * (x_random - x_1) + y_1
 
             init_position_rand = b2Vec2(x_random, y_random)
+            idx_next_target = idx_gate_2
 
         for drone in self.drones:
             if self.config.env.drone.respawn.is_random:
@@ -100,11 +103,11 @@ class Environment(Framework):
             drone.body.angularVelocity = drone.init_angular_velocity
             drone.body.angle = drone.init_angle
 
-            # Reset fitness score for next generation.
-            drone.score = 0.0
+            # Reset reward for next generation.
+            drone.reward = 0.0
 
             # Reset to first target.
-            drone.idx_next_target = idx_gate_2
+            drone.idx_next_target = idx_next_target
             drone.next_target = drone.targets[drone.idx_next_target]
 
             # Reactivate drone after collision in last generation.
@@ -150,13 +153,6 @@ class Environment(Framework):
         return True
 
     def comp_mean_reward(self) -> dict[str, float]:
-        """Computes mean reward over all agents.
-
-        TODO: Move to trainer.
-
-        Returns:
-            Dictionary holding reward metrics.
-        """
         results = {}
         rewards = numpy.array([agent.reward for agent in self.drones])
         results["min_reward"] = rewards.min()

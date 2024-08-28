@@ -1,6 +1,6 @@
 """The drone's engine.
 
-TODO: Move apply_action / force here?
+TODO: Move apply_action / force here.
 """
 import math
 

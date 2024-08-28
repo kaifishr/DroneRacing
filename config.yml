@@ -1,4 +1,3 @@
-name: "DroneRacer"
 random_seed: 417125
 
 # Directory to save frames to create video.
@@ -17,7 +16,7 @@ optimizer:
     mutation_probability: 0.04
     mutation_rate: 0.02
   nes:
-    learning_rate: 0.04
+    learning_rate: 0.02
     sigma: 0.1
   ces:
     learning_rate: 0.00006
@@ -60,7 +59,7 @@ env:
     neural_network: # model
       num_dim_in: 14  # Distances to the nearest wall, position, velocity, position of target.
       num_dim_out: 4  # Actions for four engines.
-      num_dim_hidden: 8
+      num_dim_hidden: 32
       num_hidden_layers: 2
       nonlinearity: "tanh"  # relu, tanh
 
@@ -68,7 +67,7 @@ env:
       ray_length: 60
 
     respawn:
-      is_random: true
+      is_random: false 
       is_all_random: false
 
 framework:

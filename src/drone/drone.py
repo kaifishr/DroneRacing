@@ -139,12 +139,7 @@ class Drone(Agent):
         self.distance_to_target = -1
 
     def comp_reward(self) -> None:
-        """Computes current fitness score.
-
-        Accumulates drone's linear velocity over one generation.
-        This effectively computes the distance traveled by the
-        drone over time divided by the simulation's step size.
-        """
+        """Computes reward at current time step."""
         if self.body.active:
             reward = 0.0
 
@@ -154,10 +149,10 @@ class Drone(Agent):
             # distance = max(abs(distance_vector.x), abs(distance_vector.y))  # Linf
 
             # Sparse rewards.
-            # if distance < self.next_target.gate_size:
-            #     reward += 1.0
+            if distance < self.next_target.gate_size:
+                reward += 1.0
             # Continuous rewards.
-            reward += 1.0 / (1.0 + distance)**2
+            # reward += 1.0 / (1.0 + distance)**2
 
             self.distance_to_target = distance_vector.length
             self.reward = reward
