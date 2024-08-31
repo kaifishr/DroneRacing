@@ -1,5 +1,7 @@
 import math
+
 from typing import Union
+from itertools import count
 
 from Box2D import b2EdgeShape
 from Box2D.Box2D import b2World
@@ -10,7 +12,15 @@ from Box2D.Box2D import b2Vec2
 from src.utils.config import Config
 
 
-class Gate:
+class Target:
+
+    _ids = count(0)
+
+    def __init__(self):
+        self.index = next(self._ids)
+
+
+class Gate(Target):
 
     def __init__(
         self,
@@ -22,8 +32,10 @@ class Gate:
         post_size: float = 0.5,
         is_interactive: bool = False,
     ) -> None:
+        super().__init__()
 
         self.position = b2Vec2(x_pos, y_pos)
+        self.gate_size = gate_size
 
         # Left side
         x_0 = x_pos + 0.5 * gate_size * math.cos(theta)
@@ -42,9 +54,10 @@ class Gate:
             shape=b2CircleShape(radius=post_size),
             filter=b2Filter(groupIndex=0 if is_interactive else -1),
         )
+        gate.userData = self.index
 
 
-class Mark:
+class Mark(Target):
 
     def __init__(
         self,
@@ -53,7 +66,7 @@ class Mark:
         y_pos: float,
         gate_size: float = 1.0,
     ) -> None:
-
+        super().__init__()
         self.position = b2Vec2(x_pos, y_pos)
         self.gate_size = gate_size
 
@@ -62,6 +75,7 @@ class Mark:
             shape=b2CircleShape(radius=gate_size),
             filter=b2Filter(groupIndex=-1),  # Negative groups never collide.
         )
+        gate.userData = self.index
 
 
 class Track:

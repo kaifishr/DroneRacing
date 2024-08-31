@@ -133,6 +133,12 @@ class Renderer:
             radius=radius,
             width=width,
         )
+        radius = fixture.shape.radius
+        position = self._to_screen(body.position + b2Vec2(radius, radius))
+        font = pygame.font.SysFont("Comic Sans MS", 16)
+        text_surface = font.render(str(body.userData), False, (255, 255, 255))
+        self.screen.blit(text_surface, position)
+
 
     def _draw_segment(self, p_1, p_2, color: tuple[int]):
         """Draws line from points p_1 to p_2 in specified color."""

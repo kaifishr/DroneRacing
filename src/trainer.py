@@ -4,7 +4,7 @@ import time
 import psutil
 from pathlib import Path
 
-from torch.utils.tensorboard import SummaryWriter
+from tensorboardX import SummaryWriter
 
 from src.environment import Environment
 from src.optimizer import Optimizer
@@ -37,7 +37,7 @@ class Trainer:
         self.writer = SummaryWriter()
 
         # Save config file
-        file_path = Path(self.writer.log_dir) / "config.txt"
+        file_path = Path(self.writer.logdir) / "config.txt"
         with open(file_path, "w", encoding="utf-8") as file:
             file.write(self.config.__str__())
 
