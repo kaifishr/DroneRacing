@@ -59,44 +59,44 @@ class Environment(Framework):
                     drone.idx_next_target = (drone.idx_next_target + 1) % len(drone.targets)
                     drone.next_target = drone.targets[drone.idx_next_target]
 
+    def get_random_position(self) -> tuple[b2Vec2, int]:
+        # Computes random location between two gates on track.
+        num_gates = len(self.world.track.gates)
+        idx_gate_1 = random.randint(0, num_gates - 1)
+        idx_gate_2 = (idx_gate_1 + 1) % num_gates
+        gate_1 = self.world.track.gates[idx_gate_1]
+        gate_2 = self.world.track.gates[idx_gate_2]
+
+        x_1 = gate_1.position.x
+        y_1 = gate_1.position.y
+        x_2 = gate_2.position.x
+        y_2 = gate_2.position.y
+
+        if x_1 == x_2:
+            x_random = x_1
+            y_random = random.uniform(a=y_1, b=y_2)
+        else:
+            x_random = random.uniform(a=x_1, b=x_2)
+            slope = (y_2 - y_1) / (x_2 - x_1)
+            y_random = slope * (x_random - x_1) + y_1
+
+        init_position_rand = b2Vec2(x_random, y_random)
+        idx_next_target = idx_gate_2
+
+        return init_position_rand, idx_next_target
+
     def reset(self) -> None:
         """Resets Drone to initial position and velocity."""
 
         idx_next_target = 0
-
-        if self.config.env.drone.respawn.is_random:
-            # Respawn drone at random location between two gates on track.
-            num_gates = len(self.world.track.gates)
-            idx_gate_1 = random.randint(0, num_gates - 1)
-            idx_gate_2 = (idx_gate_1 + 1) % num_gates
-            gate_1 = self.world.track.gates[idx_gate_1]
-            gate_2 = self.world.track.gates[idx_gate_2]
-
-            x_1 = gate_1.position.x
-            y_1 = gate_1.position.y
-            x_2 = gate_2.position.x
-            y_2 = gate_2.position.y
-
-            if x_1 == x_2:
-                x_random = x_1
-                y_random = random.uniform(a=y_1, b=y_2)
-            else:
-                x_random = random.uniform(a=x_1, b=x_2)
-                slope = (y_2 - y_1) / (x_2 - x_1)
-                y_random = slope * (x_random - x_1) + y_1
-
-            init_position_rand = b2Vec2(x_random, y_random)
-            idx_next_target = idx_gate_2
+        if self.config.env.drone.respawn == "random":
+            init_position_rand, idx_next_target = self.get_random_position()
 
         for drone in self.drones:
-            if self.config.env.drone.respawn.is_random:
+            if self.config.env.drone.respawn == "random":
                 drone.body.position = init_position_rand
-            elif self.config.env.drone.respawn.is_all_random:
-                # Respawn each drones at different location in map.
-                pos_x = random.uniform(a=self.phi * self.x_min, b=self.phi * self.x_max)
-                pos_y = random.uniform(a=self.phi * self.y_min, b=self.phi * self.y_max)
-                position = b2Vec2(pos_x, pos_y)
-                drone.body.position = position
+            elif self.config.env.drone.respawn == "all_random":
+                drone.body.position, idx_next_target = self.get_random_position()
             else:
                 drone.body.position = drone.init_position
 

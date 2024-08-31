@@ -51,7 +51,7 @@ class Mark:
         world: b2World,
         x_pos: float,
         y_pos: float,
-        gate_size: float = 3.0,
+        gate_size: float = 1.0,
     ) -> None:
 
         self.position = b2Vec2(x_pos, y_pos)
@@ -70,17 +70,14 @@ class Track:
 
         self._get_boundary(world=world, config=config.env.domain)
 
+        # track_1: square 
         gates = (
-            # Triangle
-            (-10.0, -10.0, 0.5 * math.pi),
-            (10.0, 10.0, 0.5 * math.pi),
-            (10.0, -10.0, 0.5 * math.pi),
-            # Line
-            # (-20.0, 0.0, 0.25 * math.pi),
-            # (0.0, 0.0, 0.25 * math.pi),
-            # (20.0, 0.0, 0.25 * math.pi),
-            # (-20.0, 10.0, 1.75 * math.pi),
-            # (20.0, 10.0, 0.5 * math.pi),
+            (-15.0, -15.0, 0.5 * math.pi),
+            (-15.0, 15.0, 0.5 * math.pi),
+            (0.0, 5.0, 0.5 * math.pi),
+            (15.0, 5.0, 0.5 * math.pi),
+            (15.0, -15.0, 0.5 * math.pi),
+            (0.0, -10.0, 0.5 * math.pi),
         )
 
         self.gates = self._get_gates(world=world, gates=gates)

@@ -144,17 +144,12 @@ class Drone(Agent):
             reward = 0.0
 
             distance_vector = self.next_target.position - self.body.position
-            # distance = abs(distance_vector.x) + abs(distance_vector.y)  # L1
-            distance = distance_vector.length  # L2
-            # distance = max(abs(distance_vector.x), abs(distance_vector.y))  # Linf
+            distance = distance_vector.length
 
-            # Sparse rewards.
             if distance < self.next_target.gate_size:
                 reward += 1.0
-            # Continuous rewards.
-            # reward += 1.0 / (1.0 + distance)**2
 
-            self.distance_to_target = distance_vector.length
+            self.distance_to_target = distance
             self.reward += reward
 
     def fetch_data(self):

@@ -16,8 +16,8 @@ optimizer:
     mutation_probability: 0.04
     mutation_rate: 0.02
   nes:
-    learning_rate: 0.04
-    sigma: 0.1
+    learning_rate: 0.01
+    sigma: 0.05
   ces:
     learning_rate: 0.00006
     sigma: 0.1
@@ -30,12 +30,12 @@ env:
 
   domain:
     limit:
-      x_min: -40.0
-      x_max: 40.0
+      x_min: -20.0
+      x_max: 20.0
       y_min: -20.0
       y_max: 20.0
 
-  track: "map1"  # map1, map2, map3
+  track: "track_1"  # track_1, track_2, track_3 
 
   drone:
     diam: 1.0
@@ -43,7 +43,7 @@ env:
     friction: 5.0
 
     engine:
-      max_force: 10.0
+      max_force: 20.0
       density: 1.0
       friction: 5.0
 
@@ -59,20 +59,18 @@ env:
     neural_network: # model
       num_dim_in: 14  # Distances to the nearest wall, position, velocity, position of target.
       num_dim_out: 4  # Actions for four engines.
-      num_dim_hidden: 8
+      num_dim_hidden: 4
       num_hidden_layers: 2
       nonlinearity: "tanh"  # relu, tanh
 
     raycasting:
-      ray_length: 60
+      ray_length: 50
 
-    respawn:
-      is_random: true
-      is_all_random: false
+    respawn: "random"  # random, all_random, static
 
 framework:
   screen:
-    width: 1280
+    width: 640
     height: 640
 
 renderer:
