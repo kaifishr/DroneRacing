@@ -1,17 +1,8 @@
-"""Optimizer class for genetic optimization."""
-
 from src.environment import Environment
 from src.utils.config import Config
 
 
 class Eval:
-    """Evaluation class.
-
-    Attributes:
-        config:
-        env:
-        writer:
-    """
 
     def __init__(self, env: Environment, config: Config) -> None:
         """Initializes class."""
@@ -20,8 +11,6 @@ class Eval:
 
     def run(self) -> None:
         """Runs genetic optimization."""
-
-        cfg = self.config
 
         step = 0
         generation = 0
@@ -32,9 +21,6 @@ class Eval:
         while is_running:
             # Physics and rendering.
             self.env.step()
-
-            if (step + 1) % cfg.env.snitch.move_every_n_steps == 0:
-                self.env.move_target()
 
             # Fetch data for neural network.
             self.env.fetch_data()
@@ -48,6 +34,9 @@ class Eval:
 
             # Apply network predictions to drone
             self.env.apply_action(noise=5.0)
+
+            # Select next target.
+            self.env.next_target()
 
             # Method that run at end of simulation.
             if self.env.is_done():

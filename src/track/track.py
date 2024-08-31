@@ -64,7 +64,7 @@ class Mark(Target):
         world: b2World,
         x_pos: float,
         y_pos: float,
-        gate_size: float = 1.0,
+        gate_size: float = 3.0,
     ) -> None:
         super().__init__()
         self.position = b2Vec2(x_pos, y_pos)
@@ -87,9 +87,12 @@ class Track:
         # track_1: square 
         gates = (
             (-15.0, -15.0, 0.5 * math.pi),
+            (-12.0, 0.0, 0.5 * math.pi),
             (-15.0, 15.0, 0.5 * math.pi),
+            (-7.0, 12.0, 0.5 * math.pi),
             (0.0, 5.0, 0.5 * math.pi),
             (15.0, 5.0, 0.5 * math.pi),
+            (12.0, -5.0, 0.5 * math.pi),
             (15.0, -15.0, 0.5 * math.pi),
             (0.0, -10.0, 0.5 * math.pi),
         )

@@ -1,8 +1,8 @@
-# DroneRacer
+# DroneRacing
 
-*DroneRacer* provides a simple learning environment for evolution-based optimization with many possible extensions for the GPU poor.
+*DroneRacing* provides a simple learning environment for evolution-based optimization with many possible extensions for the GPU poor.
 
-Under the hood, *DroneRacer* uses *PyBox2D* for the rigid physics simulation and *Pygame* for rendering and visualization. 
+Under the hood, *DroneRacing* uses *PyBox2D* for the rigid physics simulation and *Pygame* for rendering and visualization. 
 
 The drones' behavior is controlled by a reward function. The example below shows non-interacting drones trying to follow a target. The red lines show the force with which the rocket engines are run.
 
@@ -18,11 +18,11 @@ The following graph shows the average reward over a period of about 3000 generat
 
 ## Installation
 
-To run *DroneRacer*, install the latest master directly from GitHub. For a basic install, run:
+To run *DroneRacing*, install the latest master directly from GitHub. For a basic install, run:
 
 ```bash
-git clone https://github.com/kaifishr/DroneRacer
-cd DroneRacer 
+git clone https://github.com/kaifishr/DroneRacing
+cd DroneRacing 
 pip install -r requirements.txt
 ```
 
@@ -42,7 +42,7 @@ Visualization can be turned on and off by clicking on the *Pygame* window or by 
 
 ## Method
 
-*DroneRacer* uses *PyBox2D* to create a physical environment the drones can interact with. Drones use raycasting to gather distance information about obstacles in their surroundings. This information is fed into the drone's neural network to predict the next set of actions. These actions are passed on to the engines, which then command the power at which they should run.
+*DroneRacing* uses *PyBox2D* to create a physical environment the drones can interact with. Drones use raycasting to gather distance information about obstacles in their surroundings. This information is fed into the drone's neural network to predict the next set of actions. These actions are passed on to the engines, which then command the power at which they should run.
 
 The drones' fitness depends on the defined reward function. The neural network weights of the fittest drone are mutated and passed on to the next generation of drones.
 
@@ -52,11 +52,11 @@ The drone's brain is modeled by a multilayer perceptron neural network implement
 
 ## Learning
 
-The reward function controls the learning behavior of the drone. The reward is a function of gates passed by the drone. The reward function can be modified as desired. *DroneRacer* lets you modify many hyperparameters that affect how fast and what the drones learn. Most of the hyperparameters can be found in the *config.yml* file.
+The reward function controls the learning behavior of the drone. The reward is a function of gates passed by the drone. The reward function can be modified as desired. *DroneRacing* lets you modify many hyperparameters that affect how fast and what the drones learn. Most of the hyperparameters can be found in the *config.yml* file.
 
 ## Tracks
 
-*DroneRacer* has different tracks that vary in difficulty. Depending on the track, the drones learn different flight behaviors. Tracks can be easily added or modified.
+*DroneRacing* has different tracks that vary in difficulty. Depending on the track, the drones learn different flight behaviors. Tracks can be easily added or modified.
 
 ||||
 |:--:|:--:|:--:|
@@ -75,12 +75,12 @@ If you find this project useful, please use BibTeX to cite it as:
 
 ```bibtex
 @article{fischer2024droneracer,
-  title   = "DroneRacer",
+  title   = "DroneRacing",
   author  = "Fischer, Kai",
   journal = "GitHub repository",
   year    = "2024",
   month   = "August",
-  url     = "https://github.com/kaifishr/DroneRacer"
+  url     = "https://github.com/kaifishr/DroneRacing"
 }
 ```
 

@@ -135,7 +135,7 @@ class Renderer:
         )
         radius = fixture.shape.radius
         position = self._to_screen(body.position + b2Vec2(radius, radius))
-        font = pygame.font.SysFont("Comic Sans MS", 16)
+        font = pygame.font.SysFont("Ubuntu Mono", 16)
         text_surface = font.render(str(body.userData), False, (255, 255, 255))
         self.screen.blit(text_surface, position)
 
