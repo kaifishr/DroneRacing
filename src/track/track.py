@@ -1,7 +1,8 @@
 import math
+import random
 
 from typing import Union
-from itertools import count
+from itertools import count, product
 
 from Box2D import b2EdgeShape
 from Box2D.Box2D import b2World
@@ -84,20 +85,8 @@ class Track:
 
         self._get_boundary(world=world, config=config.env.domain)
 
-        # track_1: square 
-        gates = (
-            (-15.0, -15.0, 0.5 * math.pi),
-            (-12.0, 0.0, 0.5 * math.pi),
-            (-15.0, 15.0, 0.5 * math.pi),
-            (-7.0, 12.0, 0.5 * math.pi),
-            (0.0, 5.0, 0.5 * math.pi),
-            (15.0, 5.0, 0.5 * math.pi),
-            (12.0, -5.0, 0.5 * math.pi),
-            (15.0, -15.0, 0.5 * math.pi),
-            (0.0, -10.0, 0.5 * math.pi),
-        )
-
-        self.gates = self._get_gates(world=world, gates=gates)
+        # self.gates = self._static_track(world=world)
+        self.gates = self._random_track(world=world)
 
     def _get_boundary(self, world: b2World, config: Config) -> list:
 
@@ -115,15 +104,46 @@ class Track:
 
         world.CreateStaticBody(shapes=domain_boundary)
 
-    def _get_gates(self, world: b2World, gates: tuple[tuple[float]]) -> list[Union[Mark, Gate]]:
+    def _static_track(self, world: b2World) -> list[Union[Mark, Gate]]:
 
-        gates_ = []
+        gates = (
+            (-15.0, -15.0, 0.5 * math.pi),
+            (-12.0, 0.0, 0.5 * math.pi),
+            (-15.0, 15.0, 0.5 * math.pi),
+            (-7.0, 12.0, 0.5 * math.pi),
+            (0.0, 5.0, 0.5 * math.pi),
+            (15.0, 5.0, 0.5 * math.pi),
+            (12.0, -5.0, 0.5 * math.pi),
+            (15.0, -15.0, 0.5 * math.pi),
+            (0.0, -10.0, 0.5 * math.pi),
+        )
+
+        track = []
 
         for gate in gates:
             x_pos, y_pos, theta = gate
-            gates_.append(
+            track.append(
                 Mark(world=world, x_pos=x_pos, y_pos=y_pos)
                 # Gate(world=world, x_pos=x_pos, y_pos=y_pos, theta=theta)
             )
 
-        return gates_
+        return track 
+
+    def _random_track(self, world: b2World, num_gates: int = 10) -> list[Union[Mark, Gate]]:
+
+        gate_size = 3
+        x_min, x_max = -20 + gate_size, 20 - gate_size
+        y_min, y_max = -20 + gate_size, 20 - gate_size
+
+        x_range = list(range(x_min, x_max, 2 * gate_size))
+        y_range = list(range(y_min, y_max, 2 * gate_size))
+        coords = list(product(x_range, y_range))
+
+        gates = random.sample(coords, num_gates)
+
+        track = []
+        for gate in gates:
+            x_pos, y_pos = gate
+            track.append(Mark(world=world, x_pos=x_pos, y_pos=y_pos))
+
+        return track 
