@@ -62,6 +62,10 @@ The reward function controls the learning behavior of the drone. The reward is a
 
 ## References
 
+- [Evolution Strategies as a Scalable Alternative to Reinforcement Learning
+](https://arxiv.org/abs/1703.03864)
+- [Champion-level drone racing using deep
+reinforcement learning](https://www.nature.com/articles/s41586-023-06419-4.pdf)
 - [PyBox2D](https://github.com/pybox2d/pybox2d) on GitHub.
 - [backends](https://github.com/pybox2d/pybox2d/tree/master/library/Box2D/examples/backends) for PyBox2D.
 - PyBox2D [tutorial](https://github.com/pybox2d/cython-box2d/blob/master/docs/source/getting_started.md).
