@@ -11,7 +11,7 @@ The example below shows non-interacting drones navigating a track through a seri
 The following graph shows the average reward over a period of about 13.000 generations. Agents receive a reward of +1 for reaching the next gate.
 
 <p align="center">
-    <img src="docs/mean_reward.svg" width="" height="420"/>
+    <img src="docs/mean_reward.svg" width="" height=""/>
 </p>
 
 ## Features
