@@ -1,20 +1,28 @@
 # DroneRacing
 
-*DroneRacing* provides a simple learning environment for evolution-based optimization with many possible extensions for the GPU poor.
+DroneRacing is a lightweight and flexible learning environment designed for experimenting with evolution-based optimization and provides numerous opportunities for customization and expansion.
 
-Under the hood, *DroneRacing* uses *PyBox2D* for the rigid physics simulation and *Pygame* for rendering and visualization. 
-
-The drones' behavior is controlled by a reward function. The example below shows non-interacting drones trying to follow a target. The red lines show the force with which the rocket engines are run.
+The example below shows non-interacting drones navigating a track through a series of gates. The red lines represent the thrust force applied by the drone engines as they follow the course.
 
 <p align="center">
-    <img src="docs/drones.gif" width="420" height="420"/>
+    <img src="docs/teaser.gif" width="420" height="420"/>
 </p>
 
-The following graph shows the average reward over a period of about 3000 generations.
+The following graph shows the average reward over a period of about 13.000 generations. Agents receive a reward of +1 for reaching the next gate.
 
 <p align="center">
-    <img src="docs/mean_reward.png" width="420" height=""/>
+    <img src="docs/mean_reward.svg" width="640" height=""/>
 </p>
+
+## Features
+
+**Physics Simulation**: Powered by *PyBox2D*, DroneRacing offers a robust rigid-body physics simulation.
+
+**Rendering & Visualization**: Visualize the drones and their environment using *Pygame*, with clear, real-time feedback on drone behavior.
+
+**Customizable Reward Function**: The drones' behavior is governed by a reward function that can be easily modified to suit various optimization goals.
+
+**Flexible Race Tracks**: Race tracks can be easily added or modified, allowing you to create custom courses to challenge and test drone performance.
 
 ## Installation
 
@@ -42,13 +50,7 @@ Visualization can be turned on and off by clicking on the *Pygame* window or by 
 
 ## Method
 
-*DroneRacing* uses *PyBox2D* to create a physical environment the drones can interact with. Drones use raycasting to gather distance information about obstacles in their surroundings. This information is fed into the drone's neural network to predict the next set of actions. These actions are passed on to the engines, which then command the power at which they should run.
-
-The drones' fitness depends on the defined reward function. The neural network weights of the fittest drone are mutated and passed on to the next generation of drones.
-
-The implementation allows for deactivating drones of the current generation when they collide with other objects.
-
-The drone's brain is modeled by a multilayer perceptron neural network implemented in NumPy.
+*DroneRacing* uses *PyBox2D* to create a physical environment the drones can interact with. Drones use raycasting to gather distance information about obstacles in their surroundings. This information is fed into the drone's neural network to predict the next set of actions. These actions are passed on to the engines, which then command the power at which they run.
 
 ## Learning
 
@@ -56,11 +58,7 @@ The reward function controls the learning behavior of the drone. The reward is a
 
 ## Tracks
 
-*DroneRacing* has different tracks that vary in difficulty. Depending on the track, the drones learn different flight behaviors. Tracks can be easily added or modified.
-
-||||
-|:--:|:--:|:--:|
-|![](docs/map_empty.png)|![](docs/map_block.png)|![](docs/map_locks.png)|
+*DroneRacing* has static and random tracks that vary in difficulty. Depending on the track, the drones learn different flight behaviors. Tracks can be easily added or modified.
 
 ## References
 
@@ -74,7 +72,7 @@ The reward function controls the learning behavior of the drone. The reward is a
 If you find this project useful, please use BibTeX to cite it as:
 
 ```bibtex
-@article{fischer2024droneracer,
+@article{fischer2024droneracing,
   title   = "DroneRacing",
   author  = "Fischer, Kai",
   journal = "GitHub repository",

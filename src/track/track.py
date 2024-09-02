@@ -85,8 +85,12 @@ class Track:
 
         self._get_boundary(world=world, config=config.env.domain)
 
-        # self.gates = self._static_track(world=world)
-        self.gates = self._random_track(world=world)
+        if config.env.track == "random":
+            self.gates = self._random_track(world=world)
+        elif config.env.track == "static":
+            self.gates = self._static_track(world=world)
+        else:
+            raise NotImplemented(f"Track '{config.env.track}' not implemented.")
 
     def _get_boundary(self, world: b2World, config: Config) -> list:
 
@@ -127,11 +131,13 @@ class Track:
                 # Gate(world=world, x_pos=x_pos, y_pos=y_pos, theta=theta)
             )
 
-        return track 
+        return track
 
-    def _random_track(self, world: b2World, num_gates: int = 10) -> list[Union[Mark, Gate]]:
+    def _random_track(
+        self, world: b2World, num_gates: int = 30, gate_size: float = 2.0
+    ) -> list[Union[Mark, Gate]]:
 
-        gate_size = 3
+        gate_size = int(gate_size)
         x_min, x_max = -20 + gate_size, 20 - gate_size
         y_min, y_max = -20 + gate_size, 20 - gate_size
 
@@ -146,4 +152,4 @@ class Track:
             x_pos, y_pos = gate
             track.append(Mark(world=world, x_pos=x_pos, y_pos=y_pos))
 
-        return track 
+        return track

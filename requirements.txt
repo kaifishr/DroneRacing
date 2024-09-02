@@ -4,4 +4,4 @@ pygame
 PyYAML
 scikit-learn 
 scipy 
-tensorboard 
+tensorboardx

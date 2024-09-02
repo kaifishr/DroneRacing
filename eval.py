@@ -10,10 +10,8 @@ if __name__ == "__main__":
     config = init_config(path="config.yml")
     set_random_seed(seed=config.random_seed)
 
-    config.optimizer.num_agents = 16
-    config.env.snitch.move_every_n_steps = 200
-    config.env.drone.respawn.is_random = False
-    config.env.drone.respawn.is_all_random = True
+    config.optimizer.num_agents = 8
+    config.env.drone.respawn = "all_random"
 
     env = Environment(config=config)
     evaluator = Eval(env=env, config=config)

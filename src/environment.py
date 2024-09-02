@@ -74,11 +74,13 @@ class Environment(Framework):
 
         if x_1 == x_2:
             x_random = x_1
-            y_random = random.uniform(a=y_1, b=y_2)
+            noise = random.gauss(0.0, 1.0)
+            y_random = random.uniform(a=y_1, b=y_2) + noise
         else:
             x_random = random.uniform(a=x_1, b=x_2)
             slope = (y_2 - y_1) / (x_2 - x_1)
-            y_random = slope * (x_random - x_1) + y_1
+            noise = random.gauss(0.0, 1.0)
+            y_random = slope * (x_random - x_1) + y_1 + noise
 
         init_position_rand = b2Vec2(x_random, y_random)
         idx_next_target = idx_gate_2

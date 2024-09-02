@@ -7,7 +7,7 @@ from Box2D.Box2D import b2Filter
 from Box2D.Box2D import b2Vec2
 from Box2D.Box2D import b2World
 
-from src.utils.config import Config
+from src.utils import Config
 
 
 class Snitch:

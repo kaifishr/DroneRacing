@@ -1,14 +1,14 @@
-random_seed: 417125
+random_seed: 42
 
 # Directory to save frames to create video.
 dirs:
   frames: "frames"
 
 checkpoints:
-  load_model: false
-  save_model: false 
+  load_model: true
+  save_model: false
   model_path: "weights"
-  model_name: "1"  # save / load
+  model_name: "ckpt"  # save / load
 
 optimizer:
   name: "nes"  # ces, nes, evo
@@ -16,14 +16,14 @@ optimizer:
     mutation_probability: 0.04
     mutation_rate: 0.02
   nes:
-    learning_rate: 0.01
-    sigma: 0.05
+    learning_rate: 0.06
+    sigma: 0.1
   ces:
     learning_rate: 0.00006
     sigma: 0.1
     momentum: 0.16
-  num_agents: 4
-  num_max_steps: 1000
+  num_agents: 8
+  num_max_steps: 500
 
 env: 
   allow_collision_domain: false
@@ -35,7 +35,7 @@ env:
       y_min: -20.0
       y_max: 20.0
 
-  track: "track_1"  # track_1, track_2, track_3 
+  track: "static"  # static, random 
 
   drone:
     diam: 1.0
@@ -59,7 +59,7 @@ env:
     neural_network: # model
       num_dim_in: 14  # Distances to the nearest wall, position, velocity, position of target.
       num_dim_out: 4  # Actions for four engines.
-      num_dim_hidden: 4
+      num_dim_hidden: 16
       num_hidden_layers: 2
       nonlinearity: "tanh"  # relu, tanh
 
@@ -74,5 +74,5 @@ framework:
     height: 640
 
 renderer:
-  scale_force: 0.5
+  scale_force: 0.2
   ppm: 15     # Pixels per meter / zoom

@@ -1,5 +1,5 @@
 from src.environment import Environment
-from src.utils.config import Config
+from src.utils import Config
 
 
 class Eval:
@@ -11,9 +11,6 @@ class Eval:
 
     def run(self) -> None:
         """Runs genetic optimization."""
-
-        step = 0
-        generation = 0
 
         self.env.reset()
         is_running = True
@@ -33,18 +30,13 @@ class Eval:
             self.env.comp_action()
 
             # Apply network predictions to drone
-            self.env.apply_action(noise=5.0)
+            self.env.apply_action(noise=4.0)
 
             # Select next target.
             self.env.next_target()
 
             # Method that run at end of simulation.
             if self.env.is_done():
+                print("Restarting..")
                 # Reset drones to start over again.
                 self.env.reset()
-
-                step = 0
-                generation += 1
-                print(f"{generation = }")
-
-            step += 1
