@@ -4,7 +4,6 @@ For more information about frameworks see also:
 https://github.com/pybox2d/pybox2d/tree/master/library/Box2D/examples/backends
 
 """
-
 import sys
 import datetime
 import pygame
@@ -13,15 +12,15 @@ from Box2D.b2 import world
 from src.renderer import Renderer
 from src.utils import Config
 
-from src.utils.utils import capture_screen
+## from src.utils.utils import capture_screen
 
 
 class Framework:
     """A simple framework for PyBox2D with PyGame backend."""
 
     target_fps: int = 60
-    velocity_iterations: int = 10  # Iterations to compute next velocity.
-    position_iterations: int = 10  # Iterations to compute next position.
+    velocity_iterations: int = 8  # Iterations to compute next velocity.
+    position_iterations: int = 3  # Iterations to compute next position.
 
     def __init__(self, config: Config) -> None:
         """Initializes Framework."""
@@ -36,7 +35,7 @@ class Framework:
 
         # Pygame initialization.
         pygame.init()
-        pygame.display.set_caption(f"DroneRacer {datetime.datetime.now()}")
+        pygame.display.set_caption(f"DroneRacing {datetime.datetime.now()}")
         self.clock = pygame.time.Clock()
 
         # Set screen properties.
@@ -86,8 +85,8 @@ class Framework:
             print(f"{self.clock.get_fps():.1f} FPS", flush=True, end="\r")
 
             # Capture screen
-            capture_screen(screen=self.renderer.screen, iteration=self.iteration)
-            self.iteration += 1
+            ## capture_screen(screen=self.renderer.screen, iteration=self.iteration)
+            ## self.iteration += 1
 
         self.world.contactListener = None
         self.world.destructionListener = None

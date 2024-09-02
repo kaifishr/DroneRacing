@@ -26,12 +26,13 @@ The following graph shows the average reward over a period of about 13.000 gener
 
 ## Installation
 
-To run *DroneRacing*, install the latest master directly from GitHub. For a basic install, run:
+To run *DroneRacing* on a Linux machine, install the latest master directly from GitHub. For a basic install, run:
 
 ```bash
 git clone https://github.com/kaifishr/DroneRacing
 cd DroneRacing 
-pip install -r requirements.txt
+conda create --name drone_racing --file requirements.txt
+conda activate drone_racing
 ```
 
 Then start the optimization by running:
@@ -40,7 +41,9 @@ Then start the optimization by running:
 python train.py
 ```
 
-Evaluate the progress by running:
+Set `load_model=False` to start training from scratch.
+
+Load a pre-traine model (`load_model=True`) and evaluate the progress by running:
 
 ```bash
 python eval.py

@@ -5,7 +5,7 @@ dirs:
   frames: "frames"
 
 checkpoints:
-  load_model: true
+  load_model: true 
   save_model: false
   model_path: "weights"
   model_name: "ckpt"  # save / load
@@ -57,7 +57,7 @@ env:
     init_angle: 0.0
 
     neural_network: # model
-      num_dim_in: 14  # Distances to the nearest wall, position, velocity, position of target.
+      num_dim_in: 14  # Distances to the nearest wall, position, velocity, position of next gate.
       num_dim_out: 4  # Actions for four engines.
       num_dim_hidden: 16
       num_hidden_layers: 2
