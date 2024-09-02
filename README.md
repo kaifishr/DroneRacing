@@ -5,7 +5,7 @@ DroneRacing is a lightweight and flexible learning environment designed for expe
 The example below shows non-interacting drones navigating a track through a series of gates. The red lines represent the thrust force applied by the drone engines as they follow the course.
 
 <p align="center">
-    <img src="docs/teaser.gif" width="420" height="420"/>
+    <img src="docs/teaser.gif" width="640" height="640"/>
 </p>
 
 The following graph shows the average reward over a period of about 13.000 generations. Agents receive a reward of +1 for reaching the next gate.
