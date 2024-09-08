@@ -11,7 +11,6 @@ from src.utils.utils import load_checkpoint
 
 
 def load_model(config: Config) -> numpy.ndarray:
-    """Loads NumPy neural network."""
 
     # Create model.
     model = Model(config)
@@ -27,12 +26,6 @@ class Model:
     """Neural network written with Numpy.
 
     TODO: Use params dict to hold weights and biases lists.
-
-    Attributes:
-        mutation_prob:
-        mutation_rate:
-        weights:
-        biases:
     """
 
     def __init__(self, config: Config) -> None:
@@ -66,6 +59,9 @@ class Model:
         size = (out_features, hidden_features)
         self.weights += [self._init_weights(size=size, nonlinearity="sigmoid")]
         self.biases += [numpy.zeros(shape=(out_features, 1))]
+
+        # self.weights = [weights.T for weights in self.weights]
+        # self.biases = [biases.T for biases in self.biases]
 
         if nonlinearity == "tanh":
             self._nonlinearity = numpy.tanh
@@ -123,11 +119,21 @@ class Model:
         self.weights = state_dict["weights"]
         self.biases = state_dict["biases"]
 
+    # def forward(self, data: list):
+    #     """Forwards observation data through network."""
+    #     out = numpy.array(data)
+    #     weights, biases = self.weights, self.biases
+    #     for weight, bias in zip(weights[:-1], biases[:-1]):
+    #         out = self._nonlinearity(numpy.matmul(out, weight.T) + bias.T)
+    #     out = expit(numpy.matmul(out, weights[-1].T) + biases[-1].T)[0, :]
+    #     return out
+    
     def forward(self, data: list):
-        """Forwards observation data through network."""
-        out = numpy.array(data)
-        weights, biases = self.weights, self.biases
-        for weight, bias in zip(weights[:-1], biases[:-1]):
-            out = self._nonlinearity(numpy.matmul(out, weight.T) + bias.T)
-        out = expit(numpy.matmul(out, weights[-1].T) + biases[-1].T)[0, :]
+        out = numpy.asarray(data)
+        *weights, weights_last = self.weights
+        *biases, biases_last = self.biases
+        for weight, bias in zip(weights, biases):
+            out = self._nonlinearity(numpy.dot(weight, out) + bias)
+        out = expit(numpy.dot(weights_last, out) + biases_last)[:, 0]
         return out
+

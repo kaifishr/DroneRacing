@@ -1,5 +1,4 @@
 """Runs optimizer with selected parameters."""
-
 from src.environment import Environment
 from src.optimizer import EvolutionStrategy
 from src.optimizer import GeneticOptimizer
