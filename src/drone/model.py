@@ -2,7 +2,6 @@
 
 The drone's brain represented by a feedforward neural network.
 """
-
 import numpy
 from scipy.special import expit
 
@@ -11,22 +10,13 @@ from src.utils.utils import load_checkpoint
 
 
 def load_model(config: Config) -> numpy.ndarray:
-
-    # Create model.
     model = Model(config)
-
-    # Load pre-trained model
     if config.checkpoints.load_model:
         load_checkpoint(model=model, config=config)
-
     return model
 
 
 class Model:
-    """Neural network written with Numpy.
-
-    TODO: Use params dict to hold weights and biases lists.
-    """
 
     def __init__(self, config: Config) -> None:
         """Initializes NeuralNetwork."""
@@ -45,23 +35,20 @@ class Model:
         # Create layers and initializes weights.
 
         # Input layer weights
-        size = (hidden_features, in_features)
-        self.weights = [self._init_weights(size=size, nonlinearity=nonlinearity)]
-        self.biases = [numpy.zeros(shape=(hidden_features, 1))]
+        size = (in_features, hidden_features)
+        self.weights = [self._init_weights(size=size)]
+        self.biases = [numpy.zeros(shape=(1, hidden_features))]
 
         # Hidden layer weights
         size = (hidden_features, hidden_features)
         for _ in range(num_hidden_layers):
-            self.weights += [self._init_weights(size=size, nonlinearity=nonlinearity)]
-            self.biases += [numpy.zeros(shape=(hidden_features, 1))]
+            self.weights += [self._init_weights(size=size)]
+            self.biases += [numpy.zeros(shape=(1, hidden_features))]
 
         # Output layer weights
-        size = (out_features, hidden_features)
-        self.weights += [self._init_weights(size=size, nonlinearity="sigmoid")]
-        self.biases += [numpy.zeros(shape=(out_features, 1))]
-
-        # self.weights = [weights.T for weights in self.weights]
-        # self.biases = [biases.T for biases in self.biases]
+        size = (hidden_features, out_features)
+        self.weights += [self._init_weights(size=size)]
+        self.biases += [numpy.zeros(shape=(1, out_features))]
 
         if nonlinearity == "tanh":
             self._nonlinearity = numpy.tanh
@@ -73,25 +60,8 @@ class Model:
             raise NotImplementedError(f"Activation function '{nonlinearity}' not implemented.")
 
     @staticmethod
-    def _init_weights(size: tuple[int, int], nonlinearity: str) -> None:
-        """Initializes model weights.
-
-        Xavier normal initialization for feedforward neural networks described in
-        'Understanding the difficulty of training deep feedforward neural networks'
-        by Glorot and Bengio (2010).
-
-            std = gain * (2 / (fan_in + fan_out)) ** 0.5
-        """
-        if nonlinearity == "tanh":
-            gain = 5.0 / 3.0
-        elif nonlinearity == "sigmoid":
-            gain = 1.0
-        elif nonlinearity == "relu":
-            gain = 2.0**0.5
-        else:
-            raise NotImplementedError(f"Initialization for '{nonlinearity}' not implemented.")
-        std = gain * (2.0 / sum(size)) ** 0.5
-        parameters = numpy.random.normal(loc=0.0, scale=std, size=size)
+    def _init_weights(size: tuple[int, int]) -> None:
+        parameters = numpy.random.normal(loc=0.0, scale=1e-4, size=size)
         parameters = numpy.clip(parameters, a_min=-3.0, a_max=3.0)
         return parameters
 
@@ -119,21 +89,11 @@ class Model:
         self.weights = state_dict["weights"]
         self.biases = state_dict["biases"]
 
-    # def forward(self, data: list):
-    #     """Forwards observation data through network."""
-    #     out = numpy.array(data)
-    #     weights, biases = self.weights, self.biases
-    #     for weight, bias in zip(weights[:-1], biases[:-1]):
-    #         out = self._nonlinearity(numpy.matmul(out, weight.T) + bias.T)
-    #     out = expit(numpy.matmul(out, weights[-1].T) + biases[-1].T)[0, :]
-    #     return out
-    
     def forward(self, data: list):
-        out = numpy.asarray(data)
+        out = numpy.asarray(data).reshape(1, -1)
         *weights, weights_last = self.weights
         *biases, biases_last = self.biases
         for weight, bias in zip(weights, biases):
-            out = self._nonlinearity(numpy.dot(weight, out) + bias)
-        out = expit(numpy.dot(weights_last, out) + biases_last)[:, 0]
-        return out
-
+            out = self._nonlinearity(numpy.dot(out, weight) + bias)
+        out = expit(numpy.dot(out, weights_last) + biases_last)
+        return out[0, :]
