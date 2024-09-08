@@ -1,6 +1,5 @@
 """Evolutionary inspired black-box optimization algorithms.
 """
-
 import copy
 import numpy
 from src.drone import Agent
@@ -182,12 +181,12 @@ class EvolutionStrategy(Optimizer):
             numpy.add(biases, self.learning_rate * grad_biases, out=biases)
 
     def _gather_rewards(self) -> None:
-        """Gathers rewards from all agents."""
-        # Get the rewards.
         rewards = numpy.array([agent.reward for agent in self.agents])
 
         # Normalize rewards.
-        rewards = (rewards - rewards.mean()) / (rewards.std() + self.eps)
+        rewards_std = rewards.std()
+        if rewards_std > 0:
+            rewards = (rewards - rewards.mean()) / (rewards_std + self.eps)
 
         self.rewards = rewards
 
@@ -275,8 +274,6 @@ class ContinuousEvolutionStrategy(Optimizer):
             numpy.multiply(grad_b, (1 - self.momentum), out=grad_b)
             numpy.add(grad_w, self.momentum * (eps_w * (self.reward / self.sigma)), out=grad_w)
             numpy.add(grad_b, self.momentum * (eps_b * (self.reward / self.sigma)), out=grad_b)
-            # numpy.add(grad_w, self.momentum * (self.reward * eps_w) / self.sigma, out=grad_w)
-            # numpy.add(grad_b, self.momentum * (self.reward * eps_b) / self.sigma, out=grad_b)
 
     def _gradient_descent(self) -> None:
         """Performs gradient descent step."""
