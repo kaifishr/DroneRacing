@@ -40,7 +40,7 @@ class Trainer:
 
         cfg = self.config
 
-        num_max_steps = cfg.optimizer.num_max_steps  # max_episode_length
+        num_max_steps = cfg.optimizer.num_max_steps
         step = 0
         generation = 0
         best_reward = 0.0
@@ -77,14 +77,25 @@ class Trainer:
                 self.optimizer.step()
 
                 # Select fittest agent based on distance traveled.
-                results = self.env.comp_mean_reward()
+                results = self.env.get_results()
 
                 # Reset drones to start over again.
                 self.env.reset()
 
                 # Write stats to Tensorboard.
                 for result_name, result_value in results.items():
-                    self.writer.add_scalar(result_name, result_value, generation)
+                    if isinstance(result_value, float):
+                        self.writer.add_scalar(
+                            tag=result_name, 
+                            scalar_value=result_value, 
+                            global_step=generation,
+                        )
+                    elif isinstance(result_value, list):
+                        self.writer.add_histogram(
+                            tag=result_name, 
+                            values=result_value, 
+                            global_step=generation,
+                        )
                 self.writer.add_scalar("seconds_episode", time.time() - time_start, generation)
 
                 # Save model

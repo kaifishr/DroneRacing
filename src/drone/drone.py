@@ -152,7 +152,7 @@ class Drone(Agent):
             self.distance_to_target = distance
             self.reward += reward
 
-    def fetch_data(self):
+    def fetch_data(self) -> None:
         """Fetches data from drone for neural network."""
 
         if self.body.active:
@@ -245,22 +245,18 @@ class Drone(Agent):
         if body.active:
             f_left, f_right, f_up, f_down = forces
 
-            # Left
             f = body.GetWorldVector(localVector=b2Vec2(f_left, 0.0))
             p = body.GetWorldPoint(localPoint=b2Vec2(-0.5 * self.diam, 0.0))
             body.ApplyForce(f, p, True)
 
-            # Right
             f = body.GetWorldVector(localVector=b2Vec2(-f_right, 0.0))
             p = body.GetWorldPoint(localPoint=b2Vec2(0.5 * self.diam, 0.0))
             body.ApplyForce(f, p, True)
 
-            # Up
             f = body.GetWorldVector(localVector=b2Vec2(0.0, -f_up))
             p = body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))
             body.ApplyForce(f, p, True)
 
-            # Down
             f = body.GetWorldVector(localVector=b2Vec2(0.0, f_down))
             p = body.GetWorldPoint(localPoint=b2Vec2(0.0, 0.5 * self.diam))
             body.ApplyForce(f, p, True)

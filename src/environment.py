@@ -154,13 +154,15 @@ class Environment(Framework):
                 return False
         return True
 
-    def comp_mean_reward(self) -> dict[str, float]:
+    def get_results(self) -> dict[str, float]:
         results = {}
         rewards = numpy.array([agent.reward for agent in self.drones])
+        results["rewards"] = rewards.tolist()
         results["min_reward"] = rewards.min()
         results["max_reward"] = rewards.max()
         results["mean_reward"] = rewards.mean()
         distances = numpy.array([agent.distance_to_target for agent in self.drones])
+        results["distance"] = distances.tolist()
         results["min_distance"] = distances.min()
         results["max_distance"] = distances.max()
         results["mean_distance"] = distances.mean()
